@@ -20,13 +20,13 @@ Gem::Specification.new do |s|
   # No tests yet
   #s.add_development_dependency "rspec"
 
-  s.add_development_dependency "rubyzip"
-  s.add_development_dependency "sass"
-  s.add_development_dependency "nokogiri"
-  s.add_development_dependency "sanitize"
-  s.add_development_dependency "fastimage"
-  s.add_development_dependency "yui-compressor"
-  s.add_development_dependency "html_compressor"
+  s.add_dependency "rubyzip"
+  s.add_dependency "sass"
+  s.add_dependency "nokogiri"
+  s.add_dependency "sanitize"
+  s.add_dependency "fastimage"
+  s.add_dependency "yui-compressor"
+  s.add_dependency "html_compressor"
  
   s.files        = Dir.glob("{bin,lib}/**/*") + %w(README.md)
   s.executables  = ['epub']
