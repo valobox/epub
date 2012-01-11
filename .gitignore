@@ -1,0 +1,4 @@
+tmp
+examples
+examples/_*
+Gemfile.lock

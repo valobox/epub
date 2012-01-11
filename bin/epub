@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+require 'epub'
+require 'optparse'
+
+ARGV.options do |opt|
+  opt.banner = "Usage: #$0 [options]"
+  opt.on("--version", "-v", "Version number") do
+    puts "v%s" % Epub::VERSION
+    exit
+  end
+
+  # Parse the command line args
+  opt.parse!
+end
+
+trap("INT") {
+  puts; # Here to stop ^C appearing on the same line.
+  exit
+}
