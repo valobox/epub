@@ -76,14 +76,14 @@ module Epub
           end
 
           # Get the references epub item
-          file = get_item(src)
+          file = get_item(src.to_s)
 
           # Position for sorting
           position = 0
-          if node.attributes['playOrder']
-            # FIX: Why-oh-why does `to_s -> to_i` work and not just to_i??
-            position = node.attributes['playOrder'].try(:to_s).try(:to_i)
-          end
+          play_order = node.attributes['playOrder']
+          
+          # FIX: Why-oh-why does `to_s -> to_i` work and not just to_i??
+          position = play_order.to_s.to_i if play_order
 
           # Get the filepath
           filepath = nil
@@ -95,7 +95,7 @@ module Epub
 
           raise "Error" if !filepath
 
-          filepath = URI(filepath).fragment
+          filepath = URI(filepath)
 
           # Add back in the anchor
           if src.fragment
