@@ -1,3 +1,4 @@
 tmp
 examples/epubs/_*
 Gemfile.lock
+*.gem

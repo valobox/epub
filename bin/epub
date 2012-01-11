@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
-require 'epub'
+require 'rubygems'
 require 'optparse'
+
+begin
+  require 'epub'
+rescue LoadError
+  $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+  require 'epub'
+end
 
 ARGV.options do |opt|
   opt.banner = "Usage: #$0 [options]"
