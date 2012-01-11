@@ -2,7 +2,7 @@
 
 Library to access and modify the contents of an Epub
 
-![logo](logo.png)
+![logo](https://github.com/completelynovel/epub/raw/master/logo.png)
 
 
 ## Usage
@@ -106,7 +106,7 @@ Passing `:normalize => true` will returned the flattened urls if its not already
 
 ### Modifing files
 
-When ever you have instance to an `Epub::Item` you can edit that file in place, for example to modify the first item in the epub
+When ever you have an instance of a `Epub::Item` you can edit that file in place, for example to modify the first item in the epub
 
     # Get the first html item
     item = epub.spine.items.first
