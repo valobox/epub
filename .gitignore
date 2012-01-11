@@ -1,4 +1,3 @@
 tmp
-examples
-examples/_*
+examples/epubs/_*
 Gemfile.lock
