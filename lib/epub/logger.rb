@@ -1,10 +1,8 @@
 module Epub
-  VERBOSE = false
-
   # Just a simple logger for debugging
   module Logger
     def log(str)
-      if VERBOSE
+      if $VERBOSE || ENV['LIB_VERBOSE']
         puts str
       end
     end

@@ -25,7 +25,7 @@ An epub is defined into the following parts, the accessor methods are as named b
 
 ### Accessing content
 
-The following describes how to access the content
+The following describes how to access the content, example code for the below is [here](https://github.com/completelynovel/epub/tree/master/examples)
 
 
 #### Metadata
@@ -183,7 +183,16 @@ Calling `compress!` will minify all the *css* and *html* items in the epub and c
 
 
 
-## Epub overview
+## Development
+
+To get extra logging either run with `ruby -v` which will be very verbose, or if you want just the library log lines run with `LIB_VERBOSE=true`. For example to run the [example scripts](https://github.com/completelynovel/epub/tree/master/examples) with verbose logging do either of the following
+
+    ruby -v normalize.rb
+    LIB_VERBOSE=true ruby normalize.rb
+
+
+
+## Epub overview (TODO)
 
 An Epub is simply a zip file which has been with the `.epub` extension. Lets take a look at the [example.epub](TODO)
 
@@ -213,4 +222,4 @@ You should now have the following file structure
         |-- content.opf (spec http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm)
 
 
-More to come...
+Explain further...

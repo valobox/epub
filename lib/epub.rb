@@ -5,6 +5,7 @@ require 'chronic'
 require 'sanitize'
 require 'fastimage'
 require 'uri'
+require 'cgi'
 
 # Epub
 require 'epub/version'
@@ -21,7 +22,6 @@ require 'epub/item/html'
 require 'epub/item/css'
 require 'epub/item/image'
 require 'epub/item/toc'
-require 'cgi'
 
 
 module Epub
