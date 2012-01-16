@@ -12,7 +12,7 @@ FileUtils.cp orig_filepath, temp_filepath
 Epub::File.extract(temp_filepath) do |epub|
   epub.manifest.items.each do |item|
     puts "Writing '<h1>Hello</h1>' to #{item}"
-    puts item.write("<h1>Hello</h1>")
+    item.write("<h1>Hello</h1>")
   end
 end
 
