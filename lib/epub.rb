@@ -5,6 +5,8 @@ require 'sanitize'
 require 'fastimage'
 require 'uri'
 require 'cgi'
+require 'pathname'
+require 'tmpdir'
 
 # Epub
 require 'epub/version'
@@ -16,6 +18,7 @@ require 'epub/metadata'
 require 'epub/guide'
 require 'epub/font'
 require 'epub/zip_file'
+require 'epub/file_system'
 require 'epub/item'
 require 'epub/item/html'
 require 'epub/item/css'
@@ -33,9 +36,27 @@ module Epub
 
     attr_accessor :file
 
-    def initialize(filepath)
-      @filepath = filepath
-      @file     = ZipFile.new(@filepath)
+    def initialize(path)
+      if ::File.file?(path)
+        @file = ZipFile.new(path)
+      else
+        @file = FileSystem.new(path)
+      end
+    end
+
+
+    def self.extract(filepath, extract_path=nil)
+      if block_given?
+        Dir.mktmpdir do |outdir|
+          ZipFile.unzip(filepath, outdir)
+          yield Epub::File.new(outdir)
+          ZipFile.zip(outdir, filepath)
+        end
+      elsif extract_path
+        ZipFile.unzip(filepath, extract_path)
+      else
+        raise "Incorrect arguments given"
+      end
     end
 
     # Flattens the directory structure, for example this:
@@ -187,7 +208,7 @@ module Epub
 
 
     def opf_xml
-      @file.read_xml(opf_path, 'xmlns')
+      @file.read_xml(opf_path)
     end
 
 

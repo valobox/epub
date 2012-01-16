@@ -7,6 +7,32 @@ module Epub
     end
 
 
+    def self.unzip(zip_filepath, dirpath)
+      Zip::ZipFile.open(zip_filepath) do |zf|
+        zf.each do |e| 
+           fpath = ::File.join(dirpath, e.name)
+           log "unziping #{e.name} to #{fpath}"
+           FileUtils.mkdir_p ::File.dirname(fpath)
+           zf.extract(e, fpath)
+        end
+      end
+    end
+
+
+    def self.zip(dirpath, zip_filepath)
+      Zip::ZipFile::open(zip_filepath, true) do |zf|
+        Dir["#{dirpath}/**/*"].each do |f|
+          pn_f       = Pathname.new(f)
+          pn_dirpath = Pathname.new(dirpath)
+          rel_path   = pn_f.relative_path_from(pn_dirpath)
+
+          log "#{f} to #{rel_path}"
+          zf.add(rel_path, f)
+        end
+      end
+    end
+
+
     def open(filepath)
       zip_open do |zip|
         zip.file.open(filepath, "r") do |file|
@@ -102,7 +128,7 @@ module Epub
 
     # TODO: Should this be in here???
     # Read an xml file from the epub and parses with Nokogiri
-    def read_xml(filepath, namespace=nil)
+    def read_xml(filepath)
       data = read(filepath)
       Nokogiri::XML data
     end

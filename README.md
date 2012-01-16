@@ -182,6 +182,20 @@ Will be normalized into the following format, note the file names get renamed to
 Calling `compress!` will minify all the *css* and *html* items in the epub and compress the images (**IMAGES NOT YET WORKING**). Note the image compression does not reduce quality
 
 
+## Extracting
+
+If you want to extract an epub, for instance to serve the content up via a web interface you can to the following
+
+    Epub::File.extract('example.epub', '/some/directory/path')
+
+
+You can also pass a block which will re-zip the epub when the block exits. The block gets passed a <#Epub::File> instance as an argument
+
+    Epub::File.extract('example.epub') do |epub| 
+        # Do some epub processing here...
+    end
+
+
 
 ## Development
 
