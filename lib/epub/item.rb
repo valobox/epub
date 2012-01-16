@@ -102,6 +102,10 @@ module Epub
       end
     end
 
+    def extract(extract_path)
+      @epub.file.extract(abs_filepath, extract_path)
+    end
+
 
     ###
     # Overidden methods

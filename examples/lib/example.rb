@@ -15,7 +15,7 @@ class Example
 
     epub = Epub::File.new(temp_filepath)
 
-    yield(epub)
+    yield(epub, temp_filepath)
 
     puts "Output EPUB: #{temp_filepath}"
   end

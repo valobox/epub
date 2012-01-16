@@ -94,6 +94,15 @@ module Epub
     end
 
 
+    # Extract a epub file to a location on the file system
+    #   * filepath    - epub filepath
+    #   * extract_dir - directory to extract to
+    def extract(filepath, extract_dir)
+      FileUtils.mkdir(extract_path)
+      FileUtils.cp abs_filepath(filepath), extract_path
+    end
+
+
     private
 
       def abs_filepath(filepath)

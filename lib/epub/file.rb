@@ -9,13 +9,22 @@ module Epub
     attr_accessor :file
 
     def initialize(path)
-      if ::File.file?(path)
+      @path = path
+
+      if type == :zip
         @file = ZipFile.new(path)
       else
         @file = FileSystem.new(path)
       end
     end
 
+    def type
+      if ::File.file?(@path)
+        return :zip
+      else
+        return :filesystem
+      end
+    end
 
     def self.extract(filepath, extract_path=nil)
       if block_given?

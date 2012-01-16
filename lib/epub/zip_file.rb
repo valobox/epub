@@ -134,6 +134,23 @@ module Epub
     end
 
 
+    # Extract a epub file to a location on the file system
+    #   * filepath    - epub filepath
+    #   * extract_dir - directory to extract to
+    def extract(filepath, extract_dir)
+      zip_open do |zip|
+        # Make sure the dir exists
+        FileUtils.mkdir_p ::File.dirname(extract_path)
+
+        fname = ::File.basename(filepath)
+        fpath = ::File.join(extract_path, fname)
+
+        # Extract!
+        zip.extract(filepath, fpath)
+      end
+    end
+
+
     private
 
       def zip_open
