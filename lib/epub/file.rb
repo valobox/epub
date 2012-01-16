@@ -21,7 +21,7 @@ module Epub
       if block_given?
         Dir.mktmpdir do |outdir|
           ZipFile.unzip(filepath, outdir)
-          yield Epub::File.new(outdir)
+          yield Epub::File.new(outdir), outdir
           ZipFile.zip(outdir, filepath)
         end
       elsif extract_path

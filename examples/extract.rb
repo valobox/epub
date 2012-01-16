@@ -9,7 +9,8 @@ temp_filepath = "epubs/_extract.example.epub"
 
 FileUtils.cp orig_filepath, temp_filepath
 
-Epub::File.extract(temp_filepath) do |epub|
+Epub::File.extract(temp_filepath) do |epub, path|
+  puts "temp extracted filepath '#{path}'"
   epub.manifest.items.each do |item|
     puts "Writing '<h1>Hello</h1>' to #{item}"
     item.write("<h1>Hello</h1>")
