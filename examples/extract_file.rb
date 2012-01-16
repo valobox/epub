@@ -3,6 +3,9 @@ require './lib/example'
 EXTRACT_DIR_ZIP = "epubs/extracted_zip"
 EXTRACT_DIR_FS = "epubs/extracted_fs"
 
+FileUtils.rm Dir["#{EXTRACT_DIR_ZIP}/*"]
+FileUtils.rm Dir["#{EXTRACT_DIR_FS}/*"]
+
 Example.setup("extract_file") do |epub, filepath|
   begin
     FileUtils.mkdir EXTRACT_DIR_ZIP

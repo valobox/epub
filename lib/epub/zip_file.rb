@@ -140,10 +140,12 @@ module Epub
     def extract(filepath, extract_dir)
       zip_open do |zip|
         # Make sure the dir exists
-        FileUtils.mkdir_p ::File.dirname(extract_path)
+        FileUtils.mkdir_p ::File.dirname(extract_dir)
 
         fname = ::File.basename(filepath)
-        fpath = ::File.join(extract_path, fname)
+        fpath = ::File.join(extract_dir, fname)
+
+        raise "File already exists" if ::File.exists?(fpath)
 
         # Extract!
         zip.extract(filepath, fpath)

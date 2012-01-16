@@ -98,8 +98,20 @@ module Epub
     #   * filepath    - epub filepath
     #   * extract_dir - directory to extract to
     def extract(filepath, extract_dir)
-      FileUtils.mkdir(extract_path)
-      FileUtils.cp abs_filepath(filepath), extract_path
+      if ::File.file?(extract_dir)
+        raise "Output directory is a file"
+      elsif ::File.directory?(extract_dir)
+        # Do nothing
+      else
+        FileUtils.mkdir(extract_dir)
+      end
+
+      fname = ::File.basename(filepath)
+      fpath = ::File.join(extract_dir, fname)
+
+      raise "File already exists" if ::File.exists?(fpath)
+
+      FileUtils.cp abs_filepath(filepath), fpath
     end
 
 
