@@ -64,8 +64,8 @@ module Epub
 
 
     def each(force_type=nil)
-      Dir["#{@basepath}/**/*"].each do |f|
-        type = entry.file? ? :file : :directory
+      Dir["#{@basepath}/**/*"].each do |entry|
+        type = ::File.file?(entry) ? :file : :directory
 
         case force_type
         when :file

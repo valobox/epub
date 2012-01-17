@@ -135,7 +135,14 @@ module Epub
             'src'
           end
 
-          src = URI(node.attributes[attr_name].to_s)
+          orig_href = node.attributes[attr_name].to_s
+
+          begin
+            src = URI(orig_href)
+          rescue
+            log "#{orig_href} not a valid URI"
+            next
+          end
 
           if internal_link?(src.to_s)
             # Change internal links
