@@ -29,7 +29,7 @@ module Epub
     def write(filepath, data=nil)
       path = abs_filepath(filepath)
 
-      ::File.open(path, "w") do |file|
+      ::File.open(path, "r+") do |file|
         if block_given?
           yield(file)
         else
@@ -48,6 +48,11 @@ module Epub
     def mv(old_fn,new_fn)
       old_fn = abs_filepath(old_fn)
       new_fn = abs_filepath(new_fn)
+
+      if old_fn == new_fn
+        # Do nothing the files are the same
+        return
+      end
 
       log "mv #{old_fn} #{new_fn}"
       FileUtils.mv(old_fn, new_fn)
@@ -73,7 +78,7 @@ module Epub
     # TODO: Add omit option here
     def clean_empty_dirs!
       Dir["#{@basepath}/**/*"].each do |f|
-        if f.directory? && Dir(f).entries < 1
+        if ::File.directory?(f) && Dir[f].entries.size < 1
           FileUtils.rm(f)
         end
       end
