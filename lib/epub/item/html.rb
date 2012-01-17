@@ -2,6 +2,8 @@ require 'html_compressor'
 
 module Epub
   class HTML < Item
+    include Logger
+
     STYLESHEET_XPATH = "//link[@rel='stylesheet']"
 
     def initialize(filepath, epub) 
@@ -148,7 +150,7 @@ module Epub
 
               node[attr_name] = new_path.to_s
             else
-              raise "No item in manifest for #{src}"
+              log "No item in manifest for #{src}"
             end
           end
         end

@@ -54,6 +54,10 @@ module Epub
         return
       end
 
+      # Make sure the target path exists
+      dirname = ::File.dirname(new_fn)
+      FileUtils.mkdir(dirname) if !::File.exists?(dirname)
+
       log "mv #{old_fn} #{new_fn}"
       FileUtils.mv(old_fn, new_fn)
     end
