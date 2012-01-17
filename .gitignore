@@ -3,3 +3,4 @@ examples/epubs/_*
 Gemfile.lock
 *.gem
 examples/epubs/extracted_*
+.yardoc

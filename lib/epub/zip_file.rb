@@ -33,6 +33,10 @@ module Epub
     end
 
 
+    # Open a file in the Epub
+    #
+    # @param [String] filepath in the Epub
+    # @yield [Zip::ZipFileSystem::ZipFsFile] file system zip file
     def open(filepath)
       zip_open do |zip|
         zip.file.open(filepath, "r") do |file|
@@ -42,6 +46,9 @@ module Epub
     end
 
 
+    # Make a directory in the epub
+    #
+    # @param [String] path of the new directory
     def mkdir(path)
       zip_open do |zip|
         begin
@@ -49,9 +56,14 @@ module Epub
         rescue
         end
       end
+      nil
     end
 
 
+    # Write data to a filepath
+    #
+    # @param [String] filepath
+    # @param [String] data to write to the file
     def write(filepath, data=nil)
       zip_open do |zip|
         zip.get_output_stream(filepath) do |file|
@@ -62,9 +74,13 @@ module Epub
           end
         end
       end
+      nil
     end
 
 
+    # Removes a file from the epub
+    #
+    # @param [String] filepath
     def rm(filepath)
       zip_open do |zip|
         zip.remove(filepath)
@@ -72,32 +88,42 @@ module Epub
     end
 
 
-    def mv(old_fn,new_fn)
-      log "mv #{old_fn} #{new_fn}"
-      data = read(old_fn)
+    # Moves files in the Epub
+    #
+    # @param [String] current filepath
+    # @param [String] new filepath
+    def mv(current_filepath, new_filepath)
+      log "mv #{current_filepath} #{new_filepath}"
+      data = read(current_filepath)
 
-      rm(old_fn)
-      write(new_fn, data)
+      rm(current_filepath)
+      write(new_filepath, data)
+      nil
     end
 
 
-    def each(force_type=nil)
+    # Iterates over each file in the Epub
+    #
+    # @param [Symbol] type of entry to return, can be `:file` or `:directory`. 
+    #                 A nil value will return both
+    def each(type=nil)
       Zip::ZipFile.foreach(@filepath) do |entry|
-        type = entry.file? ? :file : :directory
+        file_type = entry.file? ? :file : :directory
 
-        case force_type
+        case type
         when :file
-          yield(entry) if type == :file
+          yield(entry) if file_type == :file
         when :directory
-          yield(entry) if type == :directory
+          yield(entry) if file_type == :directory
         else
           yield(entry)
         end
       end
+      nil
     end
 
 
-    # TODO: Add omit option here
+    # Removes any empty directorys in the epub
     def clean_empty_dirs!
       Zip::ZipFile.foreach(@filepath) do |entry|
         if entry.directory?
@@ -113,10 +139,15 @@ module Epub
           end
         end
       end
+      nil
     end
 
 
+    # 
     # Read a file from the epub
+    #
+    # @param [String] filepath to a file in the epub zip
+    # @return [Nokogiri::XML]
     def read(filepath)
       data = nil
       open(filepath) do |file|
@@ -126,18 +157,21 @@ module Epub
     end
 
 
-    # TODO: Should this be in here???
     # Read an xml file from the epub and parses with Nokogiri
+    #
+    # @param [String] filepath to an xml document in the epub zip
+    # @return [Nokogiri::XML]
     def read_xml(filepath)
       data = read(filepath)
       Nokogiri::XML data
     end
 
 
-    # Extract a epub file to a location on the file system
-    #   * filepath    - epub filepath
-    #   * extract_dir - directory to extract to
-    def extract(filepath, extract_dir)
+    # Extract a epub file to a location on the file system.
+    #
+    # @param [String] filepath to an Epub
+    # @param [String] extract_filepath of a directory to extract to
+    def extract(filepath, extract_filepath)
       zip_open do |zip|
         # Make sure the dir exists
         FileUtils.mkdir_p ::File.dirname(extract_dir)
@@ -150,11 +184,15 @@ module Epub
         # Extract!
         zip.extract(filepath, fpath)
       end
+      nil
     end
 
 
     private
 
+      # Opens the zip file
+      #
+      # @yield [Zip::ZipFile] zip file
       def zip_open
         Zip::ZipFile.open(@filepath) do |zip|
           yield(zip)

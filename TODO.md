@@ -7,4 +7,6 @@
  * Add in more logging via the logger
  * Write specs!
  * Check we're escaping (`CGI::unescape`) where we should be
- * Write RDoc
+ * Write docs
+   * <http://rdoc.rubyforge.org/RDoc/Markup.html>
+   * <http://yardoc.org/>

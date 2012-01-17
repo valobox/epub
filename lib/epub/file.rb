@@ -18,14 +18,6 @@ module Epub
       end
     end
 
-    def type
-      if ::File.file?(@path)
-        return :zip
-      else
-        return :filesystem
-      end
-    end
-
     def self.extract(filepath, extract_path=nil)
       if block_given?
         Dir.mktmpdir do |outdir|
@@ -42,46 +34,45 @@ module Epub
 
     # Flattens the directory structure, for example this:
     #
-    #    /
-    #    |-- META-INF
-    #    |   `-- container.xml
-    #    |-- mimetype
-    #    `-- OEBPS
-    #        |-- random_dir1
-    #            |-- chA.css
-    #            |-- ch01.html
-    #            |-- ch02.html
-    #            |-- image.jpg
-    #        |-- random_dir2
-    #            |-- chB.css
-    #            |-- ch03.html
-    #            |-- ch04.html
-    #            |-- image.jpg
-    #        |-- toc.ncx
-    #        |-- content.opf
-    #
+    #  /
+    #  |-- META-INF
+    #  |   `-- container.xml
+    #  |-- mimetype
+    #  `-- OEBPS
+    #      |-- random_dir1
+    #          |-- chA.css
+    #          |-- ch01.html
+    #          |-- ch02.html
+    #          |-- image.jpg
+    #      |-- random_dir2
+    #          |-- chB.css
+    #          |-- ch03.html
+    #          |-- ch04.html
+    #          |-- image.jpg
+    #      |-- toc.ncx
+    #      |-- content.opf
     #
     # Becomes:
     #
-    #    /
-    #    |-- META-INF
-    #    |   `-- container.xml
-    #    |-- mimetype
-    #    `-- OEBPS
-    #        |-- content.opf
-    #        |-- content
-    #            |-- 899ee1.css  (was chA.css)
-    #            |-- f54ff6.css  (was chB.css)
-    #            |-- c4b944.html (was ch01.html)
-    #            |-- 4e895b.html (was ch02.html)
-    #            |-- 89332e.html (was ch03.html)
-    #            |-- c50b75.html (was ch04.html)
-    #            |-- toc.ncx
-    #            |-- assets
-    #                |-- 5a17aa.jpg (was image.jpg)
-    #                |-- b50b4b.jpg (was image.jpg)
+    #  /
+    #  |-- META-INF
+    #  |   `-- container.xml
+    #  |-- mimetype
+    #  `-- OEBPS
+    #      |-- content.opf
+    #      |-- content
+    #          |-- 899ee1.css  (was chA.css)
+    #          |-- f54ff6.css  (was chB.css)
+    #          |-- c4b944.html (was ch01.html)
+    #          |-- 4e895b.html (was ch02.html)
+    #          |-- 89332e.html (was ch03.html)
+    #          |-- c50b75.html (was ch04.html)
+    #          |-- toc.ncx
+    #          |-- assets
+    #              |-- 5a17aa.jpg (was image.jpg)
+    #              |-- b50b4b.jpg (was image.jpg)
     #
-    # Note the filenames above are a md5 hash of there original location
+    # *NOTE:* the filenames above are a md5 hash of there original location
     #
     def normalize!
       # Prep
@@ -200,6 +191,17 @@ module Epub
       end
       ret
     end
+
+
+    private
+
+      def type
+        if ::File.file?(@path)
+          return :zip
+        else
+          return :filesystem
+        end
+      end
 
   end
 end

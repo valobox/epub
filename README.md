@@ -237,3 +237,12 @@ You should now have the following file structure
 
 
 Explain further...
+
+
+
+## Further documentation
+
+Yardoc is used for the documentation, you can start a server and see the docs by running the following command.
+
+    yard server --reload
+
