@@ -16,6 +16,8 @@ module Epub
       else
         @file = FileSystem.new(path)
       end
+
+      @opf_xml = @file.read_xml(opf_path)
     end
 
     def self.extract(filepath, extract_path=nil)
@@ -152,6 +154,8 @@ module Epub
         
         data = doc.to_s
         f.puts data
+
+        @opf_xml = doc
       end
     end
 
@@ -180,7 +184,7 @@ module Epub
 
 
     def opf_xml
-      @file.read_xml(opf_path)
+      @opf_xml
     end
 
 

@@ -60,6 +60,7 @@ module Epub
 
       log "mv #{old_fn} #{new_fn}"
       FileUtils.mv(old_fn, new_fn)
+      nil
     end
 
 
@@ -82,8 +83,9 @@ module Epub
     # TODO: Add omit option here
     def clean_empty_dirs!
       Dir["#{@basepath}/**/*"].each do |f|
-        if ::File.directory?(f) && Dir[f].entries.size < 1
-          FileUtils.rm(f)
+        if ::File.directory?(f) && Dir.entries(f).size < 3 # 3 because of ['.', '..']
+          log "Removing empty directory #{f}"
+          FileUtils.rmdir(f)
         end
       end
     end

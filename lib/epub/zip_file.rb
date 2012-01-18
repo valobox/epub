@@ -20,15 +20,28 @@ module Epub
 
 
     def self.zip(dirpath, zip_filepath)
-      Zip::ZipFile::open(zip_filepath, true) do |zf|
-        Dir["#{dirpath}/**/*"].each do |f|
-          pn_f       = Pathname.new(f)
-          pn_dirpath = Pathname.new(dirpath)
-          rel_path   = pn_f.relative_path_from(pn_dirpath)
+      zip_filepath_bak = "#{zip_filepath}_bak"
+      # Backup the old file
+      FileUtils.mv(zip_filepath, zip_filepath_bak)
 
-          log "#{f} to #{rel_path}"
-          zf.add(rel_path, f)
+      begin
+        # Create the new zip
+        Zip::ZipFile::open(zip_filepath, true) do |zf|
+          Dir["#{dirpath}/**/*"].each do |f|
+            pn_f       = Pathname.new(f)
+            pn_dirpath = Pathname.new(dirpath)
+            rel_path   = pn_f.relative_path_from(pn_dirpath)
+
+            log "#{f} to #{rel_path}"
+            zf.add(rel_path, f)
+          end
         end
+
+        # Remove the backup
+        FileUtils.rm(zip_filepath_bak)
+      rescue
+        FileUtils.mv(zip_filepath_bak, zip_filepath)
+        raise "Failed to create zip"
       end
     end
 

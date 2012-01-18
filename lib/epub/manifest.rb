@@ -31,11 +31,11 @@ module Epub
 
       # Flatten manifest
       items do |item,node|
-        # Renames based on asbsolute path from base
-        node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
-
         # Move the file to flattened location
         @epub.file.mv item.abs_filepath, item.normalized_hashed_path
+
+        # Renames based on asbsolute path from base
+        node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
       end
 
       @epub.save_opf!(@xmldoc, OPF_XPATH)
