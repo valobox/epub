@@ -4,8 +4,6 @@ module Epub
   class Item
     attr_reader :type
 
-    STYLESHEET_PREFIX = "epub"
-
     # Initialize with a manifest id
     #
     #     Item.new(epub, {

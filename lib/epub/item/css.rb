@@ -19,15 +19,6 @@ module Epub
 
       sass = css_to_sass(data)
 
-      # Indent all lines with two spaces
-      sass = sass.gsub(/\n/, "\n  ")
-
-      # Get stylesheet name
-      stylesheet_name = "#{STYLESHEET_PREFIX}-#{hash}"
-
-      # Add wrapper
-      sass = ".#{stylesheet_name}\n  " + sass
-
       # Resolve the images in the sass to there new location
       new_sass = ""
 
@@ -82,9 +73,6 @@ module Epub
 
       sass = new_sass
 
-      # Replace body css rule and add it to the above rule using the sass '&'
-      sass = sass.gsub("  body\n", "  &\n")
-
       sass = convert_fonts(sass)
 
       # Parse SASS
@@ -115,6 +103,9 @@ module Epub
         Tempfile.open("css_to_sass") do |file|
           # Write the css
           file.write css_data
+
+          # Rewind back to the start
+          file.rewind
 
           # Use the std sass command line to convert a CSS file to SASS
           command = "sass-convert #{file.path}"

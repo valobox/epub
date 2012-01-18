@@ -207,7 +207,7 @@ module Epub
       #
       # @yield [Zip::ZipFile] zip file
       def zip_open
-        Zip::ZipFile.open(@filepath) do |zip|
+        Zip::ZipFile.open(@filepath, true) do |zip|
           yield(zip)
         end
       end

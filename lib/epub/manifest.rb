@@ -114,6 +114,18 @@ module Epub
     end
 
 
+    # TODO
+    # def add(id, content)
+    #   item = Nokogiri::XML::Node.new "item", @xmldoc.first
+    #   item['id']         = id
+    #   item['href']       = "bla.html"
+    #   item['media-type'] = "text/css"
+    # 
+    #   @xmldoc.first.add_child(item)
+    #   puts @xmldoc
+    # end
+
+
     def path_from_id(key)
       xpath = OPF_ITEM_XPATH % key
       nodes = @xmldoc.xpath(xpath)

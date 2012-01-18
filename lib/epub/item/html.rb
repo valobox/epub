@@ -80,46 +80,6 @@ module Epub
       end
 
 
-      def add_base_stylesheet(html)
-        # TODO: Add the base css here instead
-        @epub.manifest.css.each do |css|
-          # Add <link rel="stylesheet" href="css/book.css" type="text/css">
-          css_link = Nokogiri::XML::Node.new "link", html
-          css_link['rel']  = "stylesheet"
-          css_link['href'] = css.normalized_hashed_path(:relative_to => self)
-          css_link['type'] = "text/css"
-
-          html.css("head").children.last.add_next_sibling(css_link)
-        end
-      end
-
-      # Indent by stylesheet and remove all linked stylesheets
-      # TODO: This should also extract inline <style></style>
-      def indent_by_stylesheet_class(html)
-        stylesheets = html.xpath(STYLESHEET_XPATH)
-        if stylesheets.size
-
-          css_classes = []
-          css_str = stylesheets.each do |l|
-            href = l[:href]
-            href = Pathname.new(href).cleanpath.to_s
-
-            # Get the epub item
-            item = get_item(href)
-
-            raise "Missing item" if !item
-
-            css_classes << "#{STYLESHEET_PREFIX}-#{item.hash}"
-          end
-
-          css_class_str = css_classes.join(" ")
-
-          body = html.search('body').first
-          body_class = body.attributes['class']
-          body['class'] = "#{body_class} #{css_class_str}"
-        end
-      end
-
       def remove_scripts(html)
         html.css('script').each do |node|
           node.remove
@@ -134,6 +94,8 @@ module Epub
             'href'
           when 'img'
             'src'
+          when 'link'
+            'href'
           end
 
           orig_href = node.attributes[attr_name].to_s
@@ -146,16 +108,25 @@ module Epub
           end
 
           if internal_link?(src.to_s)
-            # Change internal links
-            item = get_item(src.to_s)
-            if item
-              new_path = item.normalized_hashed_path(:relative_to => self)
+            linked_item = nil
+
+            if src.path == ""
+              # If its just an anchor like '#this' just set to the current file
+              linked_item = self
+            else
+              linked_item = self
+            end
+
+            # Change link
+            if linked_item
+              new_path = linked_item.normalized_hashed_path(:relative_to => self)
               new_path = URI(new_path)
 
               if src.fragment
                 new_path.fragment = src.fragment
               end
 
+              log "Changing #{src.to_s} to #{new_path.to_s}"
               node[attr_name] = new_path.to_s
             else
               log "No item in manifest for #{src}"

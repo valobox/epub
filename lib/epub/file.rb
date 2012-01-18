@@ -11,14 +11,20 @@ module Epub
     def initialize(path)
       @path = path
 
-      if type == :zip
+      case type
+      when :zip
         @file = ZipFile.new(path)
-      else
+      when :filesystem
         @file = FileSystem.new(path)
+      when :nofile
+        raise "File not valid"
+        @file = ZipFile.new(path)
+        build_skeleton
       end
 
       @opf_xml = @file.read_xml(opf_path)
     end
+
 
     def self.extract(filepath, extract_path=nil)
       if block_given?
@@ -32,6 +38,35 @@ module Epub
       else
         raise "Incorrect arguments given"
       end
+    end
+
+
+
+    def build_skeleton
+      @file.mkdir "META-INF"
+      @file.mkdir "OEBPS"
+
+      container_xml = <<END
+<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+    <rootfiles>
+        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+   </rootfiles>
+</container>
+END
+
+      content_opf = <<END
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    </metadata>
+    <manifest></manifest>
+    <spine toc="ncx"></spine>
+</package>
+END
+
+      @file.write("META-INF/container.xml", container_xml)
+      @file.write("OEBPS/content.opf", content_opf)
     end
 
     # Flattens the directory structure, for example this:
@@ -200,10 +235,12 @@ module Epub
     private
 
       def type
-        if ::File.file?(@path)
+        if ::File.directory?(@path)
+          return :filesystem
+        elsif ::File.file?(@path)
           return :zip
         else
-          return :filesystem
+          return :nofile
         end
       end
 

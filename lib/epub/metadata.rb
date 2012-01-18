@@ -68,7 +68,7 @@ module Epub
         # Node doesn't exist create it
         node = Nokogiri::XML::Node.new "dc:title", doc
         node.content = v
-        doc.css("*").last.add_previous_sibling(node)
+        doc.add_child(node)
       end
 
       @epub.save_opf!(doc, OPF_XPATH)
