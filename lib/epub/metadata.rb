@@ -40,34 +40,38 @@ module Epub
     }
 
 
-    def initialize(rootdoc, epub)
-      @rootdoc = rootdoc
-      @xmldoc  = rootdoc.xpath(OPF_XPATH, 'xmlns' => XML_NS['xmlns'])
-      @epub    = epub
+    def initialize(epub)
+      @epub = epub
+    end
+
+
+    def xmldoc
+      @epub.opf_xml.xpath(OPF_XPATH, 'xmlns' => XML_NS['xmlns']).first
     end
 
 
     # Setter
     def []=(k,v)
+      doc = xmldoc
       obj = XMLDEF[k]
 
       # Error if not a valid metadata entry
       raise "#{k} not valid" if !obj
       
       xpath = "//#{obj[:node]}"
-      node = @xmldoc.xpath(xpath, 'dc' => XML_NS['dc']).first
+      node = doc.xpath(xpath, 'dc' => XML_NS['dc']).first
 
       if node
         # Node exists so set it
         node.content = v
       else
         # Node doesn't exist create it
-        node = Nokogiri::XML::Node.new k.to_s, @rootdoc
+        node = Nokogiri::XML::Node.new "dc:title", doc
         node.content = v
-        @xmldoc.children.last.add_previous_sibling(node)
+        doc.css("*").last.add_previous_sibling(node)
       end
 
-      @epub.save_opf!(@xmldoc, OPF_XPATH)
+      @epub.save_opf!(doc, OPF_XPATH)
     end
 
 
@@ -77,7 +81,7 @@ module Epub
 
       # Get the content
       xpath = "//#{obj[:node]}"
-      v = @xmldoc.xpath(xpath, 'dc' => XML_NS['dc']).first
+      v = xmldoc.xpath(xpath, 'dc' => XML_NS['dc']).first
       v = v.content.to_s if v
 
       # Run throught the processor if there are any
