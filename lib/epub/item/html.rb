@@ -121,13 +121,14 @@ module Epub
       end
 
       def remove_scripts(html)
-        html.xpath('//script').each do |node|
+        html.css('script').each do |node|
           node.remove
         end
       end
 
       def change_hrefs(html)
-        html.xpath('//a | //img').each do |node|
+        html.css('a, img').each do |node|
+
           attr_name = case node.name
           when 'a'
             'href'
