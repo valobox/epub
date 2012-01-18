@@ -3,9 +3,13 @@ module Epub
     OPF_XPATH      = '//xmlns:spine'
     OPF_ITEM_XPATH = '//xmlns:itemref'
 
-    def initialize(rootdoc, epub)
-      @epub   = epub
-      @xmldoc = rootdoc.xpath(OPF_XPATH).first
+    def initialize(epub)
+      @epub = epub
+    end
+
+
+    def xmldoc
+      @epub.opf_xml.xpath(OPF_XPATH).first
     end
 
 
@@ -28,18 +32,18 @@ module Epub
 
 
     def to_s
-      @xmldoc.to_s
+      xmldoc.to_s
     end
 
     def toc_manifest_id
-      toc_manifest_id = @xmldoc.attributes['toc']
+      toc_manifest_id = xmldoc.attributes['toc']
       toc_manifest_id.to_s.strip
     end
 
     private
 
       def nodes
-        @xmldoc.xpath(OPF_ITEM_XPATH).each do |node|
+        xmldoc.xpath(OPF_ITEM_XPATH).each do |node|
           yield(node)
         end
       end

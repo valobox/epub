@@ -3,15 +3,20 @@ module Epub
     OPF_XPATH      = '//xmlns:guide'
     OPF_ITEM_XPATH = '//xmlns:reference'
 
-    def initialize(rootdoc, epub)
+    def initialize(epub)
       @epub   = epub
-      @xmldoc = rootdoc.xpath(OPF_XPATH)
+    end
+
+
+    def xmldoc
+      @epub.opf_xml.xpath(OPF_XPATH)
     end
 
 
     def normalize!
+      doc = xmldoc
       # TODO: Handle this better
-      return if @xmldoc.size < 1
+      return if doc.size < 1
 
       items do |node|
         href = CGI::unescape(node.attributes['href'].to_s)
@@ -20,18 +25,18 @@ module Epub
         node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
       end
 
-      @epub.save_opf!(@xmldoc, OPF_XPATH)
+      @epub.save_opf!(doc, OPF_XPATH)
     end
 
     def to_s
-      @xmldoc.to_s
+      xmldoc.to_s
     end
 
     private
 
       # Iterate over each item in the guide
       def items
-        @xmldoc.xpath(OPF_ITEM_XPATH).each do |item|
+        xmldoc.xpath(OPF_ITEM_XPATH).each do |item|
           yield(item)
         end
       end

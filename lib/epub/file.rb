@@ -107,19 +107,19 @@ module Epub
     # Part of the OPF
     ###
     def manifest
-      Manifest.new opf_xml, self
+      Manifest.new self
     end
 
     def metadata
-      Metadata.new opf_xml, self
+      Metadata.new self
     end
 
     def guide
-      Guide.new opf_xml, self
+      Guide.new self
     end
 
     def spine
-      Spine.new opf_xml, self
+      Spine.new self
     end
 
     def toc

@@ -12,7 +12,7 @@ module Epub
       'xmlns' => 'http://www.idpf.org/2007/opf'
     }
 
-    def initialize(rootdoc, epub)
+    def initialize(epub)
       @epub = epub
       reload_xmldoc
     end
