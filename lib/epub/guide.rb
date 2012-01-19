@@ -8,11 +8,9 @@ module Epub
     end
 
 
-    def xmldoc
-      @epub.opf_xml.xpath(OPF_XPATH)
-    end
-
-
+    # Normalizes the guide by flattening the file paths
+    # 
+    # @see Epub::File#normalize!
     def normalize!
       doc = xmldoc
       # TODO: Handle this better
@@ -32,7 +30,12 @@ module Epub
       xmldoc.to_s
     end
 
+
     private
+
+      def xmldoc
+        @epub.opf_xml.xpath(OPF_XPATH)
+      end
 
       # Iterate over each item in the guide
       def items

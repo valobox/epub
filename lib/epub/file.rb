@@ -2,12 +2,18 @@ module Epub
   class File
     include Logger
 
+    # @private
     XML_NS = {
       'xmlns' => 'http://www.idpf.org/2007/opf'
     }
 
+    # @private
     attr_accessor :file
 
+    # @param [String] path to an epub file, path can be either:
+    #   * Directory of an extracted Epub
+    #   * Epub file
+    #   * Non existing path, in which case a new file is created
     def initialize(path)
       @path = path
 
@@ -26,6 +32,13 @@ module Epub
     end
 
 
+    # @overload extract(filepath)
+    #   Unzips an Epub and Rezips it after the block exits
+    #   @param [String] path to the Epub
+    #   @yield [Epub::File, epub_filepath] 
+    # @overload extract(filepath, extract_path)
+    #   @param [String] path to the Epub
+    #   @param [String] directory path to extract to
     def self.extract(filepath, extract_path=nil)
       if block_given?
         Dir.mktmpdir do |outdir|
@@ -40,34 +53,6 @@ module Epub
       end
     end
 
-
-
-    def build_skeleton
-      @file.mkdir "META-INF"
-      @file.mkdir "OEBPS"
-
-      container_xml = <<END
-<?xml version="1.0"?>
-<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-    <rootfiles>
-        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
-   </rootfiles>
-</container>
-END
-
-      content_opf = <<END
-<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0">
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    </metadata>
-    <manifest></manifest>
-    <spine toc="ncx"></spine>
-</package>
-END
-
-      @file.write("META-INF/container.xml", container_xml)
-      @file.write("OEBPS/content.opf", content_opf)
-    end
 
     # Flattens the directory structure, for example this:
     #
@@ -130,7 +115,10 @@ END
       @file.clean_empty_dirs!
     end
 
-    # Compresses/minifies the epub, no params will produce compress the entire epub
+
+    # Compresses/minifies the epub
+    # @param [Array] filter of what to compress @see Epub::Manifest.items for
+    #                filter options
     def compress!(*filter)
       manifest.items(*filter).each do |item|
         item.compress!
@@ -138,38 +126,34 @@ END
     end
 
 
-    ###
-    # Part of the OPF
-    ###
+    # Epub manifest accessor
+    # @return [Epub::Manifest]
     def manifest
       Manifest.new self
     end
 
+    # Epub metadata accessor
+    # @return [Epub::Metadata]
     def metadata
       Metadata.new self
     end
 
+    # Epub guide accessor
+    # @return [Epub::Guide]
     def guide
       Guide.new self
     end
 
+    # Epub spine accessor
+    # @return [Epub::Spine]
     def spine
       Spine.new self
     end
 
+    # Epub toc accessor
+    # @return [Epub::Toc]
     def toc
       spine.toc
-    end
-
-
-    # Validates the epub and produces an error report
-    #   * Validates manifest contains everything referenced
-    #   * Validate css
-    #   * Validate html and all paths are relative
-    #   * Validate images are of the correct formats
-    def valid?
-      # TODO: Later improvement
-      log "TODO"
     end
 
 
@@ -234,6 +218,8 @@ END
 
     private
 
+      # Gets the type of the file passed to #new
+      # @return [Symbol] type of file either [:filesystem, :zip, :nofile]
       def type
         if ::File.directory?(@path)
           return :filesystem
@@ -243,6 +229,36 @@ END
           return :nofile
         end
       end
+
+
+    # Builds the skeleton Epub structure
+    def build_skeleton
+      @file.mkdir "META-INF"
+      @file.mkdir "OEBPS"
+
+      container_xml = <<END
+<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+    <rootfiles>
+        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+   </rootfiles>
+</container>
+END
+
+      content_opf = <<END
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    </metadata>
+    <manifest></manifest>
+    <spine toc="ncx"></spine>
+</package>
+END
+
+      @file.write("META-INF/container.xml", container_xml)
+      @file.write("OEBPS/content.opf",      content_opf)
+      nil
+    end
 
   end
 end

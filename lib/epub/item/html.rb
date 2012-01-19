@@ -13,25 +13,21 @@ module Epub
       @normalized_dir = "OEBPS"
     end
 
+
+    # Normalizes the html by flattening the file paths, also:
+    #  * Removes scripts
+    #  * Standardizes the DOM structure
+    # 
+    # @see Epub::File#normalize!
     def normalize!
       data = read
       html = Nokogiri::HTML.parse(data)
       html.encoding = 'utf-8'
 
-      # Normalize!
-      normalize(html)
-
-      # Remove the uneeded bits
+      # Process the @DOM
+      standardize_dom(html)
       remove_scripts(html)
-      remove_inline_stylesheets(html)
-      remove_linked_stylesheets(html)
-
-      # Flatten the urls
       change_hrefs(html)
-
-      # Stylesheets
-      #add_base_stylesheet(html)
-      #indent_by_stylesheet_class(html) 
 
       write(html.to_s)
     end
@@ -47,7 +43,7 @@ module Epub
     private
 
 
-      # Make sure it's in a normalized structure
+      # Makes sure the DOM is in the following normalized structure
       #
       #    <html>
       #      <head>
@@ -57,7 +53,9 @@ module Epub
       #        <!-- dom elements here -->
       #      </body>
       #    </html>
-      def normalize(html)
+      #
+      # @param [Nokogiri::XML] html document DOM
+      def standardize_dom(html)
         if !html.css("body")
           html.wrap("<body></body>")
         end
@@ -65,29 +63,26 @@ module Epub
         if !html.css("html")
           html.search(":not(head)").wrap("<html></html>")
         end 
+        nil
       end
 
 
-      def remove_linked_stylesheets(html)
-        # TODO: This should add it to the master stylesheet and indent appropriately
-        html.search(STYLESHEET_XPATH).remove
-      end
-
-
-      def remove_inline_stylesheets(html)
-        # TODO: This should add it to the master stylesheet and indent appropriately
-        html.search('style').remove
-      end
-
-
+      # Removes all script tags
+      #
+      # @param [Nokogiri::XML] html document DOM
       def remove_scripts(html)
         html.css('script').each do |node|
           node.remove
         end
+        nil
       end
 
+
+      # Rewrites all hrefs to their normalized form
+      #
+      # @param [Nokogiri::XML] html document DOM
       def change_hrefs(html)
-        html.css('a, img').each do |node|
+        html.css('a, img, link').each do |node|
 
           attr_name = case node.name
           when 'a'

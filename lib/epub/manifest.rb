@@ -22,7 +22,9 @@ module Epub
     end
     
 
-    # Flattens the epub
+    # Normalizes the manifest by flattening the file paths
+    # 
+    # @see Epub::File#normalize!
     def normalize!
       # Flatten epub items
       items(:image, :html, :css, :misc) do |item,node|
@@ -85,8 +87,12 @@ module Epub
     end
 
 
-    # Iterate over each item in the file, optional type specifier
-    def items(*types)
+    # Return items in the manifest file
+    #
+    # @param [Array] filter can any of [:css, :html, :image, :misc] a nil value
+    #        will return all items
+    # @return [Array <Epub::Item>] items
+    def items(*filter)
       items = []
       nodes do |node|
         href = CGI::unescape(node.attributes['href'].to_s)

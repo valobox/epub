@@ -23,6 +23,9 @@ module Epub
     end
 
 
+    # Normalizes the toc by flattening the file paths
+    # 
+    # @see Epub::File#normalize!
     def normalize!
       doc = xmldoc
       nodes doc.xpath(ITEMS_XPATH) do |node|

@@ -50,6 +50,9 @@ module Epub
     end
 
 
+    # Normalizes the guide by flattening the file paths
+    # 
+    # @see Epub::File#normalize!
     def normalize!
       # Read the css
       data = read
