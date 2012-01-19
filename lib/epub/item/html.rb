@@ -114,7 +114,7 @@ module Epub
               # If its just an anchor like '#this' just set to the current file
               linked_item = self
             else
-              linked_item = self
+              linked_item = get_item(src.path)
             end
 
             # Change link
