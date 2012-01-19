@@ -119,11 +119,11 @@ module Epub
       def convert_fonts(sass)
         out = ""
         sass.each_line do |line|
-          line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height)\s*:(.*)/) do |m|
+          line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
             #                 :spacing  :rule  :value
             m = "%s%s: %s" % [$1,       $2,    Font.css_to_ems($3)]
           end
-          out += line
+          out << line
         end
         out
       end

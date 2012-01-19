@@ -21,17 +21,17 @@ module Epub
         else rule_value
       end
       
-      number = rule_value.gsub("[0-9]+", "\\1")
+      number = rule_value.gsub("[0-9.]+", "\\1")
       
       # Use multipliers to convert to ems
       multiplier = case rule_value
-        when /[0-9]+pt\s*$/ then 1.0/12
-        when /[0-9]+px\s*$/ then 1.0/16
-        when /[0-9]+em\s*$/ then 1
-        when /[0-9]+%\s*$/  then 1.0/100
+        when /[0-9.]+pt\s*$/ then 1.0/12
+        when /[0-9.]+px\s*$/ then 1.0/16
+        when /[0-9.]+em\s*$/ then 1
+        when /[0-9.]+%\s*$/  then 1.0/100
         else return rule_value
       end
-    
+
       amt = (multiplier.to_f * number.to_f)
       return "%sem" % sprintf('%.2f', amt)
     end
