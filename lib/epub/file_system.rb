@@ -29,11 +29,11 @@ module Epub
     def write(filepath, data=nil)
       path = abs_filepath(filepath)
 
-      ::File.open(path, "r+") do |file|
+      ::File.open(path, "w+") do |file|
         if block_given?
           yield(file)
         else
-          file.puts data
+          file.write data.to_s
         end
       end
     end
