@@ -2,12 +2,17 @@ require 'digest/md5'
 require 'pathname'
 
 module Epub
-  # Make this hash accessible
   class Manifest
+    # @private
     OPF_XPATH       = '//xmlns:manifest'
+
+    # @private
     OPF_ITEMS_XPATH = '//xmlns:item'
+
+    # @private
     OPF_ITEM_XPATH  = '//xmlns:item[@id="%s"]'
 
+    # @private
     XML_NS = {
       'xmlns' => 'http://www.idpf.org/2007/opf'
     }
@@ -99,7 +104,7 @@ module Epub
 
         item = item_for_path(href)
 
-        if types.size < 1 || types.include?(item.type)
+        if filter.size < 1 || filter.include?(item.type)
           if block_given?
             yield(item,node)
           else
