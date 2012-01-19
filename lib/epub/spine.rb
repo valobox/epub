@@ -8,11 +8,6 @@ module Epub
     end
 
 
-    def xmldoc
-      @epub.opf_xml.xpath(OPF_XPATH).first
-    end
-
-
     def items
       manifest = @epub.manifest
       items = []
@@ -40,7 +35,13 @@ module Epub
       toc_manifest_id.to_s.strip
     end
 
+
     private
+
+
+      def xmldoc
+        @epub.opf_xml.xpath(OPF_XPATH).first
+      end
 
       def nodes
         xmldoc.xpath(OPF_ITEM_XPATH).each do |node|
