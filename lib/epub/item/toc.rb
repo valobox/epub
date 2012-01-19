@@ -106,7 +106,7 @@ module Epub
           if file && label
             items << {
               :label    => label.strip,
-              :url      => filepath,
+              :url      => filepath.to_s,
               :children => child_nodes,
               :position => position
             }
