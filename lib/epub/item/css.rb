@@ -13,6 +13,43 @@ module Epub
     end
 
 
+    # Convert a css size rule value to ems, the supported formats are:
+    # * point (24pt)
+    # * pixels (24px)
+    # * percent (24%)
+    # * by name (xx-small, x-small, small, medium, large, x-large, xx-large)
+    #
+    # @param [String] css size rule
+    # @return [String] css size rule in ems
+    def self.val_to_em(rule_value)
+      # Convert CSS px values
+      rule_value = case rule_value        
+        when /xx-small/ then "9px"
+        when /x-small/  then "10px"
+        when /small/    then "13px"
+        when /medium/   then "16px"
+        when /large/    then "18px"
+        when /x-large/  then "24px"
+        when /xx-large/ then "32px"
+        else rule_value
+      end
+      
+      number = rule_value.gsub("[0-9.]+", "\\1")
+      
+      # Use multipliers to convert to ems
+      multiplier = case rule_value
+        when /[0-9.]+pt\s*$/ then 1.0/12
+        when /[0-9.]+px\s*$/ then 1.0/16
+        when /[0-9.]+em\s*$/ then 1
+        when /[0-9.]+%\s*$/  then 1.0/100
+        else return rule_value
+      end
+
+      amt = (multiplier.to_f * number.to_f)
+      return "%sem" % sprintf('%.2f', amt)
+    end
+
+
     def normalize!
       # Read the css
       data = read
@@ -86,13 +123,10 @@ module Epub
 
 
     def compress!
-      data = read
       compressor = YUI::CssCompressor.new
-      compressor.compress(data)
-
+      data = compressor.compress(read)
       write(data)
     end
-
 
 
     private
@@ -121,7 +155,7 @@ module Epub
         sass.each_line do |line|
           line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
             #                 :spacing  :rule  :value
-            m = "%s%s: %s" % [$1,       $2,    Font.css_to_ems($3)]
+            m = "%s%s: %s" % [$1,       $2,    CSS.val_to_em($3)]
           end
           out << line
         end
