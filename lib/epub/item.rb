@@ -1,7 +1,10 @@
 require 'date'
 
 module Epub
+  # An item inside the <Epub::Manifest>
   class Item
+
+    # @attr_reader [Symbol] type of item (gets overidden in subclasses)
     attr_reader :type
 
     # Initialize with a manifest id
@@ -20,10 +23,47 @@ module Epub
       raise "File #{opts} not valid" if !@id
     end
 
+
+    ###
+    # File data accessors
+    ###
+
+    # TODO: Should this be here???
+    def read_xml
+      @epub.file.read_xml(abs_filepath)
+    end
+
+    # TODO: Should be overidden by image to read binary data
+    def read
+      @epub.file.read(abs_filepath)
+    end
+
+    def write(data)
+      @epub.file.write(abs_filepath) do |file|
+        file.puts(data)
+      end
+    end
+
+    # Extract file to the _path_ specified
+    # @param [String] path
+    def extract(path)
+      @epub.file.extract(abs_filepath, path)
+    end
+
+
+    ###
+    # Paths
+    ###
+
+    # Path relative to the Epubs opf file
     def filepath
       @epub.manifest.path_from_id(@id)
     end
 
+    # Path absolute to the Epubs base directory, this will be different
+    # depending on the Epub type @see Epub::File.type
+    # * *zip:* Root of the zip filesystem
+    # * *directory:* Root relative to base epub directory
     def abs_filepath
       @epub.manifest.abs_path_from_id(@id)
     end
@@ -40,16 +80,6 @@ module Epub
       path = Pathname.new(path).cleanpath.to_s
 
       @epub.manifest.item_for_path(path.to_s)
-    end
-
-
-    def hashed_filepath
-      hashed_filepath(filepath)
-    end
-    
-
-    def abs_hashed_filepath
-      hashed_filepath(abs_filepath)
     end
 
 
@@ -82,41 +112,13 @@ module Epub
     end
 
 
-    ###
-    # Read file data
-    ###
-    def read_xml
-      @epub.file.read_xml(abs_filepath)
-    end
+    # Flattens the epub structure, _overidden by subclasses_
+    # @see Epub::File#normalize!
+    def normalize!; end
 
+    # Compress item data, _overidden by subclasses_
+    def compress!; end
 
-    def read
-      @epub.file.read(abs_filepath)
-    end
-
-    def write(data)
-      @epub.file.write(abs_filepath) do |file|
-        file.puts(data)
-      end
-    end
-
-    def extract(extract_path)
-      @epub.file.extract(abs_filepath, extract_path)
-    end
-
-
-    ###
-    # Overidden methods
-    ###
-    def normalize!
-      # Just a placeholder
-    end
-
-    def compress!
-      # Just a placeholder
-    end
-
-    
 
     private
 

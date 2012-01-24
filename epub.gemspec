@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   #s.rubyforge_project         = "example"
  
   # No tests yet
-  #s.add_development_dependency "rspec"
+  s.add_development_dependency "rspec"
   s.add_development_dependency "yard"
 
   s.add_dependency "rubyzip"

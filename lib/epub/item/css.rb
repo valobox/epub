@@ -8,7 +8,7 @@ module Epub
     def initialize(filepath, epub)  
       super(filepath, epub)
 
-      @type        = :css
+      @type = :css
       @normalized_dir = "OEBPS"
     end
 
@@ -50,6 +50,7 @@ module Epub
     end
 
 
+    # TODO: Split this up into multiple methods
     # Normalizes the guide by flattening the file paths
     # 
     # @see Epub::File#normalize!

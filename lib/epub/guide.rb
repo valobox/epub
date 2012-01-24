@@ -1,10 +1,14 @@
 module Epub
   class Guide
-    OPF_XPATH      = '//xmlns:guide'
+    # @private
+    OPF_XPATH = '//xmlns:guide'
+
+    # @private
     OPF_ITEM_XPATH = '//xmlns:reference'
 
+    # @param [Epub::File]
     def initialize(epub)
-      @epub   = epub
+      @epub = epub
     end
 
 
@@ -13,8 +17,11 @@ module Epub
     # @see Epub::File#normalize!
     def normalize!
       doc = xmldoc
+
       # TODO: Handle this better
-      return if doc.size < 1
+      if doc.size < 1
+        return
+      end
 
       items do |node|
         href = CGI::unescape(node.attributes['href'].to_s)

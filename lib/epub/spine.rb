@@ -36,6 +36,17 @@ module Epub
     end
 
 
+    # <itemref idref="itemid"/>
+    def add(item)
+      node = Nokogiri::XML::Node.new "itemref", xmldoc
+      node['idref'] = "test"
+
+      doc = xmldoc
+      doc.add_child(node)
+      @epub.save_opf!(doc, OPF_XPATH)
+    end
+
+
     private
 
 

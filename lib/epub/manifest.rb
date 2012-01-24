@@ -129,16 +129,21 @@ module Epub
     end
 
 
-    # TODO
-    # def add(id, content)
-    #   item = Nokogiri::XML::Node.new "item", @xmldoc.first
-    #   item['id']         = id
-    #   item['href']       = "bla.html"
-    #   item['media-type'] = "text/css"
-    # 
-    #   @xmldoc.first.add_child(item)
-    #   puts @xmldoc
-    # end
+    # TODO:
+    # mimetype - should be optional
+    def add(id, path, mimetype)
+      item_klass = item_class_from_mimetype(mimetype) || item_class_from_path(path)
+
+      item = Nokogiri::XML::Node.new "item", @xmldoc.first
+      item['id']         = id
+      item['href']       = path
+      item['media-type'] = mimetype
+      @xmldoc.first.add_child(item)
+
+      puts "item_klass=#{item_klass}"
+
+      @epub.save_opf!(@xmldoc, OPF_XPATH)
+    end
 
 
     def path_from_id(key)
@@ -207,26 +212,12 @@ module Epub
 
       # Get type based on media-type
       if !klass && media_type
-        case media_type
-          when 'text/css'
-            klass = CSS
-          when /^image\/.*$/
-            klass = Image
-          when /^application\/xhtml.*$/
-            klass = HTML
-        end
+        klass = item_class_from_mimetype(media_type)
       end
 
       # Get type based on file extension
       if !klass
-        case href
-          when /\.(css)$/
-            klass = CSS
-          when /\.(png|jpeg|jpg|gif|svg)$/
-            klass = Image
-          when /\.(html|xhtml)$/
-            klass = HTML
-        end
+        klass = item_class_from_path(href)
       end
 
       klass = Item if !klass
@@ -277,5 +268,32 @@ module Epub
         nil
       end
 
+
+      def item_class_from_mimetype(mimetype)
+        return case mimetype
+        when 'text/css'
+          CSS
+        when /^image\/.*$/
+          Image
+        when /^application\/xhtml.*$/
+          HTML
+        else
+          nil
+        end
+      end
+      
+
+      def item_class_from_path(path)
+        case path
+        when /\.(css)$/
+          CSS
+        when /\.(png|jpeg|jpg|gif|svg)$/
+          Image
+        when /\.(html|xhtml)$/
+          HTML
+        else
+          nil
+        end
+      end
   end
 end
