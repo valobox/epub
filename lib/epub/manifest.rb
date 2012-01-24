@@ -104,6 +104,10 @@ module Epub
 
         item = item_for_path(href)
 
+        if !item
+          raise "No item present for #{href}"
+        end
+
         if filter.size < 1 || filter.include?(item.type)
           if block_given?
             yield(item,node)
@@ -266,7 +270,7 @@ module Epub
 
       def node_for_path(path)
         nodes do |node|
-          if node.attributes['href'].to_s == path
+          if CGI::unescape(node.attributes['href'].to_s) == CGI::unescape(path)
             return node
           end
         end
