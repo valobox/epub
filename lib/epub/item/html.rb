@@ -21,7 +21,7 @@ module Epub
     # @see Epub::File#normalize!
     def normalize!
       data = read
-      html = Nokogiri::HTML.parse(data)
+      html = Nokogiri::XML.parse(data)
       html.encoding = 'utf-8'
 
       # Process the @DOM
@@ -57,12 +57,12 @@ module Epub
       # @param [Nokogiri::XML] html document DOM
       def standardize_dom(html)
         if !html.css("body")
-          html.wrap("<body></body>")
+          html.css(":not(head)").wrap("<body></body>")
         end
 
         if !html.css("html")
-          html.search(":not(head)").wrap("<html></html>")
-        end 
+          html.wrap("<html></html>")
+        end
         nil
       end
 
