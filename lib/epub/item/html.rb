@@ -11,6 +11,9 @@ module Epub
 
       @type        = :html
       @normalized_dir = "OEBPS"
+
+      # Force to .xhtml in normalize process
+      @file_ext_overide = ".xhtml"
     end
 
 

@@ -125,6 +125,7 @@ module Epub
       # The hashed filename
       def hashed_filename
         ext = ::File.extname(abs_filepath)
+        ext = @file_ext_overide if @file_ext_overide
 
         # Add the extension to the hashed filename
         filename = "%s%s" % [hash, ext]
