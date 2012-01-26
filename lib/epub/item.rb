@@ -60,6 +60,16 @@ module Epub
       @epub.manifest.path_from_id(@id)
     end
 
+    def filename(opts={})
+      path = @epub.manifest.path_from_id(@id)
+      if opts[:no_ext]
+        ext = ::File.extname(path)
+        ::File.basename(path, ext)
+      else
+        ::File.basename(path)
+      end
+    end
+
     # Path absolute to the Epubs base directory, this will be different
     # depending on the Epub type @see Epub::File.type
     # * *zip:* Root of the zip filesystem
