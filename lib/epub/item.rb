@@ -89,7 +89,13 @@ module Epub
       path = ::File.join(base, rel_path)
       path = Pathname.new(path).cleanpath.to_s
 
-      @epub.manifest.item_for_path(path.to_s)
+      item = @epub.manifest.item_for_path(path.to_s)
+
+      if !item
+        raise "Failed to find item in manifest for #{rel_path}"
+      end
+
+      item
     end
 
 
