@@ -10,10 +10,17 @@ module Epub
     def self.unzip(zip_filepath, dirpath)
       Zip::ZipFile.open(zip_filepath) do |zf|
         zf.each do |e| 
-           fpath = ::File.join(dirpath, e.name)
-           log "unziping #{e.name} to #{fpath}"
-           FileUtils.mkdir_p ::File.dirname(fpath)
-           zf.extract(e, fpath)
+          fpath = ::File.join(dirpath, e.name)
+          FileUtils.mkdir_p ::File.dirname(fpath)
+
+          log "unziping #{e.name} to #{fpath}"
+          begin
+            zf.extract(e, fpath)
+          rescue => e
+            # NOTE: We just log the error here as we may not need this file
+            # Any errors will occur when we try to read the file later on
+            log "WARN: #{e.message}"
+          end
         end
       end
     end
@@ -22,10 +29,11 @@ module Epub
     def self.zip(dirpath, zip_filepath)
       zip_filepath_bak = "#{zip_filepath}_bak"
       # Backup the old file
-      FileUtils.mv(zip_filepath, zip_filepath_bak)
+      FileUtils.cp(zip_filepath, zip_filepath_bak)
 
       begin
         # Create the new zip
+        # NOTE: This overides the zip file
         Zip::ZipFile::open(zip_filepath, true) do |zf|
           Dir["#{dirpath}/**/*"].each do |f|
             pn_f       = Pathname.new(f)
