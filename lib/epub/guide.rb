@@ -24,8 +24,13 @@ module Epub
       end
 
       items do |node|
-        href = CGI::unescape(node.attributes['href'].to_s)
+        href_str = node.attributes['href'].to_s
+        href = CGI::unescape(href_str)
         item = @epub.manifest.item_for_path(href)
+
+        if !item
+          raise "No item in manifest for #{href_str}"
+        end
 
         node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
       end
