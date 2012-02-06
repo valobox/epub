@@ -134,7 +134,8 @@ module Epub
       end
 
       def internal_link?(href)
-        if !href || href=="" || href =~ /^http[s]?:\/\// || href =~ /^mailto:/
+        # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
+        if !href || href=="" || href =~ /^[a-zA-Z]+?:/
           return false
         end
 
