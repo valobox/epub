@@ -91,12 +91,16 @@ module Epub
 
             next if !attr_obj
 
-            orig_href = attr_obj.to_s
+            # Unescape the URI because it may already be escaped
+            unescaped_href = URI::unescape(attr_obj.to_s)
+
+            # Escape it again because this is what `URI` expects
+            escaped_href   = URI::escape(unescaped_href)
 
             begin
-              src = URI(orig_href)
+              src = URI(escaped_href)
             rescue
-              log "#{orig_href} not a valid URI"
+              log "#{escaped_href} not a valid URI"
               next
             end
 
@@ -107,7 +111,9 @@ module Epub
                 # If its just an anchor like '#this' just set to the current file
                 linked_item = self
               else
-                linked_item = get_item(src.path)
+                # Match on the unescaped href
+                unescaped_path = URI::unescape(src.path)
+                linked_item = get_item(unescaped_path)
               end
 
               # Change link
