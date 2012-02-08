@@ -85,49 +85,45 @@ module Epub
       #
       # @param [Nokogiri::XML] html document DOM
       def change_hrefs(html)
-        html.css('a, img, link').each do |node|
+        DOM.walk(html.children.first) do |node|
+          for attr_name in %w{href src}
+            attr_obj = node.attributes[attr_name]
 
-          attr_name = case node.name
-          when 'a'
-            'href'
-          when 'img'
-            'src'
-          when 'link'
-            'href'
-          end
+            next if !attr_obj
 
-          orig_href = node.attributes[attr_name].to_s
+            orig_href = attr_obj.to_s
 
-          begin
-            src = URI(orig_href)
-          rescue
-            log "#{orig_href} not a valid URI"
-            next
-          end
-
-          if internal_link?(src.to_s)
-            linked_item = nil
-
-            if src.path == ""
-              # If its just an anchor like '#this' just set to the current file
-              linked_item = self
-            else
-              linked_item = get_item(src.path)
+            begin
+              src = URI(orig_href)
+            rescue
+              log "#{orig_href} not a valid URI"
+              next
             end
 
-            # Change link
-            if linked_item
-              new_path = linked_item.normalized_hashed_path(:relative_to => self)
-              new_path = URI(new_path)
+            if internal_link?(src.to_s)
+              linked_item = nil
 
-              if src.fragment
-                new_path.fragment = src.fragment
+              if src.path == ""
+                # If its just an anchor like '#this' just set to the current file
+                linked_item = self
+              else
+                linked_item = get_item(src.path)
               end
 
-              log "Changing #{src.to_s} to #{new_path.to_s}"
-              node[attr_name] = new_path.to_s
-            else
-              log "No item in manifest for #{src}"
+              # Change link
+              if linked_item
+                new_path = linked_item.normalized_hashed_path(:relative_to => self)
+                new_path = URI(new_path)
+
+                if src.fragment
+                  new_path.fragment = src.fragment
+                end
+
+                log "Changing #{src.to_s} to #{new_path.to_s}"
+                attr_obj.content = new_path.to_s
+              else
+                log "No item in manifest for #{src}"
+              end
             end
           end
         end
