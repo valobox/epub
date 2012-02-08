@@ -85,7 +85,7 @@ module Epub
       #
       # @param [Nokogiri::XML] html document DOM
       def change_hrefs(html)
-        DOM.walk(html.children.first) do |node|
+        DOM.walk(html) do |node|
           for attr_name in %w{href src}
             attr_obj = node.attributes[attr_name]
 

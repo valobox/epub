@@ -14,7 +14,8 @@ module Epub
     NOTATION_NODE               = 12
     
     def self.walk(dom, &block)
-      yield(dom)
+      yield(dom) if dom.is_a?(Nokogiri::XML::Element)
+      
       for node in dom.children
         walk(node, &block) if node.type == ELEMENT_NODE
       end
