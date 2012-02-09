@@ -89,18 +89,16 @@ module Epub
           for attr_name in %w{href src}
             attr_obj = node.attributes[attr_name]
 
+            # Ignore if its blank
             next if !attr_obj
 
-            # Unescape the URI because it may already be escaped
-            unescaped_href = URI::unescape(attr_obj.to_s)
-
-            # Escape it again because this is what `URI` expects
-            escaped_href   = URI::escape(unescaped_href)
+            # URL encode any spaces
+            orig_href = attr_obj.to_s.gsub(" ", "%20")
 
             begin
-              src = URI(escaped_href)
+              src = URI(orig_href)
             rescue
-              log "#{escaped_href} not a valid URI"
+              log "#{orig_href} not a valid URI"
               next
             end
 
