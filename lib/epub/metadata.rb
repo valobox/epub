@@ -137,16 +137,20 @@ module Epub
       end
 
       def sanitize(str)
-        # Convert \u2014
-        str = str.gsub(/\\u(\d{2,4})/) {
-          # Convert to decimal
-          decimal = Integer("0x"+$1)
-          # return HTML entity
-          "&##{decimal};"
-        }
+        if str
+          # Convert \u2014
+          str = str.gsub(/\\u(\d{2,4})/) {
+            # Convert to decimal
+            decimal = Integer("0x"+$1)
+            # return HTML entity
+            "&##{decimal};"
+          }
 
-        str = Sanitize.clean(str)
-        str = str.strip
+          str = Sanitize.clean(str)
+          str = str.strip
+        else
+          ""
+        end
       end
   end
 end
