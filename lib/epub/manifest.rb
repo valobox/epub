@@ -260,6 +260,7 @@ module Epub
 
 
       def node_for_path(path)
+        path = path.split("#").first # sometimes the path contains an anchor name
         nodes do |node|
           if CGI::unescape(node.attributes['href'].to_s) == CGI::unescape(path)
             return node
