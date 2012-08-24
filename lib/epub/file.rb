@@ -38,7 +38,7 @@ module Epub
       if block_given?
         Dir.mktmpdir do |outdir|
           ZipFile.unzip(filepath, outdir)
-          yield Epub::File.new(outdir), outdir
+          yield self.new(outdir), outdir
           ZipFile.zip(outdir, filepath)
         end
       elsif extract_path
@@ -194,6 +194,11 @@ module Epub
     def opf_path
       doc = @file.read_xml("META-INF/container.xml")
       doc.xpath("//xmlns:rootfile").first.attributes["full-path"].to_s
+    end
+
+
+    def opf_dirname
+      ::File.dirname(opf_path)
     end
 
 

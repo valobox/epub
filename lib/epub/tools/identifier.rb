@@ -1,21 +1,31 @@
 module Epub
   class Identifier
 
-    attr_accessor :epub, :id, :media_type, :href, :klass
+    attr_accessor :epub, :node, :klass
 
-    def initialize(epub, node)
+    def initialize(epub, node = nil)
       @epub       = epub
-      @id         = node.attributes['id'].to_s
-      @media_type = node.attributes['media-type'].to_s
-      @href       = node.attributes['href'].to_s
+      @node       = node
       @klass      = set_klass
     end
 
     def item
-      klass.new(epub, {:id => id})
+      klass.new(epub, {:id => id}) if node
     end
 
     private
+
+      def id
+        node.attributes['id'].to_s
+      end
+
+      def media_type
+        node.attributes['media-type'].to_s
+      end
+
+      def href
+        node.attributes['href'].to_s
+      end
 
       def set_klass
         if is_toc?
