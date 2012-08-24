@@ -4,8 +4,6 @@ module Epub
   class HTML < Item
     include Logger
 
-    STYLESHEET_XPATH = "//link[@rel='stylesheet']"
-
     def initialize(filepath, epub) 
       super(filepath, epub)
 
@@ -45,6 +43,9 @@ module Epub
 
     private
 
+      def stylesheet_xpath
+        "//link[@rel='stylesheet']"
+      end
 
       # Makes sure the DOM is in the following normalized structure
       #

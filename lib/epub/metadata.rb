@@ -4,41 +4,6 @@ module Epub
   class Metadata
     include XML
 
-    OPF_XPATH = '//xmlns:metadata'
-
-    XML_NS = {
-      'xmlns' => 'http://www.idpf.org/2007/opf',
-      'dc'    => "http://purl.org/dc/elements/1.1/"
-    }
-
-    # Property list
-    XMLDEF = {
-      :title => {
-        :node => "dc:title"
-      },
-      :isbn => {
-        :node => "dc:identifier",
-        :processor => :isbn
-      },
-      :language => {
-        :node => "dc:language"
-      },
-      :creator => {
-        :node => "dc:creator"
-      },
-      :publisher => {
-        :node => "dc:publisher"
-      },
-      :description => {
-        :node => "dc:description",
-        :processor => :sanitize
-      },
-      :date => {
-        :node => "dc:date",
-        :processor => :date
-      }
-    }
-
 
     def initialize(epub)
       @epub = epub
@@ -46,20 +11,20 @@ module Epub
 
 
     def xmldoc
-      @epub.opf_xml.xpath(OPF_XPATH, 'xmlns' => XML_NS['xmlns']).first
+      @epub.opf_xml.xpath(opf_path, 'xmlns' => xml_ns['xmlns']).first
     end
 
 
     # Setter
     def []=(k,v)
       doc = xmldoc
-      obj = XMLDEF[k]
+      obj = xml_def[k]
 
       # Error if not a valid metadata entry
       raise "#{k} not valid" if !obj
       
       xpath = "//#{obj[:node]}"
-      node = doc.xpath(xpath, 'dc' => XML_NS['dc']).first
+      node = doc.xpath(xpath, 'dc' => xml_ns['dc']).first
 
       if node
         # Node exists so set it
@@ -77,11 +42,11 @@ module Epub
 
     # Getter
     def [](key)
-      obj = XMLDEF[key]
+      obj = xml_def[key]
 
       # Get the content
       xpath = "//#{obj[:node]}"
-      v = xmldoc.xpath(xpath, 'dc' => XML_NS['dc']).first
+      v = xmldoc.xpath(xpath, 'dc' => xml_ns['dc']).first
       v = v.content.to_s if v
 
       # Run throught the processor if there are any
@@ -93,7 +58,7 @@ module Epub
     # 
     def to_s
       out = []
-      XMLDEF.each do |k,v|
+      xml_def.each do |k,v|
         val=self[k]
         out << "#{k}: #{val}"
       end
@@ -102,6 +67,46 @@ module Epub
 
 
     private
+
+      def opf_xpath
+        '//xmlns:metadata'
+      end
+
+      def xml_ns
+        {
+          'xmlns' => 'http://www.idpf.org/2007/opf',
+          'dc'    => "http://purl.org/dc/elements/1.1/"
+        }
+      end
+
+      def xml_def
+        {
+          :title => {
+            :node => "dc:title"
+          },
+          :isbn => {
+            :node => "dc:identifier",
+            :processor => :isbn
+          },
+          :language => {
+            :node => "dc:language"
+          },
+          :creator => {
+            :node => "dc:creator"
+          },
+          :publisher => {
+            :node => "dc:publisher"
+          },
+          :description => {
+            :node => "dc:description",
+            :processor => :sanitize
+          },
+          :date => {
+            :node => "dc:date",
+            :processor => :date
+          }
+        }
+      end
 
       ###
       # Processor  methods

@@ -1,10 +1,5 @@
 module Epub
   class Guide
-    # @private
-    OPF_XPATH = '//xmlns:guide'
-
-    # @private
-    OPF_ITEM_XPATH = '//xmlns:reference'
 
     # @param [Epub::File]
     def initialize(epub)
@@ -35,7 +30,7 @@ module Epub
         node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
       end
 
-      @epub.save_opf!(doc, OPF_XPATH)
+      @epub.save_opf!(doc, Epub::Manifest.opf_xpath)
     end
 
     def to_s
@@ -45,13 +40,21 @@ module Epub
 
     private
 
+      def opf_xpath
+        '//xmlns:guide'
+      end
+
+      def opf_item_xpath
+        '//xmlns:reference'
+      end
+
       def xmldoc
-        @epub.opf_xml.xpath(OPF_XPATH)
+        @epub.opf_xml.xpath(opf_xpath)
       end
 
       # Iterate over each item in the guide
       def items
-        xmldoc.xpath(OPF_ITEM_XPATH).each do |item|
+        xmldoc.xpath(opf_item_xpath).each do |item|
           yield(item)
         end
       end

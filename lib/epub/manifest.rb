@@ -3,66 +3,29 @@ require 'pathname'
 
 module Epub
   class Manifest
-    # @private
-    OPF_XPATH       = '//xmlns:manifest'
 
-    # @private
-    OPF_ITEMS_XPATH = '//xmlns:item'
-
-    # @private
-    OPF_ITEM_XPATH  = '//xmlns:item[@id="%s"]'
-
-    # @private
-    XML_NS = {
-      'xmlns' => 'http://www.idpf.org/2007/opf'
-    }
+    attr_accessor :xmldoc, :epub
 
     def initialize(epub)
-      @epub = epub
-      reload_xmldoc
+      @epub   = epub
+      @xmldoc = get_xmldoc
     end
-
-    def reload_xmldoc
-      @xmldoc = @epub.opf_xml.xpath(OPF_XPATH, 'xmlns' => XML_NS['xmlns'])
-    end
-    
-
-    # Normalizes the manifest by flattening the file paths
-    # 
-    # @see Epub::File#normalize!
-    def normalize!
-      # Flatten epub items
-      items(:image, :html, :css, :misc) do |item,node|
-        item.normalize!
-      end
-
-      # Flatten manifest
-      items do |item,node|
-        # Move the file to flattened location
-        @epub.file.mv item.abs_filepath, item.normalized_hashed_path
-
-        # Renames based on asbsolute path from base
-        node['href'] = item.normalized_hashed_path(:relative_to => "OEBPS/content.opf")
-      end
-
-      @epub.save_opf!(@xmldoc, OPF_XPATH)
-      @epub.file.mv @epub.opf_path, "OEBPS/content.opf"
-
-      # Move the opf file
-      opf_path = "OEBPS/content.opf"
-      @epub.opf_path = opf_path
-
-      # Reset the XMLDOC
-      reload_xmldoc
-    end
-
-
 
     # Pretty display
     def to_s
-      @xmldoc.to_s
+      xmldoc.to_s
     end
 
+    ############
+    # Normalize
+    ############
+    def normalize!
+      normalize_item_contents
+
+      normalize_item_location
+
+      normalize_opf_path
+    end
 
     ###
     # Accessors
@@ -94,7 +57,7 @@ module Epub
 
     # Return items in the manifest file
     #
-    # @param [Array] filter can any of [:css, :html, :image, :misc] a nil value
+    # @args filter can any of :css, :html, :image, :misc or a nil value
     #        will return all items
     # @return [Array <Epub::Item>] items
     def items(*filter)
@@ -119,36 +82,38 @@ module Epub
       items if !block_given?
     end
 
+
     # Access item by id, for example `epub.manifest["cover-image"]` will grab the file for
     # the following XML entry
     # 
     #     <item id="cover-image" href="OEBPS/assets/cover.jpg" media-type="image/jpeg"/>
     #
-    def [](key)
-      item_for_path path_from_id(key)
+    def [](id)
+      item_for_path path_from_id(id)
     end
 
 
-    # TODO:
-    # mimetype - should be optional
+    # Add an item to the manifest
+    # @args
+    # - id #=> ID attribute
+    # - path #=> href to the file
+    # - mimetype #=> Mimetype of the file
+    # @returns
+    #   Boolean if the item was added
     def add(id, path, mimetype)
-      item_klass = item_class_from_mimetype(mimetype) || item_class_from_path(path)
-
-      item = Nokogiri::XML::Node.new "item", @xmldoc.first
+      item = Nokogiri::XML::Node.new "item", xmldoc.first
       item['id']         = id
       item['href']       = path
       item['media-type'] = mimetype
-      @xmldoc.first.add_child(item)
+      xmldoc.first.add_child(item)
 
-      puts "item_klass=#{item_klass}"
-
-      @epub.save_opf!(@xmldoc, OPF_XPATH)
+      epub.save_opf!(xmldoc, opf_xpath)
     end
 
 
-    def path_from_id(key)
-      xpath = OPF_ITEM_XPATH % key
-      nodes = @xmldoc.xpath(xpath)
+    def path_from_id(id)
+      xpath = opf_item_xpath(id)
+      nodes = xmldoc.xpath(xpath)
 
       case nodes.size
       when 0
@@ -163,16 +128,16 @@ module Epub
     end
 
 
-    def abs_path_from_id(key)
-      rel  = path_from_id(key)
-      base = ::File.dirname(@epub.opf_path)
+    def abs_path_from_id(id)
+      rel  = path_from_id(id)
+      base = ::File.dirname(epub.opf_path)
       path = ::File.join(base, rel)
       Pathname.new(path).cleanpath.to_s
     end
 
 
     def rel_path(path)
-      base = Pathname.new(@epub.opf_path)
+      base = Pathname.new(epub.opf_path)
       path = Pathname.new(path)
       path = path.relative_path_from(base.dirname)
       path.to_s
@@ -194,39 +159,15 @@ module Epub
 
 
     def item_for_path(path)
+
       # TODO: Need to get media type here also
       node = node_for_path(path)
 
-      return nil if !node
-
-      id         = node.attributes['id'].to_s
-      media_type = node.attributes['media-type'].to_s
-      href       = node.attributes['href'].to_s
-
-      klass = nil
-
-      # Is it the TOC
-      if @epub.spine.toc_manifest_id == id
-        klass = Toc
+      if node
+        Identifier.new(epub, node).item
+      else
+        nil
       end
-
-      # Get type based on media-type
-      if !klass && media_type
-        klass = item_class_from_mimetype(media_type)
-      end
-
-      # Get type based on file extension
-      if !klass
-        klass = item_class_from_path(href)
-      end
-
-      klass = Item if !klass
-
-      item = klass.new(@epub, {
-        :id => id
-      })
-
-      item
     end
 
 
@@ -252,8 +193,28 @@ module Epub
 
     private
 
+      def opf_path
+        "OEBPS/content.opf"
+      end
+
+      def opf_xpath
+        '//xmlns:manifest'
+      end
+
+      def opf_items_xpath
+        '//xmlns:item'
+      end
+
+      def opf_item_xpath(id)
+        '//xmlns:item[@id="%s"]' % id
+      end
+
+      def xml_ns
+        'http://www.idpf.org/2007/opf'
+      end
+
       def nodes
-        @xmldoc.xpath(OPF_ITEMS_XPATH).each do |node|
+        xmldoc.xpath(opf_items_xpath).each do |node|
           yield(node)
         end
       end
@@ -269,32 +230,35 @@ module Epub
         nil
       end
 
+      def reload_xmldoc
+        xmldoc = get_xmldoc
+      end
 
-      def item_class_from_mimetype(mimetype)
-        return case mimetype
-        when 'text/css'
-          CSS
-        when /^image\/.*$/
-          Image
-        when /^application\/xhtml.*$/
-          HTML
-        else
-          nil
+      def get_xmldoc
+        epub.opf_xml.xpath(opf_xpath, 'xmlns' => xml_ns)
+      end
+
+      def normalize_item_contents
+        items(:image, :html, :css, :misc) do |item,node|
+          item.normalize!
         end
       end
-      
 
-      def item_class_from_path(path)
-        case path
-        when /\.(css)$/
-          CSS
-        when /\.(png|jpeg|jpg|gif|svg)$/
-          Image
-        when /\.(html|xhtml)$/
-          HTML
-        else
-          nil
+      def normalize_item_location
+        # Flatten manifest
+        items do |item, node|
+          # Move the file to flattened location
+          epub.file.mv item.abs_filepath, item.normalized_hashed_path
+
+          # Renames based on asbsolute path from base
+          node['href'] = item.normalized_hashed_path(:relative_to => opf_path)
         end
+      end
+
+      def normalize_opf_path
+        epub.save_opf!(xmldoc, opf_xpath)
+        epub.file.mv epub.opf_path, opf_path
+        epub.opf_path = opf_path
       end
   end
 end

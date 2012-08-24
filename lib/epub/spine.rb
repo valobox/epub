@@ -1,7 +1,5 @@
 module Epub
   class Spine
-    OPF_XPATH      = '//xmlns:spine'
-    OPF_ITEM_XPATH = '//xmlns:itemref'
 
     def initialize(epub)
       @epub = epub
@@ -43,19 +41,27 @@ module Epub
 
       doc = xmldoc
       doc.add_child(node)
-      @epub.save_opf!(doc, OPF_XPATH)
+      @epub.save_opf!(doc, opf_xpath)
     end
 
 
     private
 
+      def opf_xpath
+        '//xmlns:spine'
+      end
+
+      def opf_item_xpath
+        '//xmlns:itemref'
+      end
+
 
       def xmldoc
-        @epub.opf_xml.xpath(OPF_XPATH).first
+        @epub.opf_xml.xpath(opf_xpath).first
       end
 
       def nodes
-        xmldoc.xpath(OPF_ITEM_XPATH).each do |node|
+        xmldoc.xpath(opf_item_xpath).each do |node|
           yield(node)
         end
       end

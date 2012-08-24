@@ -2,13 +2,6 @@ module Epub
   class Toc < Item
     include XML
 
-    ROOT_XPATH  = '//xmlns:navMap'
-    ITEMS_XPATH = '//xmlns:navMap/xmlns:navPoint'
-    CHILD_XPATH = 'xmlns:navPoint'
-
-    ITEM_TEXT_XPATH = 'xmlns:navLabel/xmlns:text'
-    ITEM_FILE_XPATH = 'xmlns:content'
-
 
     def initialize(filepath, epub)
       super(filepath, epub)
@@ -19,7 +12,7 @@ module Epub
 
 
     def as_hash(opts={})
-      items xmldoc.xpath(ITEMS_XPATH), opts
+      items xmldoc.xpath(items_xpath), opts
     end
 
 
@@ -28,8 +21,8 @@ module Epub
     # @see Epub::File#normalize!
     def normalize!
       doc = xmldoc
-      nodes doc.xpath(ITEMS_XPATH) do |node|
-        content_node = node.xpath(ITEM_FILE_XPATH).first
+      nodes doc.xpath(items_xpath) do |node|
+        content_node = node.xpath(item_file_xpath).first
         src = content_node.attributes['src'].to_s
 
         src = URI(src)
@@ -47,7 +40,7 @@ module Epub
       root = read_xml
 
       # Replace the node, bit messy
-      node = root.xpath(ROOT_XPATH).first
+      node = root.xpath(root_xpath).first
       doc_partial = Nokogiri::XML(doc.to_s)
       node.replace(doc_partial.root)
 
@@ -59,19 +52,39 @@ module Epub
 
     private
 
+      def root_xpath
+        '//xmlns:navMap'
+      end
+
+      def items_xpath
+        '//xmlns:navMap/xmlns:navPoint'
+      end
+
+      def child_xpath
+        'xmlns:navPoint'
+      end
+
+      def item_text_xpath
+        'xmlns:navLabel/xmlns:text'
+      end
+
+      def item_file_xpath
+        'xmlns:content'
+      end
+
       def xmldoc
-        read_xml.xpath(ROOT_XPATH)
+        read_xml.xpath(root_xpath)
       end
 
       def items(master, opts={}, level=0)
         items = []
 
         master.each do |node|
-          label = xpath_content(node, ITEM_TEXT_XPATH)
-          src   = xpath_attr(node, ITEM_FILE_XPATH, 'src')
+          label = xpath_content(node, item_text_xpath)
+          src   = xpath_attr(node, item_file_xpath, 'src')
           src   = URI(src)
 
-          child = node.xpath(CHILD_XPATH)
+          child = node.xpath(child_xpath)
           child_nodes = {}
           if child
             # Recurse
@@ -128,7 +141,7 @@ module Epub
         master.each do |node|
           yield(node)
 
-          child = node.xpath(CHILD_XPATH)
+          child = node.xpath(child_xpath)
           if child
             nodes(child) do |node|
               yield(node)

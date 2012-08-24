@@ -3,11 +3,6 @@ module Epub
     include Logger
 
     # @private
-    XML_NS = {
-      'xmlns' => 'http://www.idpf.org/2007/opf'
-    }
-
-    # @private
     attr_accessor :file
 
     # @param [String] path to an epub file, path can be either:
@@ -163,7 +158,7 @@ module Epub
         doc = opf_xml
 
         # Find where we're inseting into
-        node = doc.xpath(xpath, 'xmlns' => XML_NS['xmlns']).first
+        node = doc.xpath(xpath, 'xmlns' => xml_ns['xmlns']).first
 
         # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
         # create the new doc before we insert, else we get a default namespace
@@ -217,6 +212,12 @@ module Epub
 
 
     private
+
+      def xml_ns
+        {
+          'xmlns' => 'http://www.idpf.org/2007/opf'
+        }
+      end
 
       # Gets the type of the file passed to #new
       # @return [Symbol] type of file either [:filesystem, :zip, :nofile]
