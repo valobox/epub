@@ -148,16 +148,18 @@ module Epub
         # Find where we're inseting into
         node = doc.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
 
-        # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
-        # create the new doc before we insert, else we get a default namespace
-        # prefix
-        doc_partial = Nokogiri::XML(doc_partial.to_s)
-        node.replace(doc_partial.root)
-        
-        data = doc.to_s
-        f.puts data
+        if node
+          # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
+          # create the new doc before we insert, else we get a default namespace
+          # prefix
+          doc_partial = Nokogiri::XML(doc_partial.to_s)
+          node.replace(doc_partial.root)
+          
+          data = doc.to_s
+          f.puts data
 
-        @opf_xml = doc
+          @opf_xml = doc
+        end
       end
     end
 

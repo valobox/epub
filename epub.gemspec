@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "yard"
 
   s.add_dependency "rubyzip"
+  s.add_dependency "mime-types"
   s.add_dependency "sass"
   s.add_dependency "nokogiri"
   s.add_dependency "sanitize"

@@ -105,7 +105,7 @@ module Epub
           for attr_name in %w{href src}
             href = node.attributes[attr_name]
             if href
-              html_link = HtmlLink.new(self, node, href)
+              html_link = HtmlLink.new(self, href)
               html_link.normalize
 
               if html_link.missing_item?

@@ -7,7 +7,7 @@ module Epub
     # @args
     # - list of paths to join and clean
     def clean_path(*args)
-      path = ::File.join(args)
+      path = ::File.join(args.to_a.compact)
       Pathname.new(path).cleanpath.to_s
     end
 
@@ -26,6 +26,10 @@ module Epub
 
     def strip_anchors(path)
       path.sub(/#.*$/, "")
+    end
+
+    def external_link?(path)
+      path =~ /^[a-zA-Z]+?:/
     end
 
   end

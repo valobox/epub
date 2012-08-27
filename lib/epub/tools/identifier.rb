@@ -29,22 +29,10 @@ module Epub
       id && klass
     end
 
+    # TODO: Must be a gem for this!
     def mimetype_from_path
       return unless href
-      mimetype = case href
-      when /\.(css)$/
-        "text/css"
-      when /\.gif$/
-        "image/gif"
-      when /\.png$/
-        "image/jpeg"
-      when /\.(jpeg|jpg)$/
-        "image/jpeg"
-      when /\.(html|xhtml)$/
-        "application/xhtml+xml"
-      else
-        nil
-      end
+      MIME::Types.type_for(href)
     end
 
     private

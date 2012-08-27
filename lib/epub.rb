@@ -1,3 +1,5 @@
+$:.unshift File.dirname(__FILE__)
+
 require 'rubygems'
 require 'zip/zip'
 require 'zip/zipfilesystem'
@@ -8,6 +10,7 @@ require 'uri'
 require 'cgi'
 require 'pathname'
 require 'tmpdir'
+require 'mime/types'
 
 # Tools
 require 'epub/tools/logger' # require first

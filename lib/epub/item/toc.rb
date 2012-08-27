@@ -47,6 +47,10 @@ module Epub
       xmldoc.to_s
     end
 
+    def to_s
+      as_hash.to_yaml
+    end
+
 
     private
 

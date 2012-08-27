@@ -1,18 +1,18 @@
 module Epub
   class HtmlLink
     include Logger
+    include PathManipulation
 
-    attr_accessor :item, :node, :href, :old_href
+    attr_accessor :item, :href, :old_href
 
-    def initialize(item, node, href)
+    def initialize(item, href)
       @item = item
-      @node = node
       @href = href
       @old_href = href.to_s
     end
 
     def normalize
-      if !external_link?
+      if !is_external_link? && !blank_link?
         if linked_item
           log "Changing #{src.to_s} to #{new_src.to_s}"
           href.content = new_src.to_s
@@ -24,7 +24,7 @@ module Epub
 
 
     def missing_item?
-      !external_link? && !linked_item
+      !is_external_link? && !blank_link? && !linked_item
     end
 
 
@@ -65,8 +65,12 @@ module Epub
       end
 
       # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
-      def external_link?
-        clean_href =~ /^[a-zA-Z]+?:/# || href == ""
+      def is_external_link?
+        external_link?(clean_href)
+      end
+
+      def blank_link?
+        unescaped_path.to_s == ""
       end
 
   end

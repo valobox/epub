@@ -5,33 +5,34 @@ require 'tempfile'
 module Epub
   class CSS < Item
 
-    attr_accessor :css
+    attr_accessor :css, :sass
 
     def initialize(filepath, epub)  
       super(filepath, epub)
 
       @type = :css
       @normalized_dir = "OEBPS"
+
+      # Create the sass from css
+      @sass = css_to_sass
     end
 
     def normalize
-      # Create the sass from css
-      sass = css_to_sass(css)
 
       # remove the @char style css directives (can't be indented)
-      sass = remove_css_directives(sass)
+      remove_css_directives
 
       # any refs need rewriting to the normalized paths
-      sass = normalize_paths(sass)
+      normalize_paths
 
       # fonts need resizing to an em value to enable scaling
-      sass = convert_fonts(sass)
+      convert_fonts
 
       # Parse SASS
       engine = Sass::Engine.new(sass)
 
       # Render CSS and add it to the string
-      css = engine.render
+      self.css = engine.render
     end
 
 
@@ -57,6 +58,10 @@ module Epub
       save
     end
 
+    def to_s
+      css.to_s
+    end
+
 
     private
 
@@ -65,18 +70,17 @@ module Epub
       end
 
       # TODO: Work out how to do this without shelling out
-      def css_to_sass(css_data)
-        sass = nil
+      def css_to_sass
         Tempfile.open("css_to_sass") do |file|
           # Write the css
-          file.write css_data
+          file.write css
 
           # Rewind back to the start
           file.rewind
 
           # Use the std sass command line to convert a CSS file to SASS
           command = "sass-convert #{file.path}"
-          sass = `#{command}`
+          self.sass = `#{command}`
         end
         sass
       end
@@ -111,31 +115,35 @@ module Epub
       # We namespace the css so these will bork
       # The easy way to handle is to remove
       # So loop through identifying directives and remove them an anything indented inside
-      def remove_css_directives(sass)
+      def remove_css_directives
 
         new_sass = ""
         directive_indent = nil
 
         # Go through the lines rewriting paths as appropriate
         sass.each_line do |line|
-          line = SassLine.new(self, line, directive_indent)
+          sass_line = SassLine.new(self, line, directive_indent)
 
-          if line.inside_css_directive?
+          if sass_line.inside_css_directive?
             next
-          elsif line.is_css_directive?
-            directive_indent = line.indent
+          elsif sass_line.is_css_directive?
+            directive_indent = sass_line.indent
           else
             directive_indent = nil
-            new_sass += "%s\n" % line.to_s
+            new_sass += "%s\n" % sass_line.to_s
+          end
+
+          if sass_line.missing_item?
+            create_manifest_entry(sass_line.old_src)
           end
         end
 
-        new_sass
+        self.sass = new_sass
       end
 
 
       # rewrite internal paths to normalized paths
-      def normalize_paths(sass)
+      def normalize_paths
         new_sass = ""
         sass.each_line do |line|
           line = SassLine.new(self, line)
@@ -143,12 +151,12 @@ module Epub
           new_sass += "%s\n" % line.to_s
         end
 
-        new_sass
+        self.sass = new_sass
       end
 
 
       # Convert all fonts to ems
-      def convert_fonts(sass)
+      def convert_fonts
         out = ""
         sass.each_line do |line|
           line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
@@ -157,7 +165,7 @@ module Epub
           end
           out << line
         end
-        out
+        self.sass = out
       end
 
   end
