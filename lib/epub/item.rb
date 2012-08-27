@@ -121,10 +121,10 @@ module Epub
 
       # create an absolute path to a file #=> 'OEBPS/HTML/' + '../CSS/style.css' = 'OEBPS/CSS/style.css' 
       def abs_path_to_file(path_to_file)
-        clean_path(base_dir, path_to_file)
+        clean_path(base_dirname, path_to_file)
       end
 
-      def base_dir
+      def base_dirname
         Pathname.new(filepath).dirname.to_s
       end
 

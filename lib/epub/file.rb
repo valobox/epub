@@ -186,7 +186,7 @@ module Epub
 
 
     def opf_dirname
-      ::File.dirname(opf_path)
+      Pathname.new(opf_path).dirname.to_s
     end
 
 

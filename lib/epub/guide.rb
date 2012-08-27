@@ -11,6 +11,13 @@ module Epub
     # 
     # @see Epub::File#normalize!
     def normalize!
+      normalize
+      save
+    end
+
+
+    # Normalizes and returns the normalized guide contents
+    def normalize
       doc = xmldoc
 
       # TODO: Handle this better
@@ -18,21 +25,18 @@ module Epub
         return
       end
 
-      items do |node|
-        href_str = node.attributes['href'].to_s
-        href = CGI::unescape(href_str)
-        item = @epub.manifest.item_for_path(href)
-
-        if !item
-          raise "No item in manifest for #{href_str}"
-        end
-
-        node['href'] = item.normalized_hashed_path(:relative_to => @epub.opf_path)
-      end
-
-      @epub.save_opf!(doc, Epub::Manifest.opf_xpath)
+      normalize_paths
+      to_s
     end
 
+
+    # Saves the contents of the guide to the OPF
+    def save
+      @epub.save_opf!(xmldoc, opf_xpath)
+    end
+
+
+    # Prints the xml
     def to_s
       xmldoc.to_s
     end
@@ -49,14 +53,34 @@ module Epub
       end
 
       def xmldoc
-        @epub.opf_xml.xpath(opf_xpath)
+        @xmldoc ||= @epub.opf_xml.xpath(opf_xpath)
+      end
+
+      def base_dirname
+        @epub.opf_dirname
       end
 
       # Iterate over each item in the guide
-      def items
-        xmldoc.xpath(opf_item_xpath).each do |item|
-          yield(item)
+      def entries
+        xmldoc.xpath(opf_item_xpath).each do |entry|
+          yield(entry)
         end
+      end
+
+      def normalize_paths
+
+        entries do |node|
+          href_str = node.attributes['href'].to_s
+          href = CGI::unescape(href_str)
+          item = @epub.manifest.item_for_path(href)
+
+          if !item
+            raise "No item in manifest for #{href_str}"
+          end
+
+          node['href'] = item.normalized_hashed_path(relative_to: base_dirname)
+        end
+        
       end
 
   end
