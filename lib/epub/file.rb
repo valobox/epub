@@ -3,7 +3,7 @@ module Epub
     include Logger
 
     # @private
-    attr_accessor :file
+    attr_accessor :file, :path, :opf_xml
 
     # @param [String] path to an epub file, path can be either:
     #   * Directory of an extracted Epub
@@ -11,19 +11,8 @@ module Epub
     #   * Non existing path, in which case a new file is created
     def initialize(path)
       @path = path
-
-      case type
-      when :zip
-        @file = ZipFile.new(path)
-      when :filesystem
-        @file = FileSystem.new(path)
-      when :nofile
-        raise "File not valid"
-        @file = ZipFile.new(path)
-        build_skeleton
-      end
-
-      @opf_xml = @file.read_xml(opf_path)
+      @file = build_file
+      @opf_xml = file.read_xml(opf_path)
     end
 
 
@@ -94,8 +83,8 @@ module Epub
     def normalize!
       # Prep
       log "preping"
-      @file.mkdir "META-INF"
-      @file.mkdir "OEBPS"
+      file.mkdir "META-INF"
+      file.mkdir "OEBPS"
 
       log "toc.normalize!"
       toc.normalize!
@@ -107,7 +96,7 @@ module Epub
       manifest.normalize!
 
       log "finalize"
-      @file.clean_empty_dirs!
+      file.clean_empty_dirs!
     end
 
 
@@ -151,14 +140,13 @@ module Epub
       spine.toc
     end
 
-
     # Save a partial opf
     def save_opf!(doc_partial, xpath)
       file.write(opf_path) do |f|
         doc = opf_xml
 
         # Find where we're inseting into
-        node = doc.xpath(xpath, 'xmlns' => xml_ns['xmlns']).first
+        node = doc.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
 
         # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
         # create the new doc before we insert, else we get a default namespace
@@ -192,7 +180,7 @@ module Epub
 
 
     def opf_path
-      doc = @file.read_xml("META-INF/container.xml")
+      doc = file.read_xml("META-INF/container.xml")
       doc.xpath("//xmlns:rootfile").first.attributes["full-path"].to_s
     end
 
@@ -202,13 +190,8 @@ module Epub
     end
 
 
-    def opf_xml
-      @opf_xml
-    end
-
-
     def to_s
-      ret=""
+      ret = ""
       file.each do |entry|
         ret << entry.to_s
       end
@@ -218,18 +201,24 @@ module Epub
 
     private
 
-      def xml_ns
-        {
-          'xmlns' => 'http://www.idpf.org/2007/opf'
-        }
+      def build_file
+        case type
+        when :zip
+          ZipFile.new(path)
+        when :filesystem
+          FileSystem.new(path)
+        when :nofile
+          build_skeleton
+        end
       end
+
 
       # Gets the type of the file passed to #new
       # @return [Symbol] type of file either [:filesystem, :zip, :nofile]
       def type
-        if ::File.directory?(@path)
+        if ::File.directory?(path)
           return :filesystem
-        elsif ::File.file?(@path)
+        elsif ::File.file?(path)
           return :zip
         else
           return :nofile
@@ -237,34 +226,36 @@ module Epub
       end
 
 
-    # Builds the skeleton Epub structure
-    def build_skeleton
-      @file.mkdir "META-INF"
-      @file.mkdir "OEBPS"
+      # Builds the skeleton Epub structure
+      def build_skeleton
+        raise "File not valid"
+        file = ZipFile.new(path)
+        file.mkdir "META-INF"
+        file.mkdir "OEBPS"
 
-      container_xml = <<END
-<?xml version="1.0"?>
-<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-    <rootfiles>
-        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
-   </rootfiles>
-</container>
-END
+        container_xml = <<-END.strip_heredoc
+          <?xml version="1.0"?>
+          <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+              <rootfiles>
+                  <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+             </rootfiles>
+          </container>
+        END
 
-      content_opf = <<END
-<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0">
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    </metadata>
-    <manifest></manifest>
-    <spine toc="ncx"></spine>
-</package>
-END
+        content_opf = <<-END.strip_heredoc
+          <?xml version="1.0" encoding="UTF-8"?>
+          <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookID" version="2.0">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+              </metadata>
+              <manifest></manifest>
+              <spine toc="ncx"></spine>
+          </package>
+        END
 
-      @file.write("META-INF/container.xml", container_xml)
-      @file.write("OEBPS/content.opf",      content_opf)
-      nil
-    end
+        file.write("META-INF/container.xml", container_xml)
+        file.write("OEBPS/content.opf",      content_opf)
+        file
+      end
 
   end
 end

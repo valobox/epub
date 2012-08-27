@@ -10,7 +10,7 @@ module Epub
     end
 
     def item
-      klass.new(epub, {:id => id}) if node
+      klass.new(epub, id: id) if node
     end
 
     private
@@ -58,7 +58,7 @@ module Epub
         
 
       def class_from_path
-        klass = case path
+        klass = case href
         when /\.(css)$/
           CSS
         when /\.(png|jpeg|jpg|gif|svg)$/

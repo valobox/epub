@@ -29,7 +29,8 @@ Gem::Specification.new do |s|
   s.add_dependency "yui-compressor"
   s.add_dependency "html_compressor"
   s.add_dependency "ruby-filemagic"
- 
+  s.add_dependency "activesupport"
+
   s.files        = Dir.glob("{bin,lib}/**/*") + %w(README.md)
   s.executables  = ['epub']
   s.require_path = 'lib'

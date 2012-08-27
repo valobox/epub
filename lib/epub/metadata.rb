@@ -4,39 +4,36 @@ module Epub
   class Metadata
     include XML
 
+    attr_accessor :epub
+
 
     def initialize(epub)
       @epub = epub
     end
 
 
-    def xmldoc
-      @epub.opf_xml.xpath(opf_path, 'xmlns' => xml_ns['xmlns']).first
-    end
-
-
     # Setter
-    def []=(k,v)
+    def []=(key, value)
       doc = xmldoc
-      obj = xml_def[k]
+      obj = xml_def[key]
 
       # Error if not a valid metadata entry
-      raise "#{k} not valid" if !obj
+      raise "#{key} not valid" if !obj
       
       xpath = "//#{obj[:node]}"
       node = doc.xpath(xpath, 'dc' => xml_ns['dc']).first
 
       if node
         # Node exists so set it
-        node.content = v
+        node.content = value
       else
         # Node doesn't exist create it
         node = Nokogiri::XML::Node.new "dc:title", doc
-        node.content = v
+        node.content = value
         doc.add_child(node)
       end
 
-      @epub.save_opf!(doc, OPF_XPATH)
+      epub.save_opf!(doc, opf_xpath)
     end
 
 
@@ -59,7 +56,7 @@ module Epub
     def to_s
       out = []
       xml_def.each do |k,v|
-        val=self[k]
+        val = self[k]
         out << "#{k}: #{val}"
       end
       out.join "\n"
@@ -108,8 +105,13 @@ module Epub
         }
       end
 
+
+      def xmldoc
+        epub.opf_xml.xpath(opf_xpath, 'xmlns' => xml_ns['xmlns']).first
+      end
+
       ###
-      # Processor  methods
+      # Processor methods
       ###
 
       # Matches the format urn:isbn:9780735664852

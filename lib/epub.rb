@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'zip/zip'
 require 'zip/zipfilesystem'
+require 'active_support'
 require 'sanitize'
 require 'fastimage'
 require 'uri'

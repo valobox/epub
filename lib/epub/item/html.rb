@@ -134,13 +134,13 @@ module Epub
         end
       end
 
-      def internal_link?(href)
-        # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
-        if !href || href=="" || href =~ /^[a-zA-Z]+?:/
-          return false
-        end
+      def clean_link(href)
+        href.to_s.gsub(" ", "%20")
+      end
 
-        return true
+      # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
+      def internal_link?(href)
+        !(href =~ /^[a-zA-Z]+?:/)
       end
   end
 end

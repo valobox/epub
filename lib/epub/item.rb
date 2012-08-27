@@ -79,6 +79,7 @@ module Epub
     end
 
 
+    # Get an item based on the relative path from this item
     # TODO: Might need to escape URL
     # TODO: Need to normalize the path here
     def get_item(rel_path)      
@@ -99,6 +100,13 @@ module Epub
     end
 
 
+    # returns the full path to an item after it is hashed
+    # /html/chapters/1.html #=> /html/a42901.html
+    # @options
+    # - :relative_to #=> a Epub::Item or path to build the path relative to
+    # Uses
+    # - use to move an item to it's normalized location
+    # - use to generate a url to an asset relative to another for changing hrefs
     def normalized_hashed_path(opts={})
       path = ::File.join(@normalized_dir, hashed_filename)
 
@@ -122,11 +130,6 @@ module Epub
       path
     end
 
-    # Hash of the absolute filepath
-    def hash
-      Digest::MD5.hexdigest(abs_filepath)[0..5]
-    end
-
 
     # Flattens the epub structure, _overidden by subclasses_
     # @see Epub::File#normalize!
@@ -138,7 +141,13 @@ module Epub
 
     private
 
+      # Hash of the absolute filepath
+      def hash
+        Digest::MD5.hexdigest(abs_filepath)[0..5]
+      end
+
       # The hashed filename
+      # /html/chapters/1.html #=> a42901.html
       def hashed_filename
         ext = ::File.extname(abs_filepath)
         ext = @file_ext_overide if @file_ext_overide

@@ -18,65 +18,16 @@ module Epub
     # 
     # @see Epub::File#normalize!
     def normalize!
-      # Read the css
-      data = read
+      # Create the sass from css
+      sass = css_to_sass(read)
 
-      sass = css_to_sass(data)
+      # remove the @char style css directives (can't be indented)
+      sass = remove_css_directives(sass)
 
-      # Resolve the images in the sass to there new location
-      new_sass = ""
+      # any refs need rewriting to the normalized paths
+      sass = update_paths(sass)
 
-      remove_on_condition = nil
-      directive_indent = -1
-      sass.each_line do |line|
-        line.chomp!
-
-        # Get the indent size
-        indent = line.sub(/^(\s+).*$/, "\\1").size
-
-        # Remove if the last indent was a directive
-        if remove_on_condition
-          if indent > directive_indent
-            next
-          end
-        end
-
-        # If its a css directive remove it!
-        if line =~ /^\s+@/
-          directive_indent = indent
-          remove_on_condition = true
-          next
-        end
-
-        remove_on_condition = false
-
-        # Grab all the url('path') definitions
-        if line =~ /url\(.*\)/
-          # Split it up into its parts
-          line.gsub!(/(url\(["']?)(.+?)(["']?\))/) do |m|
-            # Array for the new rule
-            new_rule = [$1, nil, $3]
-            src = $2
-
-            # Check its not an external url
-            if src !~ /^http[s]?:\/\// && src && src != ''
-              # Delete any anchors (just incase)
-              src = src.sub(/^(.*)\#$/, "$1")
-
-              # Build the filename
-              src_item = get_item(src)
-              new_rule[1] = src_item.normalized_hashed_path(:relative_to => self)
-
-              # override the original string
-              m.replace new_rule.join
-            end
-          end
-        end
-        new_sass += "%s\n" % line
-      end
-
-      sass = new_sass
-
+      # fonts need resizing to an em value to enable scaling
       sass = convert_fonts(sass)
 
       # Parse SASS
@@ -85,6 +36,7 @@ module Epub
       # Render CSS and add it to the string
       css = engine.render
 
+      # Write it to the css file
       write(css)
     end
 
@@ -116,20 +68,6 @@ module Epub
       end
 
 
-      # Convert all fonts to ems
-      def convert_fonts(sass)
-        out = ""
-        sass.each_line do |line|
-          line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
-            #                 :spacing  :rule  :value
-            m = "%s%s: %s" % [$1,       $2,    CSS.val_to_em($3)]
-          end
-          out << line
-        end
-        out
-      end
-
-
       # Convert a css size rule value to ems, the supported formats are:
       # * point (24pt)
       # * pixels (24px)
@@ -154,5 +92,110 @@ module Epub
           else rule_value
         end
       end
+
+      # CSS directives must be top levl
+      # We namespace the css so these will bork
+      # The easy way to handle is to remove
+      # So loop through identifying directives and remove them an anything indented inside
+      def remove_css_directives(sass)
+
+        new_sass = ""
+        directive_indent = nil
+
+        # Go through the lines rewriting paths as appropriate
+        sass.each_line do |line|
+          line = SassLine.new(self, line, directive_indent)
+
+          if line.inside_css_directive?
+            next
+          elsif line.is_css_directive?
+            directive_indent = line.indent
+          else
+            directive_indent = nil
+            new_sass += "%s\n" % line.to_s
+          end
+        end
+
+        new_sass
+      end
+
+
+      # rewrite internal paths to normalized paths
+      def update_paths(sass)
+        sass.each_line do |line|
+          line = SassLine.new(self, line)
+          line.rewrite_paths if line.has_path?
+          new_sass += "%s\n" % line.to_s
+        end
+
+        new_sass
+      end
+
+
+      # Convert all fonts to ems
+      def convert_fonts(sass)
+        out = ""
+        sass.each_line do |line|
+          line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
+            #                 :spacing  :rule  :value
+            m = "%s%s: %s" % [$1,       $2,    CSS.val_to_em($3)]
+          end
+          out << line
+        end
+        out
+      end
+
+  end
+
+  class SassLine
+
+    def initialize(item, line, directive_indent = nil)
+      @item = item
+      @line = line.chomp!
+      @directive_indent = directive_indent
+    end
+
+    def indent
+      @line.sub(/^(\s+).*$/, "\\1").size
+    end
+
+    def is_css_directive?
+      @line =~ /^\s+@/
+    end
+
+    def inside_css_directive?
+      @directive_indent && indent > @directive_indent
+    end
+
+    def has_path?
+      @line =~ /url\(.*\)/
+    end
+
+    def rewrite_paths
+      # Split it up into its parts
+      @line.gsub!(/(url\(["']?)(.+?)(["']?\))/) do |m|
+        # Array for the new rule
+        new_rule = [$1, nil, $3]
+        src = $2
+
+        # Check its not an external url
+        if src !~ /^http[s]?:\/\// && src && src != ''
+          # Delete any anchors (just incase)
+          src = src.sub(/^(.*)\#$/, "$1")
+
+          # Build the filename
+          src_item = @item.get_item(src)
+          new_rule[1] = src_item.normalized_hashed_path(relative_to: self)
+
+          # override the original string
+          m.replace new_rule.join
+        end
+      end
+    end
+
+    def to_s
+      @line
+    end
+
   end
 end

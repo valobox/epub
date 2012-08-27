@@ -130,6 +130,21 @@ When ever you have an instance of a `Epub::Item` you can edit that file in place
     item.write(html)
 
 
+### Standardizing
+
+TODO!!!
+
+ePub standardization ensures the epub is valid ready for manipulation. The `standardize` command does the following:
+
+- html:
+ - ensure proper head and body tags
+ - strip js from html
+- css
+ - namespace to avoid style conflicts
+- manifest
+ - ensure references exist for all assets
+ - ensure assets exist
+
 
 ### Normalizing
 
@@ -179,6 +194,7 @@ Will be normalized into the following format, note the file names get renamed to
 
 ### Compressing
 
+TODO: Compress the images
 Calling `compress!` will minify all the *css* and *html* items in the epub and compress the images (**IMAGES NOT YET WORKING**). Note the image compression does not reduce quality
 
 
@@ -194,7 +210,6 @@ You can also pass a block which will re-zip the epub when the block exits. The b
     Epub::File.extract('example.epub') do |epub| 
         # Do some epub processing here...
     end
-
 
 
 ## Development

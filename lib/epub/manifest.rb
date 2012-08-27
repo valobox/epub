@@ -167,11 +167,11 @@ module Epub
         '//xmlns:item'
       end
 
-      def xpath_from_id(id)
+      def xpath_for_id(id)
         '//xmlns:item[@id="%s"]' % id
       end
 
-      def xpath_from_href(href)
+      def xpath_for_href(href)
         '//xmlns:item[@href="%s"]' % CGI::unescape(href)
       end
 
@@ -208,7 +208,7 @@ module Epub
       # @args
       # - id #=> id in the manifest for the node
       def node_from_id(id)
-        matching_nodes = xpath_find( xpath_from_id(id) )
+        matching_nodes = xpath_find( xpath_for_id(id) )
         first_node(matching_nodes)
       end
 
@@ -221,7 +221,7 @@ module Epub
       # - nil if missing
       def node_from_path(path)
         path = path.split("#").first # sometimes the path contains an anchor name
-        matching_nodes = xpath_find( xpath_from_href(path) )
+        matching_nodes = xpath_find( xpath_for_href(path) )
         first_node(matching_nodes)
       end
 
@@ -240,7 +240,7 @@ module Epub
       end
 
       def normalize_item_contents
-        items(:image, :html, :css, :misc) do |item|
+        items(:image, :html, :css, :misc).each do |item|
           item.normalize!
         end
       end
