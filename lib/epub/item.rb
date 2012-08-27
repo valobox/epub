@@ -63,6 +63,11 @@ module Epub
       ::File.basename(filepath)
     end
 
+    def filename_without_ext
+      ext = ::File.extname(filepath)
+      ::File.basename(filepath, ext)
+    end
+
 
     # Path relative to the Epubs opf file
     def filepath
@@ -131,7 +136,7 @@ module Epub
       # The hashed filename
       # /html/chapters/1.html #=> a42901.html
       def hashed_filename
-        "#{hash(abs_filepath)}#{file_ext}"
+        "#{hash(abs_filepath)}-#{filename_without_ext}#{file_ext}"
       end
 
       def file_ext

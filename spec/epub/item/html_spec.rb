@@ -15,17 +15,17 @@ describe Epub::HTML do
   describe "normalize" do
     it "should normalize the image src" do
       cover_html.normalize
-      cover_html.to_s.should =~ /d8aed3.jpg/
+      cover_html.to_s.should =~ /d8aed3-cover_ader.jpg/
     end
 
     it "should normalize the stylesheets" do
       cover_html.normalize
-      cover_html.to_s.should =~ /3237cf.css/
+      cover_html.to_s.should =~ /3237cf-emerald.css/
     end
 
     it "should normalize the links" do
       page_html.normalize
-      page_html.to_s.should =~ /a6b68a.xhtml/
+      page_html.to_s.should =~ /a6b68a-007_c1.xhtml/
     end
 
     it "should not touch external links" do
@@ -47,6 +47,34 @@ describe Epub::HTML do
 
   end
 
+  context "html" do
+    let(:html){ "<html>Hello World</html>" }
+
+    describe "html=(html)" do
+
+      it "should set the html" do
+        page_html.html = html
+        page_html.html.should == html
+      end
+
+      it "should enable saving of the html" do
+        page_html.html = html
+        page_html.save
+        page_html.read.should == html
+      end
+    end
+
+    describe "html" do
+      it "should fetch the html var when present" do
+        page_html.html = html
+        page_html.html.should == html
+      end
+
+      it "should build the html from the xmldoc if not present" do
+        page_html.html.should == page_html.to_s
+      end
+    end
+  end
 
 
 end

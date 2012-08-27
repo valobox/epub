@@ -3,6 +3,8 @@ require 'html_compressor'
 module Epub
   class HTML < Item
 
+    attr_accessor :html
+
     def initialize(filepath, epub) 
       super(filepath, epub)
 
@@ -24,8 +26,8 @@ module Epub
       save
     end
 
+    # Process the @DOM
     def normalize
-      # Process the @DOM
       standardize_dom
       remove_scripts
       change_hrefs
@@ -40,7 +42,11 @@ module Epub
     end
 
     def to_s
-      doc.to_s
+      html
+    end
+
+    def html
+      @html || doc.to_s
     end
 
 
@@ -50,10 +56,6 @@ module Epub
         @doc ||= Nokogiri::XML.parse(read)
         @doc.encoding = 'utf-8'
         @doc
-      end
-
-      def html
-        doc.to_s
       end
 
       def stylesheet_xpath

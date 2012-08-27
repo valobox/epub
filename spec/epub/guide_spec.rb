@@ -27,7 +27,7 @@ describe Epub::Guide do
   describe "normalize" do
     it "should update the hrefs" do
       guide.normalize
-      guide.to_s.should =~ /0d6339.xhtml/
+      guide.to_s.should =~ /0d6339-01_cover.xhtml/
     end
   end
 

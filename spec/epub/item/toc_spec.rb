@@ -49,7 +49,7 @@ describe Epub::Toc do
     it "should change the filepaths" do
       toc.normalize!
       toc.xml.should_not =~ /html\/01_cover.html/
-      toc.xml.should =~ /0d6339.xhtml/
+      toc.xml.should =~ /0d6339-01_cover.xhtml/
     end
 
   end
