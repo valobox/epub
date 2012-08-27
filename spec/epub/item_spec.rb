@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Epub::Item do
 
-  let(:epub_path){ tmp_epub }
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:item){ epub.spine.items.first }
 
@@ -75,6 +74,13 @@ describe Epub::Item do
   end
 
   describe "compress!" do
+  end
+
+  describe "create_manifest_entry(href)" do
+    it "should create a manifest entry from an href" do
+      item.create_manifest_entry("peter.html")
+      epub.manifest.to_s.should =~ /peter.html/
+    end
   end
 
   

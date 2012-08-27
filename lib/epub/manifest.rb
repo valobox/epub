@@ -83,17 +83,23 @@ module Epub
 
     # Add an item to the manifest
     # @args
-    # - id #=> ID attribute
-    # - path #=> href to the file
-    # - mimetype #=> Mimetype of the file
+    # - item #=> Epub::Item
     # @returns
     #   Boolean if the item was added
-    def add(id, path, mimetype)
-      item = Nokogiri::XML::Node.new "item", xmldoc.first
-      item['id']         = id
-      item['href']       = path
-      item['media-type'] = mimetype
-      xmldoc.first.add_child(item)
+    def add(href)
+      identifier  = Identifier.new(@epub, nil, href: href)
+
+      id          = hash(href)
+      mimetype    = identifier.mimetype_from_path
+      path        = rel_path(href)
+
+
+      node = Nokogiri::XML::Node.new "item", xmldoc.first
+
+      node['id']         = id
+      node['href']       = path
+      node['media-type'] = mimetype
+      xmldoc.first.add_child(node)
 
       epub.save_opf!(xmldoc, opf_xpath)
     end
@@ -218,7 +224,7 @@ module Epub
       # - xml node if present
       # - nil if missing
       def node_from_path(path)
-        path = path.split("#").first # sometimes the path contains an anchor name
+        path = strip_anchors(path) # sometimes the path contains an anchor name
         matching_nodes = xpath_find( xpath_for_href(path) )
         first_node(matching_nodes)
       end

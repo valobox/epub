@@ -2,7 +2,6 @@ require "spec_helper"
 
 describe Epub::Manifest do
 
-  let(:epub_path){ tmp_epub }
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:manifest){ epub.manifest }
 

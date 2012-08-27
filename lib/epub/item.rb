@@ -11,18 +11,14 @@ module Epub
 
     # Initialize with a manifest id
     #
-    #     Item.new(epub, {
-    #       :id => "cover-image"  # From the content.opf
-    #     })
+    #     Item.new(epub, "cover-image")
     #
-    def initialize(epub, opts)
+    def initialize(epub, id)
       @epub = epub
+      @id   = id
       @type = :misc
       @normalized_dir = "OEBPS/assets"
 
-      @id = opts.delete(:id)
-
-      raise "File #{opts} not valid" if !@id
     end
 
 
@@ -50,6 +46,12 @@ module Epub
     # @param [String] path
     def extract(path)
       @epub.file.extract(abs_filepath, path)
+    end
+
+
+    # Boolean of if the file this item represents exists
+    def exists?
+      ::File.exists?(abs_filepath)
     end
 
 
@@ -120,6 +122,11 @@ module Epub
 
     # Compress item data, _overidden by subclasses_
     def compress!; end
+
+    def create_manifest_entry(href)
+      abs_filepath = abs_path_to_file(href)
+      @epub.manifest.add(abs_filepath)
+    end
 
 
     private

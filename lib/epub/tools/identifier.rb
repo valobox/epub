@@ -1,31 +1,53 @@
 module Epub
   class Identifier
 
-    attr_accessor :epub, :node, :klass
+    attr_accessor :epub, :node, :klass, :id, :href, :media_type
 
-    def initialize(epub, node = nil)
+    def initialize(epub, node = nil, options = {})
       @epub       = epub
       @node       = node
-      @klass      = set_klass if node
+      @options    = options
+
+      if node
+        @id         = node.attributes['id'].to_s
+        @href       = node.attributes['href'].to_s
+        @media_type = node.attributes['media-type'].to_s
+      elsif options
+        @id         = options[:id]
+        @href       = options[:href]
+        @media_type = options[:media_type]
+      end
+
+      @klass      = set_klass
     end
 
     def item
-      klass.new(epub, id: id) if node
+      klass.new(epub, id) if valid?
+    end
+
+    def valid?
+      id && klass
+    end
+
+    def mimetype_from_path
+      return unless href
+      mimetype = case href
+      when /\.(css)$/
+        "text/css"
+      when /\.gif$/
+        "image/gif"
+      when /\.png$/
+        "image/jpeg"
+      when /\.(jpeg|jpg)$/
+        "image/jpeg"
+      when /\.(html|xhtml)$/
+        "application/xhtml+xml"
+      else
+        nil
+      end
     end
 
     private
-
-      def id
-        node.attributes['id'].to_s
-      end
-
-      def media_type
-        node.attributes['media-type'].to_s
-      end
-
-      def href
-        node.attributes['href'].to_s
-      end
 
       def set_klass
         if is_toc?
@@ -40,10 +62,12 @@ module Epub
       end
 
       def is_toc?
+        return unless id
         epub.spine.toc_manifest_id == id
       end
 
       def class_from_mimetype
+        return unless media_type
         case media_type
         when 'text/css'
           CSS
@@ -58,6 +82,7 @@ module Epub
         
 
       def class_from_path
+        return unless href
         klass = case href
         when /\.(css)$/
           CSS

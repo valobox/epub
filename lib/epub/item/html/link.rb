@@ -2,12 +2,13 @@ module Epub
   class HtmlLink
     include Logger
 
-    attr_accessor :item, :node, :href
+    attr_accessor :item, :node, :href, :old_href
 
     def initialize(item, node, href)
       @item = item
       @node = node
       @href = href
+      @old_href = href.to_s
     end
 
     def normalize
@@ -22,10 +23,15 @@ module Epub
     end
 
 
+    def missing_item?
+      !external_link? && !linked_item
+    end
+
+
     private
 
       def clean_href
-        href.to_s.gsub(" ", "%20")
+        old_href.gsub(" ", "%20")
       end
 
       def src

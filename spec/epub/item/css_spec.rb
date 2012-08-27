@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe Epub::CSS do
+
+  before do
+    setup_epub
+  end
   
   it "should inherit from Epub::Item" do
     
