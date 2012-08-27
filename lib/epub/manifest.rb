@@ -248,7 +248,7 @@ module Epub
       def normalize_item_location
         nodes do |node|
           item = item_from_node(node)
-          
+
           # Move the file to flattened location
           epub.file.mv item.abs_filepath, item.normalized_hashed_path
 

@@ -5,6 +5,8 @@ require 'tempfile'
 module Epub
   class CSS < Item
 
+    attr_accessor :css
+
     def initialize(filepath, epub)  
       super(filepath, epub)
 
@@ -12,14 +14,9 @@ module Epub
       @normalized_dir = "OEBPS"
     end
 
-
-    # TODO: Split this up into multiple methods
-    # Normalizes the guide by flattening the file paths
-    # 
-    # @see Epub::File#normalize!
-    def normalize!
+    def normalize
       # Create the sass from css
-      sass = css_to_sass(read)
+      sass = css_to_sass(css)
 
       # remove the @char style css directives (can't be indented)
       sass = remove_css_directives(sass)
@@ -35,20 +32,37 @@ module Epub
 
       # Render CSS and add it to the string
       css = engine.render
+    end
 
-      # Write it to the css file
+
+    # TODO: Split this up into multiple methods
+    # Normalizes the guide by flattening the file paths
+    # 
+    # @see Epub::File#normalize!
+    def normalize!
+      normalize
+      save
+    end
+
+
+    # Write it to the css file
+    def save
       write(css)
     end
 
 
+    # Compress the css
     def compress!
-      compressor = YUI::CssCompressor.new
-      data = compressor.compress(read)
-      write(data)
+      css = YUI::CssCompressor.new.compress(css)
+      save
     end
 
 
     private
+
+      def css
+        @css ||= read
+      end
 
       # TODO: Work out how to do this without shelling out
       def css_to_sass(css_data)
@@ -122,6 +136,7 @@ module Epub
 
       # rewrite internal paths to normalized paths
       def update_paths(sass)
+        new_sass = ""
         sass.each_line do |line|
           line = SassLine.new(self, line)
           line.rewrite_paths if line.has_path?
@@ -144,58 +159,6 @@ module Epub
         end
         out
       end
-
-  end
-
-  class SassLine
-
-    def initialize(item, line, directive_indent = nil)
-      @item = item
-      @line = line.chomp!
-      @directive_indent = directive_indent
-    end
-
-    def indent
-      @line.sub(/^(\s+).*$/, "\\1").size
-    end
-
-    def is_css_directive?
-      @line =~ /^\s+@/
-    end
-
-    def inside_css_directive?
-      @directive_indent && indent > @directive_indent
-    end
-
-    def has_path?
-      @line =~ /url\(.*\)/
-    end
-
-    def rewrite_paths
-      # Split it up into its parts
-      @line.gsub!(/(url\(["']?)(.+?)(["']?\))/) do |m|
-        # Array for the new rule
-        new_rule = [$1, nil, $3]
-        src = $2
-
-        # Check its not an external url
-        if src !~ /^http[s]?:\/\// && src && src != ''
-          # Delete any anchors (just incase)
-          src = src.sub(/^(.*)\#$/, "$1")
-
-          # Build the filename
-          src_item = @item.get_item(src)
-          new_rule[1] = src_item.normalized_hashed_path(relative_to: self)
-
-          # override the original string
-          m.replace new_rule.join
-        end
-      end
-    end
-
-    def to_s
-      @line
-    end
 
   end
 end

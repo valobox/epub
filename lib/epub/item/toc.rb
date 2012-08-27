@@ -11,8 +11,18 @@ module Epub
     end
 
 
-    def as_hash(opts={})
-      items xmldoc.xpath(items_xpath), opts
+    def as_hash
+      TocElement.as_hash TocElement.build(self, navmap_elements)
+    end
+
+
+    # loop through list of navmap items
+    # Replace the src with the normalized src
+    def normalize
+      nodes(navmap_elements) do |node|
+        TocElement.new(self, node).normalize_filepath!(relative_to: self)
+      end
+      xmldoc
     end
 
 
@@ -20,40 +30,32 @@ module Epub
     # 
     # @see Epub::File#normalize!
     def normalize!
-      doc = xmldoc
-      nodes doc.xpath(items_xpath) do |node|
-        content_node = node.xpath(item_file_xpath).first
-        src = content_node.attributes['src'].to_s
-
-        src = URI(src)
-        item = get_item(src.to_s)
-
-        filepath = URI(item.normalized_hashed_path(:relative_to => self))
-        if src.fragment
-          filepath.fragment = src.fragment
-        end
-
-        content_node['src'] = filepath.to_s
-      end
+      normalize
+      save
+    end
 
 
-      root = read_xml
+    # Write the xml back to file
+    def save
+      write(xmldoc)
+    end
 
-      # Replace the node, bit messy
-      node = root.xpath(root_xpath).first
-      doc_partial = Nokogiri::XML(doc.to_s)
-      node.replace(doc_partial.root)
 
-      # Write it back
-      data = root.to_s
-      write(data)
+    # Output the xml
+    def xml
+      xmldoc.to_s
     end
 
 
     private
 
-      def root_xpath
-        '//xmlns:navMap'
+      def xmldoc
+        @xmldoc ||= read_xml
+      end
+
+      # Read the navmap items
+      def navmap_elements
+        xmldoc.xpath(items_xpath)
       end
 
       def items_xpath
@@ -62,78 +64,6 @@ module Epub
 
       def child_xpath
         'xmlns:navPoint'
-      end
-
-      def item_text_xpath
-        'xmlns:navLabel/xmlns:text'
-      end
-
-      def item_file_xpath
-        'xmlns:content'
-      end
-
-      def xmldoc
-        read_xml.xpath(root_xpath)
-      end
-
-      def items(master, opts={}, level=0)
-        items = []
-
-        master.each do |node|
-          label = xpath_content(node, item_text_xpath)
-          src   = xpath_attr(node, item_file_xpath, 'src')
-          src   = URI(src)
-
-          child = node.xpath(child_xpath)
-          child_nodes = {}
-          if child
-            # Recurse
-            child_nodes = items(child, opts, level+1)
-          end
-
-          # Get the references epub item
-          file = get_item(src.to_s)
-
-          # Position for sorting
-          position = 0
-          play_order = node.attributes['playOrder']
-          
-          # FIX: Why-oh-why does `to_s -> to_i` work and not just to_i??
-          position = play_order.to_s.to_i if play_order
-
-          # Get the filepath
-          filepath = nil
-          if opts[:normalize]
-            filepath = file.normalized_hashed_path(:relative_to => self)
-          else
-            filepath = file.filepath
-          end
-
-          raise "Error" if !filepath
-
-          filepath = URI(filepath)
-
-          # Add back in the anchor
-          if src.fragment
-            filepath.fragment = src.fragment
-          end
-
-          # Build the Hash fragment
-          if file && label
-            items << {
-              :label    => label.strip,
-              :url      => filepath.to_s,
-              :children => child_nodes,
-              :position => position
-            }
-          end
-        end
-
-        # Sort children based on their position
-        items.sort! do |x,y|
-          x[:position] <=> y[:position]
-        end
-        return items
       end
 
 

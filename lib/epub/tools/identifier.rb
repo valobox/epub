@@ -6,7 +6,7 @@ module Epub
     def initialize(epub, node = nil)
       @epub       = epub
       @node       = node
-      @klass      = set_klass
+      @klass      = set_klass if node
     end
 
     def item

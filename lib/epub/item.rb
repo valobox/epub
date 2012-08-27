@@ -107,7 +107,7 @@ module Epub
     # Uses
     # - use to move an item to it's normalized location
     # - use to generate a url to an asset relative to another for changing hrefs
-    def normalized_hashed_path(opts={})
+    def normalized_hashed_path(opts = {})
       path = ::File.join(@normalized_dir, hashed_filename)
 
       if opts[:relative_to]
