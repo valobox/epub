@@ -117,7 +117,7 @@ module Epub
 
               # Change link
               if linked_item
-                new_path = linked_item.normalized_hashed_path(:relative_to => self)
+                new_path = linked_item.normalized_hashed_path(:relative_to => self.normalized_hashed_path)
                 new_path = URI(new_path)
 
                 if src.fragment

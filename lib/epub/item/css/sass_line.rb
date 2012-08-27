@@ -24,7 +24,7 @@ module Epub
       @line =~ /url\(.*\)/
     end
 
-    def rewrite_paths
+    def normalize_paths
       # Split it up into its parts
       @line.gsub!(/(url\(["']?)(.+?)(["']?\))/) do |m|
         # Array for the new rule
@@ -38,7 +38,7 @@ module Epub
 
           # Build the filename
           src_item = @item.get_item(src)
-          new_rule[1] = src_item.normalized_hashed_path(relative_to: self)
+          new_rule[1] = src_item.normalized_hashed_path(relative_to: @item.normalized_hashed_path)
 
           # override the original string
           m.replace new_rule.join

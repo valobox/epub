@@ -3,6 +3,7 @@ require 'pathname'
 
 module Epub
   class Manifest
+    include PathManipulation
 
     attr_accessor :xmldoc, :epub
 
@@ -129,7 +130,7 @@ module Epub
     # @args
     # - abs_path #=> The absolute path to the file
     def rel_path(abs_path)
-      Pathname.new(abs_path).relative_path_from(dirname).to_s
+      relative_path(abs_path, dirname)
     end
 
 
@@ -176,12 +177,9 @@ module Epub
       end
 
 
-      # Returns a clean path based on input paths
-      # @args
-      # - list of paths to join and clean
-      def clean_path(*args)
-        path = ::File.join(args)
-        Pathname.new(path).cleanpath.to_s
+      # The directory name of the manifest opf
+      def dirname
+        epub.opf_dirname
       end
 
 
@@ -235,15 +233,18 @@ module Epub
         end
       end
 
+
       def xpath_find(xpath)
         xmldoc.xpath(xpath)
       end
+
 
       def normalize_item_contents
         items(:image, :html, :css, :misc).each do |item|
           item.normalize!
         end
       end
+
 
       def normalize_item_location
         nodes do |node|
@@ -257,14 +258,11 @@ module Epub
         end
       end
 
+
       def normalize_opf_path
         epub.save_opf!(xmldoc, opf_xpath)
         epub.file.mv epub.opf_path, opf_path
         epub.opf_path = opf_path
-      end
-
-      def dirname
-        epub.opf_dirname
       end
   end
 end

@@ -22,7 +22,7 @@ module Epub
       sass = remove_css_directives(sass)
 
       # any refs need rewriting to the normalized paths
-      sass = update_paths(sass)
+      sass = normalize_paths(sass)
 
       # fonts need resizing to an em value to enable scaling
       sass = convert_fonts(sass)
@@ -135,11 +135,11 @@ module Epub
 
 
       # rewrite internal paths to normalized paths
-      def update_paths(sass)
+      def normalize_paths(sass)
         new_sass = ""
         sass.each_line do |line|
           line = SassLine.new(self, line)
-          line.rewrite_paths if line.has_path?
+          line.normalize_paths if line.has_path?
           new_sass += "%s\n" % line.to_s
         end
 

@@ -4,8 +4,10 @@ module Epub
   # An item inside the <Epub::Manifest>
   class Item
 
+    include PathManipulation
+
     # @attr_reader [Symbol] type of item (gets overidden in subclasses)
-    attr_reader :type
+    attr_reader :type, :id
 
     # Initialize with a manifest id
     #
@@ -40,7 +42,7 @@ module Epub
 
     def write(data)
       @epub.file.write(abs_filepath) do |file|
-        file.puts(data)
+        file << data
       end
     end
 
@@ -55,20 +57,18 @@ module Epub
     # Paths
     ###
 
+
+    # Returns the filename of the item
+    def filename
+      ::File.basename(filepath)
+    end
+
+
     # Path relative to the Epubs opf file
     def filepath
       @epub.manifest.path_from_id(@id)
     end
 
-    def filename(opts={})
-      path = @epub.manifest.path_from_id(@id)
-      if opts[:no_ext]
-        ext = ::File.extname(path)
-        ::File.basename(path, ext)
-      else
-        ::File.basename(path)
-      end
-    end
 
     # Path absolute to the Epubs base directory, this will be different
     # depending on the Epub type @see Epub::File.type
@@ -79,21 +79,18 @@ module Epub
     end
 
 
-    # Get an item based on the relative path from this item
+    # Get an item based on the path from this item
     # TODO: Might need to escape URL
-    # TODO: Need to normalize the path here
-    def get_item(rel_path)      
+    def get_item(path_to_file)
       # Remove anchors
-      rel_path.sub!(/#.*$/, "")
+      path_to_file = strip_anchors(path_to_file)
 
-      base = ::File.dirname(filepath)
-      path = ::File.join(base, rel_path)
-      path = Pathname.new(path).cleanpath.to_s
+      abs_path_to_file = abs_path_to_file(path_to_file)
 
-      item = @epub.manifest.item_for_path(path.to_s)
+      item = @epub.manifest.item_for_path( abs_path_to_file )
 
       if !item
-        raise "Failed to find item in manifest for #{rel_path}"
+        raise "Failed to find item in manifest for #{path_to_file}"
       end
 
       item
@@ -103,31 +100,12 @@ module Epub
     # returns the full path to an item after it is hashed
     # /html/chapters/1.html #=> /html/a42901.html
     # @options
-    # - :relative_to #=> a Epub::Item or path to build the path relative to
+    # - :relative_to #=> a path to build the path relative to
     # Uses
     # - use to move an item to it's normalized location
     # - use to generate a url to an asset relative to another for changing hrefs
-    def normalized_hashed_path(opts = {})
-      path = ::File.join(@normalized_dir, hashed_filename)
-
-      if opts[:relative_to]
-        rel_item = opts[:relative_to]
-
-        base = nil
-        if rel_item.is_a?(Item)
-          base = rel_item.normalized_hashed_path
-        else
-          base = rel_item
-        end
-
-        base = Pathname.new(base)
-        path = Pathname.new(path)
-
-        path = path.relative_path_from(base.dirname)
-        path = path.to_s
-      end
-
-      path
+    def normalized_hashed_path(options = {})
+      relative_path(abs_normalized_hashed_path, options[:relative_to])
     end
 
 
@@ -141,20 +119,27 @@ module Epub
 
     private
 
-      # Hash of the absolute filepath
-      def hash
-        Digest::MD5.hexdigest(abs_filepath)[0..5]
+      # create an absolute path to a file #=> 'OEBPS/HTML/' + '../CSS/style.css' = 'OEBPS/CSS/style.css' 
+      def abs_path_to_file(path_to_file)
+        clean_path(base_dir, path_to_file)
+      end
+
+      def base_dir
+        Pathname.new(filepath).dirname.to_s
       end
 
       # The hashed filename
       # /html/chapters/1.html #=> a42901.html
       def hashed_filename
-        ext = ::File.extname(abs_filepath)
-        ext = @file_ext_overide if @file_ext_overide
+        "#{hash(abs_filepath)}#{file_ext}"
+      end
 
-        # Add the extension to the hashed filename
-        filename = "%s%s" % [hash, ext]
-        filename
+      def file_ext
+        @file_ext_overide || ::File.extname(abs_filepath)
+      end
+
+      def abs_normalized_hashed_path
+        ::File.join(@normalized_dir, hashed_filename)
       end
 
   end

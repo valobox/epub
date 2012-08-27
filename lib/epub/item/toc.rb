@@ -20,7 +20,7 @@ module Epub
     # Replace the src with the normalized src
     def normalize
       nodes(navmap_elements) do |node|
-        TocElement.new(self, node).normalize_filepath!(relative_to: self)
+        TocElement.new(self, node).normalize_filepath!(relative_to: self.normalized_hashed_path)
       end
       xmldoc
     end

@@ -14,6 +14,7 @@ require 'epub/tools/logger' # require first
 require 'epub/tools/dom'
 require 'epub/tools/file_system'
 require 'epub/tools/identifier'
+require 'epub/tools/path_manipulation'
 require 'epub/tools/xml'
 require 'epub/tools/zip_file'
 
