@@ -90,7 +90,7 @@ module Epub
       identifier  = Identifier.new(@epub, nil, href: href)
 
       id          = hash(href)
-      mimetype    = identifier.mimetype_from_path
+      mimetype    = identifier.mimetype_from_path.first
       path        = rel_path(href)
 
 
