@@ -11,6 +11,7 @@ module Epub
     end
 
 
+    # Create an array of hash representations of the TOC
     def as_hash
       TocElement.as_hash TocElement.build(self, navmap_elements)
     end

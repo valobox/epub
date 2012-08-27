@@ -53,7 +53,7 @@ module Epub
       end
 
       def xmldoc
-        @xmldoc ||= @epub.opf_xml.xpath(opf_xpath)
+        @epub.opf_xml.xpath(opf_xpath)
       end
 
       def base_dirname
