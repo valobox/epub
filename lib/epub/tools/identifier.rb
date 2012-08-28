@@ -29,12 +29,6 @@ module Epub
       id && klass
     end
 
-    # TODO: Must be a gem for this!
-    def mimetype_from_path
-      return unless href
-      MIME::Types.type_for(href)
-    end
-
     private
 
       def set_klass
@@ -81,6 +75,11 @@ module Epub
         else
           nil
         end
+      end
+
+      def mimetype_from_path
+        return unless href
+        MIME::Types.type_for(href)
       end
   end
 end

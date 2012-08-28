@@ -87,18 +87,11 @@ module Epub
     # @returns
     #   Boolean if the item was added
     def add(href)
-      identifier  = Identifier.new(@epub, nil, href: href)
-
-      id          = hash(href)
-      mimetype    = identifier.mimetype_from_path.first
-      path        = rel_path(href)
-
-
       node = Nokogiri::XML::Node.new "item", xmldoc.first
 
-      node['id']         = id
-      node['href']       = path
-      node['media-type'] = mimetype
+      node['id']         = hash(href)
+      node['href']       = rel_path(href)
+      node['media-type'] = MIME::Types.type_for(href)
       xmldoc.first.add_child(node)
 
       epub.save_opf!(xmldoc, opf_xpath)
