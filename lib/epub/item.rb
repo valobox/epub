@@ -126,6 +126,10 @@ module Epub
       @epub.manifest.add(abs_filepath)
     end
 
+    def log(str)
+      @epub.log(str)
+    end
+
 
     private
 
@@ -150,10 +154,6 @@ module Epub
 
       def abs_normalized_hashed_path
         ::File.join(@normalized_dir, hashed_filename)
-      end
-
-      def log(str)
-        @epub.log(str)
       end
 
   end

@@ -96,7 +96,7 @@ module Epub
 
       rescue => ex
         log "failed to normalize\n #{ex.to_s}"
-        false
+        raise ex
       end
 
 
@@ -137,6 +137,12 @@ module Epub
       @spine ||= Spine.new self
     end
 
+    # Epub toc accessor
+    # @return [Epub::Toc]
+    def toc
+      spine.toc
+    end
+
     # Add a line to the log file
     # @return boolean of write success
     def log(str)
@@ -148,12 +154,6 @@ module Epub
     # Read the epub log file
     def read_log
       file.read(log_path)
-    end
-
-    # Epub toc accessor
-    # @return [Epub::Toc]
-    def toc
-      spine.toc
     end
 
     # Save a partial opf

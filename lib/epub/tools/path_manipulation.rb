@@ -3,6 +3,10 @@ module Epub
 
     private
 
+    def clean_href(href)
+      href.strip.gsub(" ", "%20")
+    end
+
     # Returns a clean path based on input paths
     # @args
     # - list of paths to join and clean
@@ -30,6 +34,14 @@ module Epub
 
     def external_link?(path)
       path =~ /^[a-zA-Z]+?:/
+    end
+
+    def escape_path(path)
+      CGI.escape(CGI.unescape(path.to_s))
+    end
+
+    def unescape_path(path)
+      CGI.unescape(path.to_s)
     end
 
   end

@@ -4,8 +4,7 @@ module Epub
 
     attr_accessor :item, :href, :old_href
 
-    def initialize(epub, item, href)
-      @epub = epub
+    def initialize(item, href)
       @item = item
       @href = href
       @old_href = href.to_s
@@ -14,10 +13,10 @@ module Epub
     def normalize
       if !is_external_link? && !blank_link?
         if linked_item
-          @epub.log "Changing #{src.to_s} to #{new_src.to_s}"
+          log "Changing href #{src.to_s} to #{new_src.to_s}"
           href.content = new_src.to_s
         else
-          @epub.log "No item in manifest for #{src.to_s}"
+          log "No item in manifest for #{src.to_s}"
         end
       end
     end
@@ -27,31 +26,23 @@ module Epub
       !is_external_link? && !blank_link? && !linked_item
     end
 
+    def log(str)
+      item.log(str)
+    end
+
 
     private
 
-      def clean_href
-        old_href.gsub(" ", "%20")
-      end
-
       def src
-        begin
-          URI(clean_href)
-        rescue
-          log "#{orig_href} not a valid URI"
-        end
+        clean_href(old_href).to_s
       end
 
       def src_fragment
-        src.fragment
-      end
-
-      def unescaped_path
-        URI::unescape(src.path)
+        URI.parse(src).fragment
       end
 
       def linked_item
-        item.get_item(unescaped_path)
+        item.get_item(src)
       end
 
       def linked_item_normalized_path
@@ -59,18 +50,21 @@ module Epub
       end
 
       def new_src
-        new_src = URI(linked_item_normalized_path)
-        new_src.fragment = src.fragment
-        new_src
+        base = clean_href(linked_item_normalized_path)
+        if src_fragment
+          "#{base}##{src_fragment}"
+        else
+          base
+        end
       end
 
       # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
       def is_external_link?
-        external_link?(clean_href)
+        external_link?(src)
       end
 
       def blank_link?
-        unescaped_path.to_s == ""
+        src == ""
       end
 
   end

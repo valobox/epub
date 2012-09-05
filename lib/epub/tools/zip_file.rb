@@ -105,7 +105,7 @@ module Epub
     # @param [String] data to write to the file
     def ammend(filepath, data=nil)
       zip_open do |zip|
-        content = zip.file.read(filepath)
+        content = read(filepath)
         zip.file.open(filepath, "w") do |file|
           if block_given?
             yield(file)

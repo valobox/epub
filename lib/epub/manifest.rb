@@ -18,7 +18,8 @@ module Epub
     # Normalize
     ############
     def normalize!
-      @epub.log "Normalizing manifest..."
+      log "Normalizing manifest..."
+      normalize_hrefs
       normalize_item_contents
       normalize_item_location
       normalize_opf_path
@@ -85,7 +86,7 @@ module Epub
     # @returns
     #   Boolean if the item was added
     def add(href)
-      @epub.log "adding item to manifest #{href}"
+      log "adding item to manifest #{href}"
       node = Nokogiri::XML::Node.new "item", xmldoc.first
 
       node['id']         = hash(href)
@@ -102,7 +103,7 @@ module Epub
     def path_from_id(id)
       node = node_from_id(id)
       if node
-        clean_path(CGI::unescape(node.attributes['href'].to_s))
+        clean_path(unescape_path(node.attributes['href'].to_s))
       end
     end
 
@@ -170,7 +171,7 @@ module Epub
       end
 
       def xpath_for_href(href)
-        '//xmlns:item[@href="%s"]' % CGI::unescape(href)
+        '//xmlns:item[@href="%s"]' % href
       end
 
 
@@ -236,6 +237,15 @@ module Epub
       end
 
 
+      def normalize_hrefs
+        # nodes do |node|
+        #   if node['href']
+        #     node['href']  = escape_path( node['href'] )
+        #   end
+        # end
+      end
+
+
       def normalize_item_contents
         items(:image, :html, :css, :misc).each do |item|
           item.normalize!
@@ -248,7 +258,7 @@ module Epub
           item = item_from_node(node)
 
           # Move the file to flattened location
-          @epub.log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
+          log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
           epub.file.mv item.abs_filepath, item.normalized_hashed_path
 
           # Renames based on asbsolute path from base
@@ -261,6 +271,10 @@ module Epub
         epub.save_opf!(xmldoc, opf_xpath)
         epub.file.mv epub.opf_path, opf_path
         epub.opf_path = opf_path
+      end
+
+      def log(str)
+        @epub.log(str)
       end
   end
 end
