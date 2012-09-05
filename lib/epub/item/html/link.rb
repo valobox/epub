@@ -1,11 +1,11 @@
 module Epub
   class HtmlLink
-    include Logger
     include PathManipulation
 
     attr_accessor :item, :href, :old_href
 
-    def initialize(item, href)
+    def initialize(epub, item, href)
+      @epub = epub
       @item = item
       @href = href
       @old_href = href.to_s
@@ -14,10 +14,10 @@ module Epub
     def normalize
       if !is_external_link? && !blank_link?
         if linked_item
-          log "Changing #{src.to_s} to #{new_src.to_s}"
+          @epub.log "Changing #{src.to_s} to #{new_src.to_s}"
           href.content = new_src.to_s
         else
-          log "No item in manifest for #{src.to_s}"
+          @epub.log "No item in manifest for #{src.to_s}"
         end
       end
     end

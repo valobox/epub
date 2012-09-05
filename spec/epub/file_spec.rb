@@ -17,4 +17,17 @@ describe Epub::File do
     epub.file.should be_a(Epub::ZipFile)
   end
 
+  describe "normalize!" do
+    it "should normalize the file when zipped", speed: :slow do
+      epub.normalize!.should be_true
+      puts epub.read_log
+    end
+
+    it "should normalize the file when extracted", speed: :slow do
+      Epub::File.extract(epub_path) do |epub|
+        epub.normalize!.should be_true
+      end
+    end
+  end
+
 end

@@ -1,8 +1,5 @@
-require 'digest/md5'
-require 'pathname'
-
 module Epub
-  class Manifest
+  class Manifest < Base
     include PathManipulation
 
     attr_accessor :xmldoc, :epub
@@ -21,6 +18,7 @@ module Epub
     # Normalize
     ############
     def normalize!
+      @epub.log "Normalizing manifest..."
       normalize_item_contents
       normalize_item_location
       normalize_opf_path
@@ -87,13 +85,13 @@ module Epub
     # @returns
     #   Boolean if the item was added
     def add(href)
+      @epub.log "adding item to manifest #{href}"
       node = Nokogiri::XML::Node.new "item", xmldoc.first
 
       node['id']         = hash(href)
       node['href']       = rel_path(href)
-      node['media-type'] = MIME::Types.type_for(href)
+      node['media-type'] = MIME::Types.type_for(href).first
       xmldoc.first.add_child(node)
-
       epub.save_opf!(xmldoc, opf_xpath)
     end
 
@@ -250,6 +248,7 @@ module Epub
           item = item_from_node(node)
 
           # Move the file to flattened location
+          @epub.log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
           epub.file.mv item.abs_filepath, item.normalized_hashed_path
 
           # Renames based on asbsolute path from base

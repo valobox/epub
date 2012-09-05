@@ -1,5 +1,5 @@
 module Epub
-  class Guide
+  class Guide < Base
 
     # @param [Epub::File]
     def initialize(epub)
@@ -18,6 +18,7 @@ module Epub
 
     # Normalizes and returns the normalized guide contents
     def normalize
+      @epub.log "Normalizing guide..."
       doc = xmldoc
 
       # TODO: Handle this better

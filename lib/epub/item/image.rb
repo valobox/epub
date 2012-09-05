@@ -1,16 +1,15 @@
 module Epub
   class Image < Item
-    include Logger
 
-    def initialize(filepath, epub)
-      super(filepath, epub)
+    def initialize(epub, id) 
+      super(epub, id)
 
       @type        = :image
       @normalized_dir = "OEBPS/assets"
     end
 
     def compress!
-      log "TODO: Image::compress!"
+      log "compressing image #{filepath}"
     end
   end
 end

@@ -1,12 +1,10 @@
-require 'html_compressor'
-
 module Epub
   class HTML < Item
 
     attr_accessor :html
 
-    def initialize(filepath, epub) 
-      super(filepath, epub)
+    def initialize(epub, id) 
+      super(epub, id)
 
       @type        = :html
       @normalized_dir = "OEBPS"
@@ -28,6 +26,7 @@ module Epub
 
     # Process the @DOM
     def normalize
+      log "Normalizing html #{filepath}..."
       standardize_dom
       remove_scripts
       change_hrefs
@@ -38,6 +37,7 @@ module Epub
     end
 
     def compress!
+      log "compressing html file #{filepath}"
       write( HtmlCompressor::HtmlCompressor.new.compress(read) )
     end
 
@@ -76,10 +76,12 @@ module Epub
       # @param [Nokogiri::XML] html document DOM
       def standardize_dom
         if !doc.css("body")
+          log "adding body tag to #{filepath}"
           doc.css(":not(head)").wrap("<body></body>")
         end
 
         if !doc.css("html")
+          log "adding html tag to #{filepath}"
           doc.wrap("<html></html>")
         end
         nil
@@ -91,6 +93,7 @@ module Epub
       # @param [Nokogiri::XML] html document DOM
       def remove_scripts
         doc.css('script').each do |node|
+          log "removing script #{node.to_s} from #{filepath}"
           node.remove
         end
         nil
@@ -105,7 +108,7 @@ module Epub
           for attr_name in %w{href src}
             href = node.attributes[attr_name]
             if href
-              html_link = HtmlLink.new(self, href)
+              html_link = HtmlLink.new(@epub, self, href)
               html_link.normalize
 
               if html_link.missing_item?

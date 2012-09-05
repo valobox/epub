@@ -1,8 +1,6 @@
-require 'date'
-
 module Epub
   # An item inside the <Epub::Manifest>
-  class Item
+  class Item < Base
 
     include PathManipulation
 
@@ -152,6 +150,10 @@ module Epub
 
       def abs_normalized_hashed_path
         ::File.join(@normalized_dir, hashed_filename)
+      end
+
+      def log(str)
+        @epub.log(str)
       end
 
   end

@@ -3,8 +3,8 @@ module Epub
     include XML
 
 
-    def initialize(filepath, epub)
-      super(filepath, epub)
+    def initialize(epub, id) 
+      super(epub, id)
 
       @type = :toc
       @normalized_dir = "OEBPS"
@@ -20,6 +20,7 @@ module Epub
     # loop through list of navmap items
     # Replace the src with the normalized src
     def normalize
+      log "Normalizing table of contents..."
       nodes(navmap_elements) do |node|
         TocElement.new(self, node).normalize_filepath!(relative_to: self.normalized_hashed_path)
       end

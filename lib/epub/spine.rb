@@ -1,5 +1,5 @@
 module Epub
-  class Spine
+  class Spine < Base
 
     def initialize(epub)
       @epub = epub

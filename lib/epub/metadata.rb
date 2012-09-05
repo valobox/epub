@@ -1,7 +1,5 @@
-require 'date'
-
 module Epub
-  class Metadata
+  class Metadata < Base
     include XML
 
     attr_accessor :epub

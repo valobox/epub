@@ -17,11 +17,12 @@ module Epub
       extend ClassMethods
 
       # Just a simple logger for debugging
-      def log(str)
+      def log(str, options = {})
         if $VERBOSE || ENV['LIB_VERBOSE']
           puts str
         end
       end
+
     end
 
 
@@ -29,8 +30,8 @@ module Epub
     # variable `LIB_VERBOSE=true` is set.
     #
     # @param [String] log message
-    def log(str)
-      ClassMethods.log(str)
+    def log(str, options = {})
+      ClassMethods.log(str, options)
       nil
     end
   end

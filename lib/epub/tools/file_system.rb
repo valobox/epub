@@ -39,6 +39,18 @@ module Epub
     end
 
 
+    def ammend(filepath, data=nil)
+      path = abs_filepath(filepath)
+      ::File.open(path, "a") do |file|
+        if block_given?
+          yield(file)
+        else
+          file.puts data.to_s
+        end
+      end
+    end
+
+
     def rm(filepath)
       path = abs_filepath(filepath)
       FileUtils.rm(path)
@@ -123,6 +135,11 @@ module Epub
       raise "File already exists" if ::File.exists?(fpath)
 
       FileUtils.cp abs_filepath(filepath), fpath
+    end
+
+
+    def exists?(filepath)
+      ::File.exists?(filepath)
     end
 
 

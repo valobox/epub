@@ -11,6 +11,13 @@ require 'cgi'
 require 'pathname'
 require 'tmpdir'
 require 'mime/types'
+require 'digest/md5'
+require 'pathname'
+require 'date'
+require 'html_compressor'
+require "yui/compressor"
+require "sass"
+require 'tempfile'
 
 # Tools
 require 'epub/tools/logger' # require first
@@ -22,6 +29,7 @@ require 'epub/tools/xml'
 require 'epub/tools/zip_file'
 
 # Epub
+require 'epub/base'
 require 'epub/file'
 require 'epub/guide'
 require 'epub/manifest'

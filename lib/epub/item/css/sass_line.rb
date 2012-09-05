@@ -1,12 +1,12 @@
 module Epub
 
   class SassLine
-    include Logger
     include PathManipulation
 
     attr_accessor :src, :old_src
 
-    def initialize(item, line, directive_indent = nil)
+    def initialize(epub, item, line, directive_indent = nil)
+      @epub = epub
       @item = item
       @line = line.chomp!
       @directive_indent = directive_indent
@@ -41,12 +41,12 @@ module Epub
           if linked_item
             new_src  = linked_item.normalized_hashed_path(relative_to: @item.normalized_hashed_path)
 
-            log "Changing #{src.to_s} to #{new_src.to_s}"
+            @epub.log "Changing #{src.to_s} to #{new_src.to_s}"
 
             # override the original string
             url.replace "#{$1}#{new_src}#{$3}"
           else
-            log "No item in manifest for #{src.to_s}"
+            @epub.log "No item in manifest for #{src.to_s}"
           end
         end
       end

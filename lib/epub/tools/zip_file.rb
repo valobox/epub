@@ -87,11 +87,30 @@ module Epub
     # @param [String] data to write to the file
     def write(filepath, data=nil)
       zip_open do |zip|
-        zip.get_output_stream(filepath) do |file|
+        zip.file.open(filepath, "w") do |file|
           if block_given?
             yield(file)
           else
-            file.puts data
+            file.write data
+          end
+        end
+      end
+      nil
+    end
+
+
+    # Add data to a filepath
+    #
+    # @param [String] filepath
+    # @param [String] data to write to the file
+    def ammend(filepath, data=nil)
+      zip_open do |zip|
+        content = zip.file.read(filepath)
+        zip.file.open(filepath, "w") do |file|
+          if block_given?
+            yield(file)
+          else
+            file.write "#{content}\n#{data.to_s}"
           end
         end
       end
@@ -206,6 +225,13 @@ module Epub
         zip.extract(filepath, fpath)
       end
       nil
+    end
+
+
+    def exists?(filepath)
+      zip_open do |zip|
+        zip.file.exists?(filepath)
+      end
     end
 
 

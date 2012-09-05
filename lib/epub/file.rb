@@ -1,6 +1,5 @@
 module Epub
-  class File
-    include Logger
+  class File < Base
 
     # @private
     attr_accessor :file, :path, :opf_xml
@@ -13,6 +12,7 @@ module Epub
       @path = path
       @file = build_file
       @opf_xml = file.read_xml(opf_path)
+      initialize_log
     end
 
 
@@ -81,22 +81,25 @@ module Epub
     # *NOTE:* the filenames above are a md5 hash of there original location
     #
     def normalize!
-      # Prep
-      log "preping"
-      file.mkdir "META-INF"
-      file.mkdir "OEBPS"
+      begin
+        create_base_directories!
 
-      log "toc.normalize!"
-      toc.normalize!
+        toc.normalize!
 
-      log "guide.normalize!"
-      guide.normalize!
+        guide.normalize!
 
-      log "manifest.normalize!"
-      manifest.normalize!
+        manifest.normalize!
+        
+        clean_empty_dirs!
 
-      log "finalize"
-      file.clean_empty_dirs!
+        true
+
+      rescue => ex
+        log "failed to normalize\n #{ex.to_s}"
+        false
+      end
+
+
     end
 
 
@@ -113,25 +116,38 @@ module Epub
     # Epub manifest accessor
     # @return [Epub::Manifest]
     def manifest
-      Manifest.new self
+      @manifest ||= Manifest.new self
     end
 
     # Epub metadata accessor
     # @return [Epub::Metadata]
     def metadata
-      Metadata.new self
+      @metadata ||= Metadata.new self
     end
 
     # Epub guide accessor
     # @return [Epub::Guide]
     def guide
-      Guide.new self
+      @guide ||= Guide.new self
     end
 
     # Epub spine accessor
     # @return [Epub::Spine]
     def spine
-      Spine.new self
+      @spine ||= Spine.new self
+    end
+
+    # Add a line to the log file
+    # @return boolean of write success
+    def log(str)
+      file.ammend(log_path, "#{Time.now.strftime("%d/%m/%y %T")}:: #{str}")
+      puts str
+      true
+    end
+
+    # Read the epub log file
+    def read_log
+      file.read(log_path)
     end
 
     # Epub toc accessor
@@ -142,6 +158,7 @@ module Epub
 
     # Save a partial opf
     def save_opf!(doc_partial, xpath)
+      log "saving updated opf"
       file.write(opf_path) do |f|
         doc = opf_xml
 
@@ -173,8 +190,11 @@ module Epub
 
       # Edit the opf path
       node = doc.xpath("//xmlns:rootfile").first
+
+      log "updating opf path from #{opf_path} to #{v}"
       node["full-path"] = v
 
+      log "saving META-INF/container.xml"
       file.write("META-INF/container.xml") do |f|
         f.puts doc.to_s
       end
@@ -203,6 +223,16 @@ module Epub
 
     private
 
+      def log_path
+        "log.txt"
+      end
+
+      def initialize_log
+        unless @file.exists?(log_path)
+          @file.write(log_path, "")
+        end
+      end
+
       def build_file
         case type
         when :zip
@@ -225,6 +255,19 @@ module Epub
         else
           return :nofile
         end
+      end
+
+
+      def create_base_directories!
+        log "creating directories META-INF & OEBPS"
+        file.mkdir "META-INF"
+        file.mkdir "OEBPS"
+      end
+
+
+      def clean_empty_dirs!
+        log "clean empty directories"
+        file.clean_empty_dirs!
       end
 
 

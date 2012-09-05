@@ -1,14 +1,10 @@
-require "yui/compressor"
-require "sass"
-require 'tempfile'
-
 module Epub
   class CSS < Item
 
     attr_accessor :css, :sass
 
-    def initialize(filepath, epub)  
-      super(filepath, epub)
+    def initialize(epub, id) 
+      super(epub, id)
 
       @type = :css
       @normalized_dir = "OEBPS"
@@ -18,6 +14,7 @@ module Epub
     end
 
     def normalize
+      log "Normalizing css #{@filepath}..."
 
       # remove the @char style css directives (can't be indented)
       remove_css_directives
@@ -122,11 +119,12 @@ module Epub
 
         # Go through the lines rewriting paths as appropriate
         sass.each_line do |line|
-          sass_line = SassLine.new(self, line, directive_indent)
+          sass_line = SassLine.new(@epub, self, line, directive_indent)
 
           if sass_line.inside_css_directive?
             next
           elsif sass_line.is_css_directive?
+            log "removing css directive #{line.strip}"
             directive_indent = sass_line.indent
           else
             directive_indent = nil
@@ -146,7 +144,7 @@ module Epub
       def normalize_paths
         new_sass = ""
         sass.each_line do |line|
-          line = SassLine.new(self, line)
+          line = SassLine.new(@epub, self, line)
           line.normalize_paths if line.has_path?
           new_sass += "%s\n" % line.to_s
         end
