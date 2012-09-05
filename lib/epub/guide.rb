@@ -1,5 +1,6 @@
 module Epub
   class Guide < Base
+    include PathManipulation
 
     # @param [Epub::File]
     def initialize(epub)
@@ -71,15 +72,16 @@ module Epub
       def normalize_paths
 
         entries do |node|
-          href_str = node.attributes['href'].to_s
-          href = CGI::unescape(href_str)
+          href = node['href'].to_s
           item = @epub.manifest.item_for_path(href)
 
           if !item
             raise "No item in manifest for #{href_str}"
           end
 
-          node['href'] = item.normalized_hashed_path(relative_to: base_dirname)
+          new_href = item.normalized_hashed_path(relative_to: base_dirname)
+
+          node['href'] = add_fragment_to_href(new_href, URI.parse(href).fragment)
         end
         
       end

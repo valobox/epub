@@ -3,6 +3,14 @@ module Epub
 
     private
 
+    def add_fragment_to_href(href, fragment = nil)
+      if fragment
+        "#{href}##{fragment}"
+      else
+        href
+      end
+    end
+
     def clean_href(href)
       href.strip.gsub(" ", "%20")
     end

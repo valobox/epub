@@ -51,11 +51,7 @@ module Epub
 
       def new_src
         base = clean_href(linked_item_normalized_path)
-        if src_fragment
-          "#{base}##{src_fragment}"
-        else
-          base
-        end
+        add_fragment_to_href(base, src_fragment)
       end
 
       # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'
