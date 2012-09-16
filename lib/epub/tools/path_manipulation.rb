@@ -12,7 +12,8 @@ module Epub
     end
 
     def clean_href(href)
-      href.strip.gsub(" ", "%20")
+      # TODO: A better way would be to split by / then take the last section, strip off the anchor then cgi escape
+      CGI.unescape(href.strip).gsub(" ", "%20")
     end
 
     # Returns a clean path based on input paths

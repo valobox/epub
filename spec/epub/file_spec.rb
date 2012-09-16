@@ -30,4 +30,11 @@ describe Epub::File do
     end
   end
 
+  describe "normalize_hrefs" do
+    it "should standardize the escaping of href attributes" do
+      epub.manifest.send :normalize_hrefs
+      puts epub.manifest.to_s
+    end
+  end
+
 end
