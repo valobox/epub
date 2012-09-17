@@ -11,7 +11,9 @@ module Epub
     end
 
     def normalize
-      if !is_external_link? && !blank_link?
+      log "old href= #{@old_href}"
+      log "anchor_link? #{anchor_link?}"
+      if !is_external_link? && !blank_link? && !anchor_link?
         if linked_item
           log "Changing href #{src.to_s} to #{new_src.to_s}"
           href.content = new_src.to_s
@@ -23,7 +25,7 @@ module Epub
 
 
     def missing_item?
-      !is_external_link? && !blank_link? && !linked_item
+      !is_external_link? && !blank_link? && !anchor_link? && !linked_item
     end
 
     def log(str)
@@ -60,7 +62,11 @@ module Epub
       end
 
       def blank_link?
-        src == ""
+        src.strip == ""
+      end
+
+      def anchor_link?
+        src.match(/^\#.*/) != nil
       end
 
   end
