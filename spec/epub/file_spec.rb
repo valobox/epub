@@ -20,7 +20,6 @@ describe Epub::File do
   describe "normalize!" do
     it "should normalize the file when zipped", speed: :slow do
       epub.normalize!.should be_true
-      puts epub.read_log
     end
 
     it "should normalize the file when extracted", speed: :slow do

@@ -57,21 +57,21 @@ module Epub
     end
 
 
-    def mv(old_fn,new_fn)
-      old_fn = abs_filepath(old_fn)
-      new_fn = abs_filepath(new_fn)
+    def mv(existing_path, new_path)
+      existing_path = abs_filepath(existing_path)
+      new_path = abs_filepath(new_path)
 
-      if old_fn == new_fn
+      if existing_path == new_path
         # Do nothing the files are the same
         return
       end
 
       # Make sure the target path exists
-      dirname = ::File.dirname(new_fn)
+      dirname = ::File.dirname(new_path)
       FileUtils.mkdir(dirname) if !::File.exists?(dirname)
 
-      log "mv #{old_fn} #{new_fn}"
-      FileUtils.mv(old_fn, new_fn)
+      log "mv #{existing_path} to #{new_path}"
+      FileUtils.mv(existing_path, new_path)
       nil
     end
 

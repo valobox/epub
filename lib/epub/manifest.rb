@@ -238,11 +238,11 @@ module Epub
 
 
       def normalize_hrefs
-        # nodes do |node|
-        #   if node['href']
-        #     node['href']  = escape_path( node['href'] )
-        #   end
-        # end
+        nodes do |node|
+          if node['href']
+            node['href']  = escape_path( node['href'] )
+          end
+        end
       end
 
 

@@ -13,7 +13,7 @@ module Epub
 
     def clean_href(href)
       # TODO: A better way would be to split by / then take the last section, strip off the anchor then cgi escape
-      CGI.unescape(href.strip).gsub(" ", "%20")
+      CGI.unescape(href.strip).gsub(" ", "+")
     end
 
     # Returns a clean path based on input paths
@@ -29,6 +29,7 @@ module Epub
       Digest::MD5.hexdigest(path)[0..5]
     end
 
+    # get the path to one file from another
     def relative_path(path_to, path_from)
       path_from ||= ""
       path_to  = Pathname.new(path_to)
@@ -45,10 +46,14 @@ module Epub
       path =~ /^[a-zA-Z]+?:/
     end
 
+    # escape a filepath so spaces and non standard characters in the filename are escaped
     def escape_path(path)
-      CGI.escape(CGI.unescape(path.to_s))
+      filename = ::File.basename(path)
+      folder   = ::File.dirname(path)
+      ::File.join folder, CGI.escape(unescape_path(filename))
     end
 
+    # turn an escaped path into a usable path
     def unescape_path(path)
       CGI.unescape(path.to_s)
     end

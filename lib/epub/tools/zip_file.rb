@@ -29,12 +29,14 @@ module Epub
     def self.zip(dirpath, zip_filepath)
       zip_filepath_bak = "#{zip_filepath}_bak"
       # Backup the old file
-      FileUtils.cp(zip_filepath, zip_filepath_bak)
+      FileUtils.mv(zip_filepath, zip_filepath_bak)
 
       begin
+
+        # zip = Zip::ZipFile.new(zip_filepath, true)
         # Create the new zip
         # NOTE: This overides the zip file
-        Zip::ZipFile::open(zip_filepath, true) do |zf|
+        Zip::ZipFile.open(zip_filepath, true) do |zf|
           Dir["#{dirpath}/**/*"].each do |f|
             pn_f       = Pathname.new(f)
             pn_dirpath = Pathname.new(dirpath)
@@ -48,7 +50,7 @@ module Epub
         # Remove the backup
         FileUtils.rm(zip_filepath_bak)
       rescue
-        FileUtils.mv(zip_filepath_bak, zip_filepath)
+        # FileUtils.mv(zip_filepath_bak, zip_filepath)
         raise "Failed to create zip"
       end
     end

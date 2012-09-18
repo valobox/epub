@@ -11,8 +11,8 @@ module Epub
     end
 
     def normalize
-      log "old href= #{@old_href}"
-      log "anchor_link? #{anchor_link?}"
+      # TODO: need to handle anchor only links. At the moment they are left as they are.
+      # For ease of processing later it might be best to re-label them to the full path to the existing file
       if !is_external_link? && !blank_link? && !anchor_link?
         if linked_item
           log "Changing href #{src.to_s} to #{new_src.to_s}"
@@ -22,7 +22,6 @@ module Epub
         end
       end
     end
-
 
     def missing_item?
       !is_external_link? && !blank_link? && !anchor_link? && !linked_item

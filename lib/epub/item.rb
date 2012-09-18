@@ -71,7 +71,7 @@ module Epub
 
     # Path relative to the Epubs opf file
     def filepath
-      @epub.manifest.path_from_id(@id)
+      escape_path @epub.manifest.path_from_id(@id)
     end
 
 
