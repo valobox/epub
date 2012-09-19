@@ -16,13 +16,19 @@ module Epub
       TocElement.as_hash TocElement.build(self, navmap_elements)
     end
 
+    def standardize!
+      nodes(navmap_elements) do |node|
+        TocElement.new(self, node).standardize_url!
+      end
+    end
+
 
     # loop through list of navmap items
     # Replace the src with the normalized src
     def normalize
       log "Normalizing table of contents..."
       nodes(navmap_elements) do |node|
-        TocElement.new(self, node).normalize_filepath!(relative_to: self.normalized_hashed_path)
+        TocElement.new(self, node).normalize_url!(relative_to: self.normalized_hashed_path)
       end
       xmldoc
     end

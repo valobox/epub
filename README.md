@@ -266,6 +266,8 @@ Yardoc is used for the documentation, you can start a server and see the docs by
 - keep CSS directives
   - possibly make another stylesheet file
   - or could leave them in and let vxi_epub handle them
-- escape JavaScript not remove
-- break into standardize step and then normalize
-- extract html not in the guide into assets?
+- escape JavaScript instead of removing
+- break normalizing into two steps:
+  - standardize to ensure url escaping, correct html, css is clean
+  - normalize to put in a standard file structure
+- extract any html which is not in the guide into assets such as footnotes, appendix, other html objects (maybe vxi_epub job)

@@ -8,6 +8,13 @@ module Epub
     end
 
 
+    def standardize!
+      entries do |node|
+        node['href'] = escape_url(node['href'])
+      end
+    end
+
+
     # Normalizes the guide by flattening the file paths
     # 
     # @see Epub::File#normalize!
@@ -70,18 +77,14 @@ module Epub
       end
 
       def normalize_paths
-
         entries do |node|
-          href = node['href'].to_s
-          item = @epub.manifest.item_for_path(href)
-
-          if !item
-            raise "No item in manifest for #{href_str}"
-          end
+          url = node['href']
+          path = escape_path(url)
+          item = @epub.manifest.item_for_path(url)
 
           new_href = item.normalized_hashed_path(relative_to: base_dirname)
 
-          node['href'] = add_fragment_to_href(new_href, URI.parse(href).fragment)
+          node['href'] = add_anchor_to_url(new_href, get_anchor(url))
         end
         
       end

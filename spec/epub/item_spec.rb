@@ -61,10 +61,12 @@ describe Epub::Item do
 
   describe "normalized_hashed_path(opts)" do
     it "should be a string" do
+      sleep 0.1 # takes time to unzip - should we use a callback?
       item.normalized_hashed_path.should == "OEBPS/0d6339-01_cover.xhtml"
     end
 
     it "should be return a relative path if given relative_to option" do
+      sleep 0.1 # takes time to unzip - should we use a callback?
       item.normalized_hashed_path(relative_to: epub.opf_path).should == "0d6339-01_cover.xhtml"
     end
   end

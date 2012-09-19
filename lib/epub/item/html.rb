@@ -109,6 +109,7 @@ module Epub
             href = node.attributes[attr_name]
             if href
               html_link = HtmlLink.new(self, href)
+              # All links should be escaped and normalized
               html_link.normalize
 
               if html_link.missing_item?

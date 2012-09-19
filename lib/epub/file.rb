@@ -84,10 +84,14 @@ module Epub
       begin
         create_base_directories!
 
+        # Standardize the urls
+        toc.standardize!
+        guide.standardize!
+        manifest.standardize!
+
+        # normalize the files
         toc.normalize!
-
         guide.normalize!
-
         manifest.normalize!
         
         clean_empty_dirs!

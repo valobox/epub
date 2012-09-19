@@ -4,6 +4,7 @@ module Epub
   # <navPoint id="navpoint-3" playOrder="3"><navLabel><text>Title page</text></navLabel><content src="html/003_tp.html#tp"/></navPoint>
   class TocElement
     include XML
+    include PathManipulation
 
 
     def initialize(toc, node)
@@ -75,15 +76,20 @@ module Epub
     # Item attributes
     ##############
 
-    def normalize_filepath!(options = {})
+    def standardize_url!
+      content_node = @node.xpath(item_file_xpath).first
+      content_node['src'] = escape_path(content_node['src'])
+    end
+
+    def normalize_url!(options = {})
       content_node = @node.xpath(item_file_xpath).first # FIXME: duplicate of src?
-      content_node['src'] = normalize_filepath(options).to_s
+      content_node['src'] = normalize_url(options).to_s
     end
 
     def to_hash
       {
         label:    label.strip,
-        url:      filepath.to_s,
+        url:      url.to_s,
         position: play_order,
         children: []
       }
@@ -109,28 +115,18 @@ module Epub
       end
 
       # TODO - look at decoupling item
-      def filepath
-        path = URI item.filepath
-        path.fragment = src.fragment
-        
-        if path
-          path
-        else
-          raise "Error: No file found"
-        end
+      def url
+        url = URI item.url
+        url.fragment = src.fragment
+        url
       end
 
-      # Create a normalized filepath of an item
+      # Create a normalized url of an item
       # TODO - look at decoupling item
-      def normalize_filepath(options = {})
-        path = URI item.normalized_hashed_path(options)
-        path.fragment = src.fragment
-
-        if path
-          path
-        else
-          raise "Error: No file found"
-        end
+      def normalize_url(options = {})
+        url = URI item.normalized_hashed_url(options)
+        url.fragment = src.fragment
+        url
       end
   end
 end

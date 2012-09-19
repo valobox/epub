@@ -27,11 +27,19 @@ describe Epub::File do
         epub.normalize!.should be_true
       end
     end
+
+    Dir["spec/fixtures/test_files/*.epub"].each do |epub_path|
+      it "should normalize the file" do
+        Epub::File.extract(epub_path) do |epub|
+          epub.normalize!.should be_true
+        end
+      end
+    end
   end
 
-  describe "normalize_hrefs" do
+  describe "standardize_hrefs" do
     it "should standardize the escaping of href attributes" do
-      epub.manifest.send :normalize_hrefs
+      epub.manifest.send :standardize_hrefs
       puts epub.manifest.to_s
     end
   end

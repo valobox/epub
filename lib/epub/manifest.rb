@@ -14,12 +14,16 @@ module Epub
       xmldoc.to_s
     end
 
+
+    def standardize!
+      standardize_hrefs
+    end
+
     ############
     # Normalize
     ############
     def normalize!
       log "Normalizing manifest..."
-      standardize_hrefs
       normalize_item_contents
       normalize_item_location
       normalize_opf_path
@@ -103,7 +107,7 @@ module Epub
     def path_from_id(id)
       node = node_from_id(id)
       if node
-        clean_path(unescape_path(node.attributes['href'].to_s))
+        clean_path(node.attributes['href'].to_s)
       end
     end
 
@@ -216,9 +220,14 @@ module Epub
       # - xml node if present
       # - nil if missing
       def node_from_path(path)
-        path = strip_anchors(path) # sometimes the path contains an anchor name
+        path = escape_path(path) # sometimes the path contains an anchor name
         matching_nodes = xpath_find( xpath_for_href(path) )
-        first_node(matching_nodes)
+        node = first_node(matching_nodes)
+        if node
+          node
+        else
+          raise "can't find node for path #{path}"
+        end
       end
 
 
@@ -237,10 +246,13 @@ module Epub
       end
 
 
+      # All hrefs in the manifest should be escaped
       def standardize_hrefs
         nodes do |node|
           if node['href']
-            node['href']  = escape_path( node['href'] )
+            new_href = escape_path( node['href'] )
+            puts "new_href in manifest standardizing #{new_href}"
+            node['href']  = new_href
           end
         end
       end

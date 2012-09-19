@@ -35,7 +35,7 @@ module Epub
     private
 
       def src
-        clean_href(old_href).to_s
+        clean_url(old_href).to_s
       end
 
       def src_fragment
@@ -51,8 +51,8 @@ module Epub
       end
 
       def new_src
-        base = clean_href(linked_item_normalized_path)
-        add_fragment_to_href(base, src_fragment)
+        base = clean_url(linked_item_normalized_path)
+        add_anchor_to_url(base, src_fragment)
       end
 
       # Catch all hrefs begining with a protocol 'http:', 'ftp:', 'mailto:'

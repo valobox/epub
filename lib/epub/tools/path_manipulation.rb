@@ -3,26 +3,78 @@ module Epub
 
     private
 
-    def add_fragment_to_href(href, fragment = nil)
+    ###############
+    # URL helpers
+    ###############
+
+    def add_anchor_to_url(url, fragment = nil)
       if fragment
-        "#{href}##{fragment}"
+        "#{url}##{fragment}"
       else
-        href
+        url
       end
     end
 
-    def clean_href(href)
+    def clean_url(href)
       # TODO: A better way would be to split by / then take the last section, strip off the anchor then cgi escape
-      CGI.unescape(href.strip).gsub(" ", "+")
+      CGI.unescape(href.strip).gsub(" ", "%20")
     end
 
+    def strip_anchors(path)
+      path.sub(/#.*$/, "")
+    end
+
+    def get_anchor(url)
+      url = clean_url(url)
+      URI(url).fragment
+    end
+
+    def external_link?(path)
+      path =~ /^[a-zA-Z]+?:/
+    end
+
+    # escape the url ensuring the anchor is kept
+    def escape_url(url)
+      url = clean_url(url)
+      add_anchor_to_url escape_path(url), get_anchor(url)
+    end
+
+
+    ##############
+    # Path helpers
+    ##############
+
     # Returns a clean path based on input paths
+    # /OEPS/html/../CSS/style.css #=> /OEPS/CSS/style.css
     # @args
     # - list of paths to join and clean
     def clean_path(*args)
       path = ::File.join(args.to_a.compact)
       Pathname.new(path).cleanpath.to_s
     end
+
+    # escape a filepath so spaces and non standard characters in the filename are escaped
+    def escape_path(path)
+      # Strip anchors incase input is in a url form (as per guide)
+      path = strip_anchors(path)
+      filename = ::File.basename(path)
+      folder   = ::File.dirname(path)
+      # avoid turning style.css into ./style.css
+      if folder == "."
+        filename
+      else
+        ::File.join folder, CGI.escape(unescape_path(filename))
+      end
+    end
+
+    # turn an escaped path into a usable path
+    def unescape_path(path)
+      CGI.unescape(path.to_s)
+    end
+
+    ##############
+    # General helpers
+    ##############
 
     # Hash of the absolute filepath
     def hash(path)
@@ -36,32 +88,6 @@ module Epub
       dir_from = Pathname.new(path_from).dirname
 
       path_to.relative_path_from(dir_from).to_s
-    end
-
-    def strip_anchors(path)
-      path.sub(/#.*$/, "")
-    end
-
-    def external_link?(path)
-      path =~ /^[a-zA-Z]+?:/
-    end
-
-    # escape a filepath so spaces and non standard characters in the filename are escaped
-    def escape_path(path)
-      filename = ::File.basename(path)
-      folder   = ::File.dirname(path)
-
-      # avoid turning style.css into ./style.css
-      if folder == "."
-        filename
-      else
-        ::File.join folder, CGI.escape(unescape_path(filename))
-      end
-    end
-
-    # turn an escaped path into a usable path
-    def unescape_path(path)
-      CGI.unescape(path.to_s)
     end
 
   end

@@ -60,7 +60,7 @@ module Epub
 
     # Returns the filename of the item
     def filename
-      ::File.basename(filepath)
+      unescape_path ::File.basename(filepath)
     end
 
     def filename_without_ext
@@ -71,6 +71,10 @@ module Epub
 
     # Path relative to the Epubs opf file
     def filepath
+      unescape_path url
+    end
+
+    def url
       @epub.manifest.path_from_id(@id)
     end
 
@@ -80,6 +84,10 @@ module Epub
     # * *zip:* Root of the zip filesystem
     # * *directory:* Root relative to base epub directory
     def abs_filepath
+      unescape_path abs_url
+    end
+
+    def abs_url
       @epub.manifest.abs_path_from_id(@id)
     end
 
@@ -87,18 +95,14 @@ module Epub
     # Get an item based on the path from this item
     # TODO: Might need to escape URL
     def get_item(path_to_file)
+      # unescape the path so the filesystem can find it
+      path_to_file = unescape_path path_to_file
       # Remove anchors
       path_to_file = strip_anchors(path_to_file)
-
+      # Get the absolute path to the file from epub root
       abs_path_to_file = abs_path_to_file(path_to_file)
 
-      item = @epub.manifest.item_for_path( abs_path_to_file )
-
-      if item
-        item
-      else
-        raise "Failed to find item in manifest for #{path_to_file}" 
-      end
+      @epub.manifest.item_for_path( abs_path_to_file )
     end
 
 
@@ -110,7 +114,11 @@ module Epub
     # - use to move an item to it's normalized location
     # - use to generate a url to an asset relative to another for changing hrefs
     def normalized_hashed_path(options = {})
-      relative_path(abs_normalized_hashed_path, options[:relative_to])
+      unescape_path normalized_hashed_url options
+    end
+
+    def normalized_hashed_url(options = {})
+      escape_url relative_path(abs_normalized_hashed_path, options[:relative_to])
     end
 
 

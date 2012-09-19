@@ -4,3 +4,4 @@ Gemfile.lock
 *.gem
 examples/epubs/extracted_*
 .yardoc
+spec/fixtures/test_files/*
