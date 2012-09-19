@@ -3,16 +3,18 @@ require 'spec_helper'
 describe Epub::Metadata do
 
   subject(:epub){ Epub::File.new(tmp_epub) }
-
-  before do
+    
+  before :all do
     setup_epub
   end
+
 
   it "should retrieve the metadata" do
     epub.metadata.should be_a(Epub::Metadata)
   end
 
   describe "[]" do
+
     it "should retrive the title" do
       epub.metadata[:title].should == "Emerald City And Other Stories"
     end
@@ -27,6 +29,7 @@ describe Epub::Metadata do
   end
 
   describe "[]=(thing)" do
+
     it "should set the title" do
       epub.metadata[:title] = "Test file"
       epub.metadata[:title].should == "Test file"

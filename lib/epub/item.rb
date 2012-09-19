@@ -95,14 +95,21 @@ module Epub
     # Get an item based on the path from this item
     # TODO: Might need to escape URL
     def get_item(path_to_file)
+
       # unescape the path so the filesystem can find it
-      path_to_file = unescape_path path_to_file
-      # Remove anchors
+      path_to_file = unescape_path(path_to_file)
+
+      # Remove anchors in case it's a url
       path_to_file = strip_anchors(path_to_file)
-      # Get the absolute path to the file from epub root
+
+      # Get the absolute path to the file from the epub item
       abs_path_to_file = abs_path_to_file(path_to_file)
 
-      @epub.manifest.item_for_path( abs_path_to_file )
+      begin
+        @epub.manifest.item_for_path( abs_path_to_file )
+      rescue
+        @epub.manifest.add( abs_path_to_file )
+      end
     end
 
 
@@ -123,6 +130,10 @@ module Epub
 
 
     # Flattens the epub structure, _overidden by subclasses_
+    # @see Epub::File#standardize!
+    def standardize!; end
+
+    # Flattens the epub structure, _overidden by subclasses_
     # @see Epub::File#normalize!
     def normalize!; end
 
@@ -138,20 +149,20 @@ module Epub
       @epub.log(str)
     end
 
+    # create an absolute path to a file #=> 'OEBPS/HTML/file.html' + '../CSS/style.css' = 'OEBPS/CSS/style.css' 
+    def abs_path_to_file(path_to_file)
+      clean_path(base_dirname, path_to_file)
+    end
+
 
     private
-
-      # create an absolute path to a file #=> 'OEBPS/HTML/' + '../CSS/style.css' = 'OEBPS/CSS/style.css' 
-      def abs_path_to_file(path_to_file)
-        clean_path(base_dirname, path_to_file)
-      end
 
       def base_dirname
         Pathname.new(filepath).dirname.to_s
       end
 
       # The hashed filename
-      # /html/chapters/1.html #=> a42901.html
+      # /html/chapters/1.html #=> a42901-1.html
       def hashed_filename
         "#{hash(abs_filepath)}-#{filename_without_ext}#{file_ext}"
       end

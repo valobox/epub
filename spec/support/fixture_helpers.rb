@@ -16,8 +16,11 @@ module FixtureHelpers
     File.join(tmp_dir, "test.epub")
   end
 
-  def setup_epub
-    FileUtils.cp test_epub, tmp_epub
+  def setup_epub(source_epub = test_epub)
+    FileUtils.cp source_epub, tmp_epub
+    while !File.exists?(tmp_epub)
+      sleep 0.1
+    end
   end
 
   def remove_epub

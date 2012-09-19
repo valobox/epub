@@ -35,8 +35,8 @@ module Epub
 
     # escape the url ensuring the anchor is kept
     def escape_url(url)
-      url = clean_url(url)
-      add_anchor_to_url escape_path(url), get_anchor(url)
+      new_url = clean_url(url)
+      add_anchor_to_url escape_path(new_url), get_anchor(url)
     end
 
 

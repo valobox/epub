@@ -5,7 +5,7 @@ describe Epub::Manifest do
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:manifest){ epub.manifest }
 
-  before do
+  before :all do
     setup_epub
   end
 
@@ -20,7 +20,9 @@ describe Epub::Manifest do
   describe "items" do
     subject{manifest.items}
 
-    it { should be_a(Array) }
+    it "should be an array" do
+      subject.should be_a(Array)
+    end
 
     it "should contain an Epub::Item" do
       subject.first.should be_a(Epub::Item)

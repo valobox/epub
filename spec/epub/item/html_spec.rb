@@ -7,7 +7,7 @@ describe Epub::HTML do
   let(:page_html){ epub.manifest.item_for_id("body005") }
   let(:copyright_html){ epub.manifest.item_for_id("body004") }
 
-  before do
+  before :all do
     setup_epub
   end
 

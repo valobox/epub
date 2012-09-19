@@ -111,10 +111,6 @@ module Epub
               html_link = HtmlLink.new(self, href)
               # All links should be escaped and normalized
               html_link.normalize
-
-              if html_link.missing_item?
-                create_manifest_entry(href)
-              end
             end
           end
         end

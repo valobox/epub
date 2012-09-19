@@ -151,7 +151,7 @@ module Epub
     # @return boolean of write success
     def log(str)
       file.ammend(log_path, "#{Time.now.strftime("%d/%m/%y %T")}:: #{str}")
-      puts str
+      puts str if $VERBOSE || ENV['LIB_VERBOSE']
       true
     end
 

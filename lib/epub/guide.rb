@@ -80,7 +80,7 @@ module Epub
         entries do |node|
           url = node['href']
           path = escape_path(url)
-          item = @epub.manifest.item_for_path(url)
+          item = @epub.manifest.item_for_path(path)
 
           new_href = item.normalized_hashed_path(relative_to: base_dirname)
 

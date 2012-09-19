@@ -15,13 +15,15 @@ module Epub
     end
 
 
+    ############
+    # Processing
+    ############
     def standardize!
+      log "Standardizing manifest..."
       standardize_hrefs
+      standardize_item_contents
     end
 
-    ############
-    # Normalize
-    ############
     def normalize!
       log "Normalizing manifest..."
       normalize_item_contents
@@ -86,18 +88,27 @@ module Epub
 
     # Add an item to the manifest
     # @args
-    # - item #=> Epub::Item
+    # - path #=> Absolute path from epub root to item
     # @returns
-    #   Boolean if the item was added
-    def add(href)
-      log "adding item to manifest #{href}"
-      node = Nokogiri::XML::Node.new "item", xmldoc.first
+    #   Epub::Item if the item was added
+    def add(path)
+      if @epub.file.exists?(abs_path(path))
+        log "adding #{abs_path(path)} to the manifest..."
+        node = Nokogiri::XML::Node.new "item", xmldoc.first
 
-      node['id']         = hash(href)
-      node['href']       = rel_path(href)
-      node['media-type'] = MIME::Types.type_for(href).first
-      xmldoc.first.add_child(node)
-      epub.save_opf!(xmldoc, opf_xpath)
+        id = hash(path)
+        node['id']         = id
+        node['href']       = rel_path(path)
+        node['media-type'] = MIME::Types.type_for(path).first
+
+        xmldoc.first.add_child(node)
+        epub.save_opf!(xmldoc, opf_xpath)
+
+        item_for_id(id)
+      else
+        log "file not found #{abs_path(path)}"
+        nil
+      end
     end
 
 
@@ -151,6 +162,10 @@ module Epub
       item_for_path rel_path(path)
     end
 
+    # return the path from the epub root given the path from the OPF
+    def abs_path(path_from_opf)
+      clean_path(@epub.opf_dirname, path_from_opf)
+    end
 
     private
 
@@ -171,13 +186,8 @@ module Epub
       end
 
       def xpath_for_id(id)
-        '//xmlns:item[@id="%s"]' % id
+        "//xmlns:item[@id=\"#{id}\"]"
       end
-
-      def xpath_for_href(href)
-        '//xmlns:item[@href="%s"]' % href
-      end
-
 
       # The directory name of the manifest opf
       def dirname
@@ -208,8 +218,7 @@ module Epub
       # @args
       # - id #=> id in the manifest for the node
       def node_from_id(id)
-        matching_nodes = xpath_find( xpath_for_id(id) )
-        first_node(matching_nodes)
+        xpath_find( xpath_for_id(id) ).first || raise("can't find node for id #{id}")
       end
 
 
@@ -218,26 +227,19 @@ module Epub
       # - path #=> path of file relative to opf
       # @returns
       # - xml node if present
-      # - nil if missing
+      # Loop through the nodes rather than use xpath find as need case insensitive matching
+      # If we find a way to do case insensitive matching can use nokogiri which might be faster
+      # def node_from_path(path)
+      #   xpath_find("//xmlns:item[@href=\"#{escape_path(path)}\"]").first || raise "can't find node for path #{path}"
+      # end
       def node_from_path(path)
-        path = escape_path(path) # sometimes the path contains an anchor name
-        matching_nodes = xpath_find( xpath_for_href(path) )
-        node = first_node(matching_nodes)
-        if node
-          node
-        else
-          raise "can't find node for path #{path}"
-        end
-      end
+        path = escape_path(path).downcase
 
-
-      # Return the first node from a set or raises an error if more than one are found
-      def first_node(nodes)
-        if nodes.length > 1
-          raise "XPath matched #{nodes.length} entries"
-        else
-          nodes.first
+        nodes do |node|
+          return node if node['href'].downcase == path
         end
+
+        raise("can't find node for path #{path}")
       end
 
 
@@ -251,9 +253,15 @@ module Epub
         nodes do |node|
           if node['href']
             new_href = escape_path( node['href'] )
-            puts "new_href in manifest standardizing #{new_href}"
             node['href']  = new_href
           end
+        end
+      end
+
+
+      def standardize_item_contents
+        items(:image, :html, :css, :misc).each do |item|
+          item.standardize!
         end
       end
 

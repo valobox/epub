@@ -5,7 +5,7 @@ describe Epub::Item do
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:item){ epub.spine.items.first }
 
-  before do
+  before :all do
     setup_epub
   end
 

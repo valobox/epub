@@ -5,7 +5,7 @@ describe Epub::Guide do
   let(:epub){ Epub::File.new(tmp_epub) }
   subject(:guide){ epub.guide }
 
-  before do
+  before :all do
     setup_epub
   end
 

@@ -78,7 +78,7 @@ module Epub
 
     def standardize_url!
       content_node = @node.xpath(item_file_xpath).first
-      content_node['src'] = escape_path(content_node['src'])
+      content_node['src'] = escape_url(content_node['src'])
     end
 
     def normalize_url!(options = {})
@@ -115,10 +115,11 @@ module Epub
       end
 
       # TODO - look at decoupling item
+      # Add the anchor to the url
       def url
         url = URI item.url
         url.fragment = src.fragment
-        url
+        url.to_s
       end
 
       # Create a normalized url of an item
@@ -126,7 +127,7 @@ module Epub
       def normalize_url(options = {})
         url = URI item.normalized_hashed_url(options)
         url.fragment = src.fragment
-        url
+        url.to_s
       end
   end
 end

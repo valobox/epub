@@ -8,28 +8,40 @@ module Epub
 
       @type = :css
       @normalized_dir = "OEBPS"
+    end
+
+    def standardize
+      log "Standardizing css #{@filepath}..."
 
       # Create the sass from css
-      @sass = css_to_sass
+      css_to_sass
+
+      # remove the @char style css directives (can't be indented)
+      remove_css_directives
+
+      # fonts need resizing to an em value to enable scaling
+      convert_fonts
+
+      # Render CSS
+      sass_to_css
+    end
+
+    def standardize!
+      standardize
+      save
     end
 
     def normalize
       log "Normalizing css #{@filepath}..."
 
-      # remove the @char style css directives (can't be indented)
-      remove_css_directives
+      # Create the sass from css
+      css_to_sass
 
       # any refs need rewriting to the normalized paths
       normalize_paths
 
-      # fonts need resizing to an em value to enable scaling
-      convert_fonts
-
-      # Parse SASS
-      engine = Sass::Engine.new(sass)
-
-      # Render CSS and add it to the string
-      self.css = engine.render
+      # Render CSS
+      sass_to_css
     end
 
 
@@ -80,6 +92,11 @@ module Epub
           self.sass = `#{command}`
         end
         sass
+      end
+
+      # Render CSS
+      def sass_to_css
+        self.css = Sass::Engine.new(sass).render
       end
 
 
@@ -146,7 +163,7 @@ module Epub
         sass.each_line do |line|
           line = SassLine.new(@epub, self, line)
           line.normalize_paths if line.has_path?
-          new_sass += "%s\n" % line.to_s
+          new_sass += "#{line.to_s}\n"
         end
 
         self.sass = new_sass
