@@ -50,7 +50,13 @@ module Epub
     def escape_path(path)
       filename = ::File.basename(path)
       folder   = ::File.dirname(path)
-      ::File.join folder, CGI.escape(unescape_path(filename))
+
+      # avoid turning style.css into ./style.css
+      if folder == "."
+        filename
+      else
+        ::File.join folder, CGI.escape(unescape_path(filename))
+      end
     end
 
     # turn an escaped path into a usable path

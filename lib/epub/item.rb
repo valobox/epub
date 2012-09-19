@@ -94,11 +94,11 @@ module Epub
 
       item = @epub.manifest.item_for_path( abs_path_to_file )
 
-      if !item
-        raise "Failed to find item in manifest for #{path_to_file}"
+      if item
+        item
+      else
+        raise "Failed to find item in manifest for #{path_to_file}" 
       end
-
-      item
     end
 
 
