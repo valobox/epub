@@ -75,7 +75,7 @@ module Epub
     end
 
     def url
-      @epub.manifest.path_from_id(@id)
+      escape_url @epub.manifest.path_from_id(@id)
     end
 
 
@@ -95,6 +95,7 @@ module Epub
     # Get an item based on the path from this item
     # TODO: Might need to escape URL
     def get_item(path_to_file)
+      log "getting #{path_to_file}"
 
       # unescape the path so the filesystem can find it
       path_to_file = unescape_path(path_to_file)
@@ -141,8 +142,7 @@ module Epub
     def compress!; end
 
     def create_manifest_entry(href)
-      abs_filepath = abs_path_to_file(href)
-      @epub.manifest.add(abs_filepath)
+      @epub.manifest.add( abs_path_to_file(href) )
     end
 
     def log(str)

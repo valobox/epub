@@ -50,7 +50,7 @@ module Epub
             # override the original string
             url.replace new_url
           else
-            @epub.log "Failed to find file #{self.src} referenced in #{item.filepath}"
+            @epub.log "Failed to find file #{self.src} referenced in #{@item.filepath}"
           end
         end
       end

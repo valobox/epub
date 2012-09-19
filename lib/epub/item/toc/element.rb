@@ -117,17 +117,13 @@ module Epub
       # TODO - look at decoupling item
       # Add the anchor to the url
       def url
-        url = URI item.url
-        url.fragment = src.fragment
-        url.to_s
+        escape_url(item.url)
       end
 
       # Create a normalized url of an item
       # TODO - look at decoupling item
       def normalize_url(options = {})
-        url = URI item.normalized_hashed_url(options)
-        url.fragment = src.fragment
-        url.to_s
+        escape_url(item.normalized_hashed_url(options))
       end
   end
 end

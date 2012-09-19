@@ -4,7 +4,7 @@ describe Epub::Metadata do
 
   subject(:epub){ Epub::File.new(tmp_epub) }
     
-  before :all do
+  before do
     setup_epub
   end
 

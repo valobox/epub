@@ -5,7 +5,7 @@ describe Epub::Item do
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:item){ epub.spine.items.first }
 
-  before :all do
+  before do
     setup_epub
   end
 
@@ -54,8 +54,8 @@ describe Epub::Item do
       item.get_item("002_alsoby.html").should be_a(Epub::Item)
     end
 
-    it "should raise an error if the relative file does not exist" do
-      lambda { item.get_item("non_existant") }.should raise_error
+    it "should return nil if the relative file does not exist" do
+      item.get_item("non_existant").should be_nil
     end
   end
 
@@ -80,8 +80,8 @@ describe Epub::Item do
 
   describe "create_manifest_entry(href)" do
     it "should create a manifest entry from an href" do
+      epub.manifest.should_receive(:add).with("html/peter.html")
       item.create_manifest_entry("peter.html")
-      epub.manifest.to_s.should =~ /peter.html/
     end
   end
 

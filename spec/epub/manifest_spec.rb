@@ -5,7 +5,7 @@ describe Epub::Manifest do
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:manifest){ epub.manifest }
 
-  before :all do
+  before do
     setup_epub
   end
 

@@ -5,7 +5,7 @@ describe Epub::Toc do
   let(:epub){ Epub::File.new(tmp_epub) }
   let(:toc){epub.toc}
 
-  before :all do
+  before do
     setup_epub
   end
 
