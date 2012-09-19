@@ -19,7 +19,7 @@ module Epub
     ############
     def normalize!
       log "Normalizing manifest..."
-      normalize_hrefs
+      standardize_hrefs
       normalize_item_contents
       normalize_item_location
       normalize_opf_path
@@ -237,7 +237,7 @@ module Epub
       end
 
 
-      def normalize_hrefs
+      def standardize_hrefs
         nodes do |node|
           if node['href']
             node['href']  = escape_path( node['href'] )

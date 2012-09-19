@@ -261,3 +261,11 @@ Yardoc is used for the documentation, you can start a server and see the docs by
 
     yard server --reload
 
+## TODO
+
+- keep CSS directives
+  - possibly make another stylesheet file
+  - or could leave them in and let vxi_epub handle them
+- escape JavaScript not remove
+- break into standardize step and then normalize
+- extract html not in the guide into assets?
