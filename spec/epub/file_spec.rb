@@ -41,7 +41,38 @@ describe Epub::File do
   describe "standardize_hrefs" do
     it "should standardize the escaping of href attributes" do
       epub.manifest.send :standardize_hrefs
-      # puts epub.manifest.to_s
+    end
+  end
+
+  context "logger" do
+    describe "log(str)" do
+      it "should write a line to the log file" do
+        epub.log "fishing!"
+        epub.read_log.should =~ /fishing/
+      end
+
+      it "should persist the log" do
+        epub.log "fishing!"
+        epub2 = Epub::File.new(tmp_epub)
+        epub2.read_log.should =~ /fishing/
+      end
+
+      it "should initialize a log if none is present" do
+        epub.file.exists?("log.txt").should be_false
+        epub.log "fishing!"
+        epub.file.exists?("log.txt").should be_true
+      end
+    end
+
+    describe "read_log" do
+      it "should read the contents of the log file" do
+        epub.log "fishing"
+        epub.read_log.should =~ /fishing/
+      end
+
+      it "should return false if no log is present?" do
+        epub.read_log.should be_false
+      end
     end
   end
 

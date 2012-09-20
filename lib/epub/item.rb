@@ -35,9 +35,7 @@ module Epub
     end
 
     def write(data)
-      @epub.file.write(abs_filepath) do |file|
-        file << data
-      end
+      @epub.file.write(abs_filepath, data)
     end
 
     # Extract file to the _path_ specified
@@ -95,7 +93,6 @@ module Epub
     # Get an item based on the path from this item
     # TODO: Might need to escape URL
     def get_item(path_to_file)
-      log "getting #{path_to_file}"
 
       # unescape the path so the filesystem can find it
       path_to_file = unescape_path(path_to_file)

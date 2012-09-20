@@ -42,7 +42,7 @@ module Epub
             pn_dirpath = Pathname.new(dirpath)
             rel_path   = pn_f.relative_path_from(pn_dirpath)
 
-            log "#{f} to #{rel_path}"
+            log "adding #{f} as #{rel_path}"
             zf.add(rel_path, f){true} # true proc overwrites files
           end
         end

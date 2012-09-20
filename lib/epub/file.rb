@@ -12,7 +12,6 @@ module Epub
       @path = path
       @file = build_file
       @opf_xml = file.read_xml(opf_path)
-      initialize_log
     end
 
 
@@ -147,41 +146,29 @@ module Epub
       spine.toc
     end
 
-    # Add a line to the log file
-    # @return boolean of write success
-    def log(str)
-      file.ammend(log_path, "#{Time.now.strftime("%d/%m/%y %T")}:: #{str}")
-      puts str if $VERBOSE || ENV['LIB_VERBOSE']
-      true
-    end
-
-    # Read the epub log file
-    def read_log
-      file.read(log_path)
-    end
-
     # Save a partial opf
     def save_opf!(doc_partial, xpath)
       log "saving updated opf"
-      file.write(opf_path) do |f|
-        doc = opf_xml
 
-        # Find where we're inseting into
-        node = doc.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
+      doc = opf_xml
 
-        if node
-          # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
-          # create the new doc before we insert, else we get a default namespace
-          # prefix
-          doc_partial = Nokogiri::XML(doc_partial.to_s)
-          node.replace(doc_partial.root)
-          
-          data = doc.to_s
-          f.puts data
+      # Find where we're inseting into
+      node = doc.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
 
-          @opf_xml = doc
-        end
+      if node
+        # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
+        # create the new doc before we insert, else we get a default namespace
+        # prefix
+        doc_partial = Nokogiri::XML(doc_partial.to_s)
+        node.replace(doc_partial.root)
+        
+        data = doc.to_s
+
+        file.write(opf_path, data)
+
+        @opf_xml = doc
       end
+
     end
 
 
@@ -199,9 +186,7 @@ module Epub
       node["full-path"] = v
 
       log "saving META-INF/container.xml"
-      file.write("META-INF/container.xml") do |f|
-        f.puts doc.to_s
-      end
+      file.write("META-INF/container.xml", doc.to_s)
     end
 
 
@@ -224,6 +209,20 @@ module Epub
       ret
     end
 
+    # Add a line to the log file
+    # @return boolean of write success
+    def log(str)
+      initialize_log
+      self.file.ammend(log_path, "#{Time.now.strftime("%d/%m/%y %T")}:: #{str}")
+      puts str if $VERBOSE || ENV['LIB_VERBOSE']
+      true
+    end
+
+    # Read the epub log file
+    def read_log
+      file.read(log_path) if log_present?
+    end
+
 
     private
 
@@ -231,8 +230,12 @@ module Epub
         "log.txt"
       end
 
+      def log_present?
+        @file.exists?(log_path)
+      end
+
       def initialize_log
-        unless @file.exists?(log_path)
+        unless log_present?
           @file.write(log_path, "")
         end
       end

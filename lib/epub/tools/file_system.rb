@@ -11,7 +11,7 @@ module Epub
 
     def open(filepath)
       path = abs_filepath(filepath)
-      FileUtils.open(path, "r") do |file|
+      ::File.open(path, "r") do |file|
         yield(file)
       end
     end
@@ -19,14 +19,11 @@ module Epub
 
     def mkdir(path)
       path = abs_filepath(path)
-      begin
-        FileUtils.mkdir(path)
-      rescue
-      end
+      FileUtils.mkdir_p(path)
     end
 
 
-    def write(filepath, data=nil)
+    def write(filepath, data = nil, &block)
       path = abs_filepath(filepath)
 
       ::File.open(path, "w+") do |file|
@@ -39,15 +36,9 @@ module Epub
     end
 
 
-    def ammend(filepath, data=nil)
+    def ammend(filepath, data, &block)
       path = abs_filepath(filepath)
-      ::File.open(path, "a") do |file|
-        if block_given?
-          yield(file)
-        else
-          file.puts data.to_s
-        end
-      end
+      ::File.write(path, "#{read(filepath)}\n#{data}")
     end
 
 
@@ -68,7 +59,7 @@ module Epub
 
       # Make sure the target path exists
       dirname = ::File.dirname(new_path)
-      FileUtils.mkdir(dirname) if !::File.exists?(dirname)
+      FileUtils.mkdir_p(dirname) if !::File.exists?(dirname)
 
       log "mv #{existing_path} to #{new_path}"
       FileUtils.mv(existing_path, new_path)
@@ -139,7 +130,7 @@ module Epub
 
 
     def exists?(filepath)
-      ::File.exists?(filepath)
+      ::File.exists?(abs_filepath(filepath))
     end
 
 
