@@ -244,7 +244,6 @@ module Epub
       # @yield [Zip::ZipFile] zip file
       def zip_open
         Zip::ZipFile.open(@filepath, true) do |zip|
-          sleep 0.1
           yield(zip)
         end
       end

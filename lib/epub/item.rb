@@ -74,10 +74,6 @@ module Epub
       unescape_path url
     end
 
-    def url
-      escape_url @epub.manifest.path_from_id(@id)
-    end
-
 
     # Path absolute to the Epubs base directory, this will be different
     # depending on the Epub type @see Epub::File.type
@@ -87,8 +83,12 @@ module Epub
       unescape_path abs_url
     end
 
+    def url
+      escape_url @epub.manifest.path_from_id(@id)
+    end
+
     def abs_url
-      @epub.manifest.abs_path_from_id(@id)
+      escape_url @epub.manifest.abs_path_from_id(@id)
     end
 
 

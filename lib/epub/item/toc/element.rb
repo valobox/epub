@@ -78,14 +78,9 @@ module Epub
       escape_url src
     end
 
-    # present the child toc nodes
-    def child_nodes
-      @node.xpath(child_xpath)
-    end
-
     def play_order
-      if @node.attributes['playOrder']
-        @node.attributes['playOrder'].to_s.to_i
+      if @node['playOrder']
+        @node['playOrder'].to_s.to_i
       else
         0
       end
@@ -110,10 +105,14 @@ module Epub
     def to_hash
       {
         label:    label,
-        url:      src,
+        url:      url,
         position: play_order,
         children: []
       }
+    end
+
+    def child_nodes
+      @node.xpath(child_xpath)
     end
 
     private
