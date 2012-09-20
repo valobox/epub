@@ -41,7 +41,7 @@ describe Epub::TocElement do
     describe 'url' do
       it "should return the escaped src" do
         element.stub(:content_node).and_return({"src" => "html/01 cover.html"})
-        element.url.should == "html/01+cover.html"
+        element.url.should == "html/01%20cover.html"
       end
     end
 
@@ -65,7 +65,13 @@ describe Epub::TocElement do
       it "should escape the src and save" do
         element.src = "one two three fish#poo"
         element.standardize_url!
-        element.src.should == "one+two+three+fish#poo"
+        element.src.should == "one%20two%20three%20fish#poo"
+      end
+
+      it "should escape the src and save" do
+        element.src = "one/two/three fish#poo"
+        element.standardize_url!
+        element.src.should == "one/two/three%20fish#poo"
       end
     end
 

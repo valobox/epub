@@ -17,7 +17,7 @@ module Epub
 
     def clean_url(href)
       # TODO: A better way would be to split by / then take the last section, strip off the anchor then cgi escape
-      CGI.unescape(href.strip).gsub(" ", "%20")
+      URI.unescape(href.strip).gsub(" ", "%20")
     end
 
     def strip_anchors(path)
@@ -60,15 +60,15 @@ module Epub
       folder   = ::File.dirname(path)
       # avoid turning style.css into ./style.css
       if folder == "."
-        CGI.escape(filename)
+        URI.escape(unescape_path(filename))
       else
-        ::File.join folder, CGI.escape(unescape_path(filename))
+        ::File.join folder, URI.escape(unescape_path(filename))
       end
     end
 
     # turn an escaped path into a usable path
     def unescape_path(path)
-      CGI.unescape(path.to_s)
+      URI.unescape(path.to_s)
     end
 
     ##############
