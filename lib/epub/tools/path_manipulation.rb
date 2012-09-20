@@ -60,7 +60,7 @@ module Epub
       folder   = ::File.dirname(path)
       # avoid turning style.css into ./style.css
       if folder == "."
-        filename
+        CGI.escape(filename)
       else
         ::File.join folder, CGI.escape(unescape_path(filename))
       end

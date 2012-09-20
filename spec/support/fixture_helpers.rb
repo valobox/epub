@@ -19,6 +19,7 @@ module FixtureHelpers
   def setup_epub(source_epub = test_epub)
     FileUtils.cp source_epub, tmp_epub
     while !File.exists?(tmp_epub)
+      puts "waiting for file to copy"
       sleep 0.1
     end
   end

@@ -43,6 +43,14 @@ describe Epub::Toc do
     end
   end
 
+  describe "standardize" do
+
+    it "should " do
+      toc.standardize
+    end
+
+  end
+
   describe "normalize" do
 
     it "should change the filepaths" do

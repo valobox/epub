@@ -6,21 +6,26 @@ module Epub
     include XML
     include PathManipulation
 
+    attr_accessor :toc, :node
 
+    # create a new TocElement
+    # attrs:
+    # - toc #=> Epub::Toc
+    # - node #=> Nokogiri::XML::Node of a toc.ncx navMap element
     def initialize(toc, node)
       @toc = toc
       @node = node
     end
 
 
-    # Build an array set of TocElements
+    # Build a nested set of TocElements with the children populated
     def self.build(toc, master_node)
       master_node.collect do |node|
         toc_element = self.new(toc, node)
 
         # Recurse through the toc_element children
-        if toc_element.child_node
-          toc_element.child_elements = self.build(toc, toc_element.child_node)
+        if toc_element.child_nodes
+          toc_element.child_elements = self.build(toc, toc_element.child_nodes)
         end
 
         toc_element
@@ -53,14 +58,28 @@ module Epub
     attr_accessor :child_elements
 
     def label
-      xpath_content(@node, item_text_xpath)
+      label_node.content
+    end
+
+    def label=(label)
+      label_node.content = label.strip
     end
 
     def src
-      URI xpath_attr(@node, item_file_xpath, 'src')
+      content_node['src']
     end
 
-    def child_node
+    def src=(src)
+      content_node['src'] = src
+    end
+
+    # present the url escaped src
+    def url
+      escape_url src
+    end
+
+    # present the child toc nodes
+    def child_nodes
       @node.xpath(child_xpath)
     end
 
@@ -72,24 +91,26 @@ module Epub
       end
     end
 
+    def play_order=(play_order)
+      @node['playOrder'] = play_order.to_s
+    end
+
     ##############
-    # Item attributes
+    # Item methods
     ##############
 
     def standardize_url!
-      content_node = @node.xpath(item_file_xpath).first
       content_node['src'] = escape_url(content_node['src'])
     end
 
     def normalize_url!(options = {})
-      content_node = @node.xpath(item_file_xpath).first # FIXME: duplicate of src?
       content_node['src'] = normalize_url(options).to_s
     end
 
     def to_hash
       {
-        label:    label.strip,
-        url:      url.to_s,
+        label:    label,
+        url:      src,
         position: play_order,
         children: []
       }
@@ -111,19 +132,21 @@ module Epub
 
       # TODO - look at decoupling item
       def item
-        @toc.get_item(src.to_s)
+        @item ||= @toc.get_item(src.to_s)
       end
 
-      # TODO - look at decoupling item
-      # Add the anchor to the url
-      def url
-        escape_url(item.url)
+      def content_node
+        @node.xpath(item_file_xpath).first
+      end
+
+      def label_node
+        @node.xpath(item_text_xpath).first
       end
 
       # Create a normalized url of an item
       # TODO - look at decoupling item
       def normalize_url(options = {})
-        escape_url(item.normalized_hashed_url(options))
+        item.normalized_hashed_url(options)
       end
   end
 end

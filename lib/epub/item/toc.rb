@@ -13,13 +13,20 @@ module Epub
 
     # Create an array of hash representations of the TOC
     def as_hash
-      TocElement.as_hash TocElement.build(self, navmap_elements)
+      TocElement.as_hash elements
     end
 
-    def standardize!
-      nodes(navmap_elements) do |node|
-        TocElement.new(self, node).standardize_url!
+    # replaces all the urls with escaped urls
+    def standardize
+      elements do |element|
+        element.standardize_url!
       end
+    end
+
+    # standardizes and saves the toc to the epub
+    def standardize!
+      standardize
+      save
     end
 
 
@@ -27,8 +34,8 @@ module Epub
     # Replace the src with the normalized src
     def normalize
       log "Normalizing table of contents..."
-      nodes(navmap_elements) do |node|
-        TocElement.new(self, node).normalize_url!(relative_to: self.normalized_hashed_path)
+      elements do |element|
+        element.normalize_url!(relative_to: self.normalized_hashed_path)
       end
       xmldoc
     end
@@ -54,8 +61,19 @@ module Epub
       xmldoc.to_s
     end
 
+    def elements(elements = nil, &block)
+      elements ||= TocElement.build(self, navmap_elements)
+      if block_given?
+        elements.each do |element|
+          yield element
+          elements(element.child_elements, &block)
+        end
+      end
+      elements
+    end
+
     def to_s
-      as_hash.to_yaml
+      as_hash
     end
 
 
@@ -78,8 +96,8 @@ module Epub
         'xmlns:navPoint'
       end
 
-
-      def nodes(master)
+      # recurse over the navmap nodes yielding one at a time
+      def nodes(master = navmap_elements)
         master.each do |node|
           yield(node)
 
