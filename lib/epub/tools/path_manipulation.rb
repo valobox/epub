@@ -15,6 +15,8 @@ module Epub
       end
     end
 
+    # A rough fix so URI(path) will work
+    # Should use escape_url in most cases
     def clean_url(href)
       # TODO: A better way would be to split by / then take the last section, strip off the anchor then cgi escape
       URI.unescape(href.strip).gsub(" ", "%20")

@@ -12,6 +12,19 @@ describe Epub::TocElement do
 
 
   context "getting and setting attributes" do
+    describe 'id' do
+      it "should return the element name" do
+        element.id.should == "navpoint-1"
+      end
+    end
+
+    describe 'id=(id)' do
+      it "should set the id node" do
+        element.id = "fish"
+        element.id.should == "fish"
+      end
+    end
+
     describe 'label' do
       it "should return the element name" do
         element.label.should == "Cover"
@@ -80,6 +93,12 @@ describe Epub::TocElement do
         element.normalize_url!
         element.src.should == "OEBPS/0d6339-01_cover.xhtml"
       end
+
+      it "should keep the anchor and normalize the path" do
+        element.src = "html/01_cover.html#fish"
+        element.normalize_url!
+        element.src.should == "OEBPS/0d6339-01_cover.xhtml#fish"
+      end
     end
 
   end
@@ -87,7 +106,7 @@ describe Epub::TocElement do
   context "building hash output" do
     describe 'as_hash' do
       it "should return a hash" do
-        element.to_hash.should == {label: "Cover", url: "html/01_cover.html", position: 1, children: []}
+        element.to_hash.should == {id: "navpoint-1", label: "Cover", url: "html/01_cover.html", position: 1, children: []}
       end
     end
 

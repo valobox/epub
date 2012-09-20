@@ -6,7 +6,7 @@ module Epub
     include XML
     include PathManipulation
 
-    attr_accessor :toc, :node
+    attr_accessor :toc, :node, :child_elements
 
     # create a new TocElement
     # attrs:
@@ -55,7 +55,13 @@ module Epub
     # Accessors
     ##############
 
-    attr_accessor :child_elements
+    def id
+      @node['id']
+    end
+
+    def id=(id)
+      @node['id'] = id.to_s.strip
+    end
 
     def label
       label_node.content
@@ -90,20 +96,25 @@ module Epub
       @node['playOrder'] = play_order.to_s
     end
 
+    def path
+      URI(url).path
+    end
+
     ##############
     # Item methods
     ##############
 
     def standardize_url!
-      content_node['src'] = escape_url(content_node['src'])
+      self.src = escape_url(src)
     end
 
     def normalize_url!(options = {})
-      content_node['src'] = normalize_url(options).to_s
+      self.src = normalize_url(options).to_s
     end
 
     def to_hash
       {
+        id:       id,
         label:    label,
         url:      url,
         position: play_order,
@@ -131,7 +142,7 @@ module Epub
 
       # TODO - look at decoupling item
       def item
-        @item ||= @toc.get_item(src.to_s)
+        @item ||= @toc.get_item(path.to_s)
       end
 
       def content_node
@@ -142,10 +153,11 @@ module Epub
         @node.xpath(item_text_xpath).first
       end
 
-      # Create a normalized url of an item
-      # TODO - look at decoupling item
+      # Create a normalized url of an item including the anchor
       def normalize_url(options = {})
-        item.normalized_hashed_url(options)
+        href = URI(url)
+        href.path = item.normalized_hashed_url(options)
+        href.to_s
       end
   end
 end
