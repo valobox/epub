@@ -63,7 +63,7 @@ module Epub
     private
 
       def doc
-        @doc ||= Nokogiri::XML.parse(read)
+        @doc ||= Nokogiri::HTML.parse(read)
         @doc.encoding = 'utf-8'
         @doc
       end
