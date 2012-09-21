@@ -13,6 +13,18 @@ module Epub
       @file_ext_overide = ".xhtml"
     end
 
+    def standardize!
+      standardize
+      save
+    end
+
+    def standardize
+      log "Standardizing html #{filepath}..."
+      standardize_dom
+      remove_scripts
+      add_css_namespace
+      html
+    end
 
     # Normalizes the html by flattening the file paths, also:
     #  * Removes scripts
@@ -27,9 +39,7 @@ module Epub
     # Process the @DOM
     def normalize
       log "Normalizing html #{filepath}..."
-      standardize_dom
-      remove_scripts
-      change_hrefs
+      normalize_links
     end
 
     def save
@@ -103,7 +113,7 @@ module Epub
       # Rewrites all hrefs to their normalized form
       #
       # @param [Nokogiri::XML] html document DOM
-      def change_hrefs
+      def normalize_links
         DOM.walk(doc) do |node|
           for attr_name in %w{href src}
             href = node.attributes[attr_name]
@@ -113,6 +123,21 @@ module Epub
               html_link.normalize
             end
           end
+        end
+      end
+
+
+      def add_css_namespace
+        body = doc.css("body").first
+        body_classes = body['class'].to_s.strip.split(" ")
+        body['class'] = (body_classes + stylesheet_filenames).join(" ")
+      end
+
+
+      def stylesheet_filenames
+        css_classes = doc.css("link[@type='text/css']").collect do |css_node|
+          css = get_item(css_node['href'])
+          css.filename_without_ext
         end
       end
   end

@@ -22,6 +22,9 @@ module Epub
       # fonts need resizing to an em value to enable scaling
       convert_fonts
 
+      # namespace by the css filename to avoid conflicting identifiers accross sheets (requires html to be namespaced)
+      namespace_by_filename
+
       # Render CSS
       sass_to_css
     end
@@ -181,6 +184,19 @@ module Epub
           out << line
         end
         self.sass = out
+      end
+
+
+      # Indent all lines with two spaces
+      def indent_sass
+        self.sass.gsub!(/\n/, "\n  ")
+      end
+
+
+      # Add a wrapper to the sytlesheet so multiple stylesheets with same identifiers don't conflict
+      def namespace_by_filename
+        indent_sass
+        self.sass = ".#{self.filename_without_ext}\n  #{sass}"
       end
 
   end

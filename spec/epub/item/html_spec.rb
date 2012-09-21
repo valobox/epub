@@ -11,6 +11,24 @@ describe Epub::HTML do
     setup_epub
   end
 
+  describe "standardize" do
+    it "should ensure the html has a body tag" do
+      page_html.standardize.should =~ /\<body/
+    end
+
+    it "should ensure the html has an html tag" do
+      page_html.standardize.should =~ /\<html/
+    end
+
+    it "should remove any scripts from the page" do
+      page_html.standardize.should_not =~ /\<script/
+    end
+
+    it "should namespace the html by adding the stylesheet names as classes to the body node" do
+      page_html.standardize.should =~ /\<body class=\"emerald\"/
+    end
+  end
+
   describe "normalize" do
     it "should normalize the image src" do
       cover_html.normalize

@@ -25,6 +25,10 @@ describe Epub::CSS do
       css.to_s.should_not =~ /x-large/
     end
 
+    it "should namespace the styles by the stylesheet filename" do
+      css.standardize.should =~ /\.emerald \.textafterhead2/
+    end
+
   end
 
   describe "standardize!" do
