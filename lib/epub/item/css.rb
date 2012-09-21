@@ -16,14 +16,14 @@ module Epub
       # Create the sass from css
       css_to_sass
 
-      # remove the @char style css directives (can't be indented)
-      remove_css_directives
-
       # fonts need resizing to an em value to enable scaling
       convert_fonts
 
       # namespace by the css filename to avoid conflicting identifiers accross sheets (requires html to be namespaced)
       namespace_by_filename
+
+      # remove the @char style css directives (can't be indented)
+      move_css_directives
 
       # Render CSS
       sass_to_css
@@ -101,7 +101,25 @@ module Epub
       def sass_to_css
         self.css = Sass::Engine.new(sass).render
       end
+      
+      # Adds underscores to all ids and classes
+      def prefix_css_selectors(prefix = "_")
+        selector_regex = /^\s*?(?!\/\*)+?[^:]*?(?!:\s)([\.#][^,\s]*[:]?[^\s,])$/
 
+        new_sass = ""
+        sass.each_line do |line|
+          # Skip blank lines
+          next if line =~ /^\s*$/
+
+          line = line.gsub(selector_regex) do |str|
+            # Add the underscores
+            str.gsub!(/([#.])/, "\\1#{prefix}")
+          end
+          new_sass << line
+        end
+
+        sass = new_sass
+      end
 
       # Convert a css size rule value to ems, the supported formats are:
       # * point (24pt)
@@ -130,10 +148,9 @@ module Epub
 
       # CSS directives must be top levl
       # We namespace the css so these will bork
-      # The easy way to handle is to remove
       # So loop through identifying directives and remove them an anything indented inside
-      def remove_css_directives
-
+      def move_css_directives
+        css_directives = ""
         new_sass = ""
         directive_indent = nil
 
@@ -142,13 +159,14 @@ module Epub
           sass_line = SassLine.new(@epub, self, line, directive_indent)
 
           if sass_line.inside_css_directive?
+            css_directives += "#{" " * directive_indent}#{sass_line.to_s.strip}\n"
             next
           elsif sass_line.is_css_directive?
-            log "removing css directive #{line.strip}"
+            css_directives += "#{sass_line.to_s.strip}\n"
             directive_indent = sass_line.indent
           else
             directive_indent = nil
-            new_sass += "%s\n" % sass_line.to_s
+            new_sass += "#{sass_line.to_s}\n"
           end
 
           if sass_line.missing_item?
@@ -156,7 +174,7 @@ module Epub
           end
         end
 
-        self.sass = new_sass
+        self.sass = "#{css_directives}\n\n#{new_sass}"
       end
 
 
@@ -192,9 +210,14 @@ module Epub
         self.sass.gsub!(/\n/, "\n  ")
       end
 
+      # Replace body css rule and add it to the above rule using the sass '&'
+      def rename_body
+        self.sass.gsub!("  body\n", "  &\n")
+      end
 
       # Add a wrapper to the sytlesheet so multiple stylesheets with same identifiers don't conflict
       def namespace_by_filename
+        rename_body
         indent_sass
         self.sass = ".#{self.filename_without_ext}\n  #{sass}"
       end

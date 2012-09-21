@@ -140,5 +140,17 @@ module Epub
           css.filename_without_ext
         end
       end
+
+
+      # Prefix all ids, classes and names with an underscore
+      def prefix_css_selectors(prefix = "_")
+        DOM.walk(doc) do |node|
+          for attr_key in %w(id name class)
+            if attr_val = node.attributes[attr_key]
+              node[attr_key] = "#{prefix}#{attr_val.to_s}"
+            end
+          end
+        end
+      end
   end
 end

@@ -14,9 +14,10 @@ describe Epub::CSS do
   end
   
   describe "standardize" do
-    it "should remove the css directives" do
+    it "should move the css directives to the top of the file" do
       css.standardize
-      css.to_s.should_not =~ /@/
+      puts css.to_s
+      css.to_s.should_not =~ /\s+@/
     end
 
     it "should convert the font sizes" do
