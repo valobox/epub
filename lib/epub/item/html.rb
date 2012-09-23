@@ -42,10 +42,6 @@ module Epub
       normalize_links
     end
 
-    def save
-      write(html)
-    end
-
     def compress!
       log "compressing html file #{filepath}"
       write( HtmlCompressor::HtmlCompressor.new.compress(read) )
@@ -137,7 +133,7 @@ module Epub
       def stylesheet_filenames
         css_classes = doc.css("link[@type='text/css']").collect do |css_node|
           css = get_item(css_node['href'])
-          css.filename_without_ext
+          "epub_#{css.filename_without_ext}"
         end
       end
 

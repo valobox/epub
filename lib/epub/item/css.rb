@@ -22,9 +22,6 @@ module Epub
       # namespace by the css filename to avoid conflicting identifiers accross sheets (requires html to be namespaced)
       namespace_by_filename
 
-      # remove the @char style css directives (can't be indented)
-      move_css_directives
-
       # Render CSS
       sass_to_css
     end
@@ -55,12 +52,6 @@ module Epub
     def normalize!
       normalize
       save
-    end
-
-
-    # Write it to the css file
-    def save
-      write(css)
     end
 
 
@@ -196,8 +187,8 @@ module Epub
         out = ""
         sass.each_line do |line|
           line.gsub!(/(\s*)(word-spacing|letter-spacing|font-size|line-height|margin-[^\s]+|margin|padding-[\s]+|padding)\s*:(.*)/) do |m|
-            #                 :spacing  :rule  :value
-            m = "%s%s: %s" % [$1,       $2,    CSS.val_to_em($3)]
+            #    indent rule:  value
+            m = "#{$1}#{$2}: #{CSS.val_to_em($3)}"
           end
           out << line
         end
@@ -219,7 +210,10 @@ module Epub
       def namespace_by_filename
         rename_body
         indent_sass
-        self.sass = ".#{self.filename_without_ext}\n  #{sass}"
+        self.sass = ".epub_#{self.filename_without_ext}\n  #{sass}"
+
+        # remove the @char style css directives (can't be indented)
+        move_css_directives
       end
 
   end

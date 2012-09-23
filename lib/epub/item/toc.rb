@@ -50,9 +50,9 @@ module Epub
     end
 
 
-    # Write the xml back to file
-    def save
-      write(xmldoc)
+    # write out the xmldoc
+    def to_s
+      xmldoc
     end
 
 

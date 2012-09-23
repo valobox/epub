@@ -16,7 +16,6 @@ module Epub
       @id   = id
       @type = :misc
       @normalized_dir = "OEBPS/assets"
-
     end
 
 
@@ -48,6 +47,12 @@ module Epub
     # Boolean of if the file this item represents exists
     def exists?
       ::File.exists?(abs_filepath)
+    end
+
+
+    # Saves the item back to the epub
+    def save
+      write(to_s)
     end
 
 
