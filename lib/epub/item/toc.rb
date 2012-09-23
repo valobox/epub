@@ -72,10 +72,6 @@ module Epub
       elements
     end
 
-    def to_s
-      as_hash
-    end
-
 
     private
 
@@ -94,7 +90,7 @@ module Epub
 
       def child_xpath
         'xmlns:navPoint'
-      end
+      end 
 
       # recurse over the navmap nodes yielding one at a time
       def nodes(master = navmap_elements)

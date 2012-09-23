@@ -55,7 +55,6 @@ module Epub
       @html || doc.to_s
     end
 
-
     private
 
       def doc

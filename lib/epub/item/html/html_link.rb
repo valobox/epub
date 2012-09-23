@@ -31,7 +31,6 @@ module Epub
       item.log(str)
     end
 
-
     private
 
       def src
