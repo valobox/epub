@@ -9,7 +9,7 @@ module FixtureHelpers
   end
 
   def test_epub
-    File.join(fixtures_dir, "example.epub")
+    File.join(fixtures_dir, "cr_blood_wedding.epub")
   end
 
   def tmp_epub

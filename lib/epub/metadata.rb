@@ -112,19 +112,17 @@ module Epub
       # Processor methods
       ###
 
-      # Matches the format urn:isbn:9780735664852
       def isbn(text)
-        match = text.match(/^\s*urn:isbn:([0-9]{13,13})\s*$/)
-        if match
-          return match[1]
-        end
+        # change ISBN formats from 978-1-84901-629-2 to 9781849016292
+        clean_text = text.gsub("-", "")
 
-        match = text.match(/^\s*([0-9]{13,13})\s*$/)
+        # Matches the 13 digit substring 9780735664852 in strings like urn:isbn:9780735664852
+        match = clean_text.match(/^.*([0-9]{13,13}).*$/i)
         if match
-          return match[1]
+          match[1]
+        else
+          nil
         end
-
-        nil
       end
 
       def date(str)
