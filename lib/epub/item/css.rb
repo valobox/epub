@@ -210,10 +210,14 @@ module Epub
       def namespace_by_filename
         rename_body
         indent_sass
-        self.sass = ".epub_#{self.filename_without_ext}\n  #{sass}"
+        self.sass = ".epub_#{escaped_filename}\n  #{sass}"
 
         # remove the @char style css directives (can't be indented)
         move_css_directives
+      end
+
+      def escaped_filename
+        self.filename_without_ext.gsub(/[^a-zA-Z0-9 -]/, "")
       end
 
   end
