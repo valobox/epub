@@ -25,7 +25,7 @@ describe Epub::HTML do
     end
 
     it "should namespace the html by adding the stylesheet names as classes to the body node" do
-      page_html.standardize.should =~ /\<body class=\"emerald\"/
+      page_html.standardize.should =~ /\<body class=\"epub_emerald\"/
     end
   end
 
