@@ -110,7 +110,7 @@ module Epub
       # @param [Nokogiri::XML] html document DOM
       def normalize_links
         DOM.walk(doc) do |node|
-          for attr_name in %w{href src}
+          for attr_name in %w{href src xlink:href }
             href = node.attributes[attr_name]
             if href
               html_link = HtmlLink.new(self, href)
