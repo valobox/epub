@@ -96,7 +96,7 @@ module Epub
         log "adding #{abs_path(path)} to the manifest..."
         node = Nokogiri::XML::Node.new "item", xmldoc.first
 
-        id = hash(path)
+        id = hash_path(path)
         node['id']         = id
         node['href']       = rel_path(path)
         node['media-type'] = MIME::Types.type_for(path).first

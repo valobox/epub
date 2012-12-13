@@ -78,7 +78,8 @@ module Epub
     ##############
 
     # Hash of the absolute filepath
-    def hash(path)
+    def hash_path(path)
+      puts "hash(path) #{path}"
       Digest::MD5.hexdigest(path)[0..5]
     end
 
