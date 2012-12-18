@@ -166,7 +166,7 @@ module Epub
       # The hashed filename
       # /html/chapters/1.html #=> a42901-1.html
       def hashed_filename
-        "#{hash(abs_filepath)}-#{filename_without_ext}#{file_ext}"
+        "#{hash_path(abs_filepath)}-#{filename_without_ext}#{file_ext}"
       end
 
       def file_ext
