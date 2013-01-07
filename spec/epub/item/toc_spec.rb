@@ -67,4 +67,10 @@ describe Epub::Toc do
     end
   end
 
+  describe "elements" do
+    it "should find elements with a ncx namespace in the toc"
+
+    it "should find elements with a ncx:ncx namepace in the toc"
+  end
+
 end

@@ -18,6 +18,10 @@ module Epub
 
     # replaces all the urls with escaped urls
     def standardize
+      log "standardizing NCX XML"
+      self.write self.read.gsub("ncx:", "")
+
+      log "standardizing NCX urls"
       elements do |element|
         element.standardize_url!
       end
@@ -34,6 +38,7 @@ module Epub
     # Replace the src with the normalized src
     def normalize
       log "Normalizing table of contents..."
+
       elements do |element|
         element.normalize_url!(relative_to: self.normalized_hashed_path)
       end
@@ -85,11 +90,11 @@ module Epub
       end
 
       def items_xpath
-        '//xmlns:navMap/xmlns:navPoint'
+        '//navMap/navPoint'
       end
 
       def child_xpath
-        'xmlns:navPoint'
+        'navPoint'
       end 
 
       # recurse over the navmap nodes yielding one at a time

@@ -129,15 +129,15 @@ module Epub
     private
 
       def child_xpath
-        'xmlns:navPoint'
+        'navPoint'
       end
 
       def item_text_xpath
-        'xmlns:navLabel/xmlns:text'
+        'navLabel/text'
       end
 
       def item_file_xpath
-        'xmlns:content'
+        'content'
       end
 
       # TODO - look at decoupling item
