@@ -1,6 +1,8 @@
 module Epub
   class HTML < Item
 
+    NORMALIZE_URL_ATTRS = %w{href src xlink:href poster}
+
     attr_accessor :html
 
     def initialize(epub, id) 
@@ -110,7 +112,7 @@ module Epub
       # @param [Nokogiri::XML] html document DOM
       def normalize_links
         DOM.walk(doc) do |node|
-          for attr_name in %w{href src xlink:href }
+          for attr_name in NORMALIZE_URL_ATTRS
             href = node.attributes[attr_name]
             if href
               html_link = HtmlLink.new(self, href)
