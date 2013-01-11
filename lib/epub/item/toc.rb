@@ -90,11 +90,11 @@ module Epub
       end
 
       def items_xpath
-        '//navMap/navPoint'
+        '//xmlns:navMap/xmlns:navPoint'
       end
 
       def child_xpath
-        'navPoint'
+        'xmlns:navPoint'
       end 
 
       # recurse over the navmap nodes yielding one at a time

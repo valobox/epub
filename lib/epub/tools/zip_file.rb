@@ -211,12 +211,12 @@ module Epub
 
     # Extract a epub file to a location on the file system.
     #
-    # @param [String] filepath to an Epub
-    # @param [String] extract_filepath of a directory to extract to
-    def extract(filepath, extract_filepath)
+    # @param [String] filepath to an Epub asset
+    # @param [String] extract_dir - the directory to extract to
+    def extract(filepath, extract_dir, options = {})
       zip_open do |zip|
         # Make sure the dir exists
-        FileUtils.mkdir_p ::File.dirname(extract_dir)
+        FileUtils.mkdir_p extract_dir
 
         fname = ::File.basename(filepath)
         fpath = ::File.join(extract_dir, fname)
@@ -225,8 +225,10 @@ module Epub
 
         # Extract!
         zip.extract(filepath, fpath)
+
+        # Return the path to the file
+        fpath
       end
-      nil
     end
 
 

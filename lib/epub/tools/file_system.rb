@@ -126,6 +126,7 @@ module Epub
       raise "File already exists" if ::File.exists?(fpath)
 
       FileUtils.cp abs_filepath(filepath), fpath
+      fpath
     end
 
 
