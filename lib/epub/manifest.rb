@@ -54,6 +54,16 @@ module Epub
       items :misc
     end
 
+    # Retrieve the cover image using the id in the metadata
+    def cover_image
+      cover_id = epub.metadata.cover_id
+      if cover_id
+        item_for_id(cover_id)
+      else
+        false
+      end
+    end
+
     # Return items in the manifest file
     #
     # @args filter can any of :css, :html, :image, :misc or a nil value

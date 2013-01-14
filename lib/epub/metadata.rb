@@ -50,6 +50,12 @@ module Epub
     end
 
 
+    def cover_id
+      cover_metadata = epub.opf_xml.xpath("//xmlns:metadata/xmlns:meta[@name='cover']")
+      cover_metadata.first["content"] if cover_metadata
+    end
+
+
     # 
     def to_s
       out = []

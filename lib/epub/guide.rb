@@ -50,6 +50,17 @@ module Epub
       xmldoc.to_s
     end
 
+    # Iterate over each item in the guide
+    def entries(&block)
+      if block_given?
+        xmldoc.xpath(opf_item_xpath).each do |entry|
+          yield(entry)
+        end
+      else
+        xmldoc.xpath(opf_item_xpath)
+      end
+    end
+
 
     private
 
@@ -67,13 +78,6 @@ module Epub
 
       def base_dirname
         @epub.opf_dirname
-      end
-
-      # Iterate over each item in the guide
-      def entries
-        xmldoc.xpath(opf_item_xpath).each do |entry|
-          yield(entry)
-        end
       end
 
       def normalize_paths
