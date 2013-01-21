@@ -143,20 +143,20 @@ module Epub
       def move_css_directives
         css_directives = ""
         new_sass = ""
-        directive_indent = nil
+        directive_indent = 0
 
         # Go through the lines rewriting paths as appropriate
         sass.each_line do |line|
-          sass_line = SassLine.new(@epub, self, line, directive_indent)
+          sass_line = SassLine.new(@epub, self, line.to_s, directive_indent)
 
           if sass_line.inside_css_directive?
-            css_directives += "#{" " * directive_indent}#{sass_line.to_s.strip}\n"
+            css_directives += (" " * directive_indent + sass_line.to_s.strip + "\n")
             next
           elsif sass_line.is_css_directive?
             css_directives += "#{sass_line.to_s.strip}\n"
             directive_indent = sass_line.indent
           else
-            directive_indent = nil
+            directive_indent = 0
             new_sass += "#{sass_line.to_s}\n"
           end
 

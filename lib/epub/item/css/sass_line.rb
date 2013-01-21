@@ -5,15 +5,15 @@ module Epub
 
     attr_accessor :src
 
-    def initialize(epub, item, line, directive_indent = nil)
+    def initialize(epub, item, line, directive_indent = 0)
       @epub = epub
       @item = item
-      @line = line.chomp!
+      @line = line.to_s.chomp!
       @directive_indent = directive_indent
     end
 
     def indent
-      @line.sub(/^(\s*).*$/, "\\1").size
+      @line.sub(/^(\s*).*$/, "\\1").size.to_i
     end
 
     def is_css_directive?
@@ -21,7 +21,7 @@ module Epub
     end
 
     def inside_css_directive?
-      @directive_indent && indent > @directive_indent
+      @line && @directive_indent > 0 && indent > @directive_indent
     end
 
     def has_path?
