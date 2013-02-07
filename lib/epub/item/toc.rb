@@ -19,7 +19,10 @@ module Epub
     # replaces all the urls with escaped urls
     def standardize
       log "standardizing NCX XML"
-      self.write self.read.gsub("ncx:", "")
+      #
+      # WARNING - DIRTY HACK removes namespaces because we get double namespaced ncx:ncx files
+      #
+      self.write xmldoc.remove_namespaces!
 
       log "standardizing NCX urls"
       elements do |element|
@@ -90,11 +93,13 @@ module Epub
       end
 
       def items_xpath
-        '//xmlns:navMap/xmlns:navPoint'
+        # '//xmlns:navMap/xmlns:navPoint'
+        '//navMap/navPoint'
       end
 
       def child_xpath
-        'xmlns:navPoint'
+        # 'xmlns:navPoint'
+        'navPoint'
       end 
 
       # recurse over the navmap nodes yielding one at a time
