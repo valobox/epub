@@ -2,7 +2,7 @@
 
 Library to access and modify the contents of an Epub
 
-![logo](https://github.com/completelynovel/epub/raw/master/logo.png)
+![logo](https://github.com/completelynovel/epub/raw/master/docs/logo.png)
 
 
 ## Usage
