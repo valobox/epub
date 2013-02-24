@@ -44,7 +44,6 @@ module Epub
       sass_to_css
     end
 
-
     # TODO: Split this up into multiple methods
     # Normalizes the guide by flattening the file paths
     # 
@@ -53,7 +52,6 @@ module Epub
       normalize
       save
     end
-
 
     # Compress the css
     def compress!
@@ -65,6 +63,9 @@ module Epub
       css.to_s
     end
 
+    def escaped_filename
+      self.filename_without_ext.gsub(/[^a-zA-Z0-9 -]/, "")
+    end
 
     private
 
@@ -214,10 +215,6 @@ module Epub
 
         # remove the @char style css directives (can't be indented)
         move_css_directives
-      end
-
-      def escaped_filename
-        self.filename_without_ext.gsub(/[^a-zA-Z0-9 -]/, "")
       end
 
   end
