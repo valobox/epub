@@ -73,18 +73,14 @@ module Epub
         @css ||= read
       end
 
-      # TODO: Work out how to do this without shelling out
       def css_to_sass
-        Tempfile.open("css_to_sass") do |file|
-          # Write the css
-          file.write css
+        begin
+          self.sass = Sass::CSS.new(css).render(:sass)
+        rescue => ex
+          log 'css file broken!'
+          log ex
 
-          # Rewind back to the start
-          file.rewind
-
-          # Use the std sass command line to convert a CSS file to SASS
-          command = "sass-convert #{file.path}"
-          self.sass = `#{command}`
+          self.sass = ""
         end
         sass
       end
@@ -212,6 +208,7 @@ module Epub
         rename_body
         indent_sass
         self.sass = ".epub_#{escaped_filename}\n  #{sass}"
+
 
         # remove the @char style css directives (can't be indented)
         move_css_directives

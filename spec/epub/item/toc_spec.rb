@@ -11,6 +11,10 @@ describe Epub::Toc do
 
   describe "as_hash" do
 
+    before do
+      toc.standardize
+    end
+
 
     it "should return an array" do
       toc.as_hash.should be_a(Array)
@@ -53,6 +57,10 @@ describe Epub::Toc do
 
   describe "normalize" do
 
+    before do
+      toc.standardize
+    end
+
     it "should change the filepaths" do
       toc.normalize!
       toc.xml.should_not =~ /html\/01_cover.html/
@@ -62,6 +70,11 @@ describe Epub::Toc do
   end
 
   describe "xml" do
+
+    before do
+      toc.standardize
+    end
+    
     it "should return a string" do
       toc.xml.should be_a(String)
     end

@@ -10,6 +10,10 @@ describe Epub::TocElement do
 
   subject(:element){ epub.toc.elements.first}
 
+  before do
+    toc.standardize
+  end
+
 
   context "getting and setting attributes" do
     describe 'id' do

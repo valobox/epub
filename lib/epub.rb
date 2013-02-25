@@ -1,5 +1,6 @@
 $:.unshift File.dirname(__FILE__)
 
+# Vendor
 require 'rubygems'
 require 'zip/zip'
 require 'zip/zipfilesystem'
@@ -17,6 +18,7 @@ require 'date'
 require 'html_compressor'
 require "yui/compressor"
 require "sass"
+require 'sass/css'
 require 'tempfile'
 
 # Tools
