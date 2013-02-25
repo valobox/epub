@@ -12,6 +12,10 @@ module Epub
       @path = path
       @file = build_file
       @opf_xml = file.read_xml(opf_path)
+
+      # Reporting
+      @start_time = Time.now
+      @errors = []
     end
 
 
@@ -95,7 +99,7 @@ module Epub
         
         clean_empty_dirs!
 
-        true
+        report
 
       rescue => ex
         log "failed to normalize\n #{ex.to_s}"
@@ -211,10 +215,18 @@ module Epub
 
     # Add a line to the log file
     # @return boolean of write success
-    def log(str)
+    def log(str, level = :log)
       initialize_log
-      self.file.ammend(log_path, "#{Time.now.strftime("%d/%m/%y %T")}:: #{str}")
-      puts str if $VERBOSE || ENV['LIB_VERBOSE']
+
+      if level == :error
+        report_error str
+      end 
+
+      log_string = "#{level.to_s.upcase}:: #{Time.now.strftime("%d/%m/%y %T")}:: #{str}"
+
+      self.file.ammend(log_path, log_string)
+
+      puts log_string if $VERBOSE || ENV['LIB_VERBOSE']
       true
     end
 
@@ -307,6 +319,18 @@ module Epub
         file.write("META-INF/container.xml", container_xml)
         file.write("OEBPS/content.opf",      content_opf)
         file
+      end
+
+
+      def report_error(str)
+        @errors << str
+      end
+
+      def report
+        {
+          processing_time: @start_time - Time.now,
+          errors: @errors
+        }
       end
 
   end

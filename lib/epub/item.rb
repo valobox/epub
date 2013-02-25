@@ -147,8 +147,8 @@ module Epub
       @epub.manifest.add( abs_path_to_file(href) )
     end
 
-    def log(str)
-      @epub.log(str)
+    def log(*args)
+      @epub.log(args)
     end
 
     # create an absolute path to a file #=> 'OEBPS/HTML/file.html' + '../CSS/style.css' = 'OEBPS/CSS/style.css' 

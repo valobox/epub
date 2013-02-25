@@ -116,7 +116,7 @@ module Epub
 
         item_for_id(id)
       else
-        log "file not found #{abs_path(path)}"
+        log "File not found #{abs_path(path)}", :error
         nil
       end
     end
@@ -303,8 +303,8 @@ module Epub
         epub.opf_path = opf_path
       end
 
-      def log(str)
-        @epub.log(str)
+      def log(*args)
+        @epub.log(args)
       end
   end
 end

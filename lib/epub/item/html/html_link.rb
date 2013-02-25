@@ -18,7 +18,7 @@ module Epub
           log "Changing href #{src.to_s} to #{new_src.to_s}"
           href.content = new_src.to_s
         else
-          log "No item in manifest for #{src.to_s}"
+          log "No item in manifest for #{src.to_s}", :error
         end
       end
     end
@@ -27,8 +27,8 @@ module Epub
       !is_external_link? && !blank_link? && !anchor_link? && !linked_item
     end
 
-    def log(str)
-      item.log(str)
+    def log(*args)
+      item.log(args)
     end
 
     private

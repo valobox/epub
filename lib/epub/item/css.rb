@@ -77,8 +77,7 @@ module Epub
         begin
           self.sass = Sass::CSS.new(css).render(:sass)
         rescue => ex
-          log 'css file broken!'
-          log ex
+          log "Broken CSS file: #{filename} #{ex}", :error
 
           self.sass = ""
         end
@@ -90,7 +89,7 @@ module Epub
         begin
           self.css = Sass::Engine.new(sass).render
         rescue => ex
-          log 'css file broken!'
+          log "Broken CSS file: #{filename} #{ex}", :error
           log ex
         end
         css
