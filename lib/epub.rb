@@ -22,7 +22,6 @@ require 'sass/css'
 require 'tempfile'
 
 # Tools
-require 'epub/tools/logger' # require first
 require 'epub/tools/dom'
 require 'epub/tools/file_system'
 require 'epub/tools/identifier'

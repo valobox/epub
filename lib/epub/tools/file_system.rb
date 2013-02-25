@@ -2,7 +2,6 @@ require 'fileutils'
 
 module Epub
   class FileSystem
-    include Logger
 
     def initialize(basepath)
       @basepath = basepath
@@ -61,7 +60,7 @@ module Epub
       dirname = ::File.dirname(new_path)
       FileUtils.mkdir_p(dirname) if !::File.exists?(dirname)
 
-      log "mv #{existing_path} to #{new_path}"
+      # log "mv #{existing_path} to #{new_path}"
       FileUtils.mv(existing_path, new_path)
       nil
     end
@@ -87,7 +86,7 @@ module Epub
     def clean_empty_dirs!
       Dir["#{@basepath}/**/*"].each do |f|
         if ::File.directory?(f) && Dir.entries(f).size < 3 # 3 because of ['.', '..']
-          log "Removing empty directory #{f}"
+          # log "Removing empty directory #{f}"
           FileUtils.rmdir(f)
         end
       end

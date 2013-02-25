@@ -1,6 +1,5 @@
 module Epub
   class ZipFile
-    include Logger
 
     def initialize(filepath)
       @filepath = filepath
@@ -13,13 +12,13 @@ module Epub
           fpath = ::File.join(dirpath, e.name)
           FileUtils.mkdir_p ::File.dirname(fpath)
 
-          log "unziping #{e.name} to #{fpath}"
+          # log "unziping #{e.name} to #{fpath}"
           begin
             zf.extract(e, fpath)
           rescue => e
             # NOTE: We just log the error here as we may not need this file
             # Any errors will occur when we try to read the file later on
-            log "WARN: #{e.message}"
+            # log "WARN: #{e.message}"
           end
         end
       end
@@ -42,7 +41,7 @@ module Epub
             pn_dirpath = Pathname.new(dirpath)
             rel_path   = pn_f.relative_path_from(pn_dirpath)
 
-            log "adding #{f} as #{rel_path}"
+            # log "adding #{f} as #{rel_path}"
             zf.add(rel_path, f){true} # true proc overwrites files
           end
         end
@@ -135,7 +134,7 @@ module Epub
     # @param [String] current filepath
     # @param [String] new filepath
     def mv(current_filepath, new_filepath)
-      log "mv #{current_filepath} #{new_filepath}"
+      # log "mv #{current_filepath} #{new_filepath}"
       data = read(current_filepath)
 
       rm(current_filepath)
