@@ -87,7 +87,13 @@ module Epub
 
       # Render CSS
       def sass_to_css
-        self.css = Sass::Engine.new(sass).render
+        begin
+          self.css = Sass::Engine.new(sass).render
+        rescue => ex
+          log 'css file broken!'
+          log ex
+        end
+        css
       end
       
       # Adds underscores to all ids and classes
