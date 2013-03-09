@@ -21,6 +21,7 @@ module Epub
       log "standardizing NCX XML"
       #
       # WARNING - DIRTY HACK removes namespaces because we get double namespaced ncx:ncx files
+      #         - Should detect the double namespace and use different xpaths
       #
       self.write xmldoc.remove_namespaces!
 
@@ -37,8 +38,7 @@ module Epub
     end
 
 
-    # loop through list of navmap items
-    # Replace the src with the normalized src
+    # Replace each src attribute with the normalized src URL
     def normalize
       log "Normalizing table of contents..."
 

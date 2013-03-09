@@ -43,12 +43,10 @@ module Epub
       @epub.file.extract(abs_filepath, path)
     end
 
-
     # Boolean of if the file this item represents exists
     def exists?
       ::File.exists?(abs_filepath)
     end
-
 
     # Saves the item back to the epub
     def save
@@ -60,7 +58,6 @@ module Epub
     # Paths
     ###
 
-
     # Returns the filename of the item
     def filename
       unescape_path ::File.basename(filepath)
@@ -71,12 +68,10 @@ module Epub
       ::File.basename(filepath, ext)
     end
 
-
     # Path relative to the Epubs opf file
     def filepath
       unescape_path url
     end
-
 
     # Path absolute to the Epubs base directory, this will be different
     # depending on the Epub type @see Epub::File.type
@@ -93,7 +88,6 @@ module Epub
     def abs_url
       escape_url @epub.manifest.abs_path_from_id(@id)
     end
-
 
     # Get an item based on the path from this item
     # TODO: Might need to escape URL
@@ -115,7 +109,6 @@ module Epub
       end
     end
 
-
     # returns the full path to an item after it is hashed
     # /html/chapters/1.html #=> /html/a42901.html
     # @options
@@ -131,9 +124,7 @@ module Epub
       escape_url relative_path(abs_normalized_hashed_path, options[:relative_to])
     end
 
-
-    # Flattens the epub structure, _overidden by subclasses_
-    # @see Epub::File#standardize!
+    # Standardizes the contents of the item, _overidden by subclasses_
     def standardize!; end
 
     # Flattens the epub structure, _overidden by subclasses_
