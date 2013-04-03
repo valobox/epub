@@ -10,7 +10,7 @@ module Epub
 
     def open(filepath)
       path = abs_filepath(filepath)
-      ::File.open(path, "r") do |file|
+      File.open(path, "r") do |file|
         yield(file)
       end
     end
@@ -25,7 +25,7 @@ module Epub
     def write(filepath, data = nil, &block)
       path = abs_filepath(filepath)
 
-      ::File.open(path, "w+") do |file|
+      File.open(path, "w+") do |file|
         if block_given?
           yield(file)
         else
@@ -37,7 +37,7 @@ module Epub
 
     def ammend(filepath, data, &block)
       path = abs_filepath(filepath)
-      ::File.write(path, "#{read(filepath)}\n#{data}")
+      File.write(path, "#{read(filepath)}\n#{data}")
     end
 
 
@@ -57,8 +57,8 @@ module Epub
       end
 
       # Make sure the target path exists
-      dirname = ::File.dirname(new_path)
-      FileUtils.mkdir_p(dirname) if !::File.exists?(dirname)
+      dirname = File.dirname(new_path)
+      FileUtils.mkdir_p(dirname) if !File.exists?(dirname)
 
       # log "mv #{existing_path} to #{new_path}"
       FileUtils.mv(existing_path, new_path)
@@ -68,7 +68,7 @@ module Epub
 
     def each(force_type=nil)
       Dir["#{@basepath}/**/*"].each do |entry|
-        type = ::File.file?(entry) ? :file : :directory
+        type = File.file?(entry) ? :file : :directory
 
         case force_type
         when :file
@@ -85,7 +85,7 @@ module Epub
     # TODO: Add omit option here
     def clean_empty_dirs!
       Dir["#{@basepath}/**/*"].each do |f|
-        if ::File.directory?(f) && Dir.entries(f).size < 3 # 3 because of ['.', '..']
+        if File.directory?(f) && Dir.entries(f).size < 3 # 3 because of ['.', '..']
           # log "Removing empty directory #{f}"
           FileUtils.rmdir(f)
         end
@@ -96,7 +96,7 @@ module Epub
     # Read a file from the epub
     def read(path)
       path = abs_filepath(path)
-      ::File.read(path)
+      File.read(path)
     end
 
 
@@ -111,18 +111,18 @@ module Epub
     #   * filepath    - epub filepath
     #   * extract_dir - directory to extract to
     def extract(filepath, extract_dir)
-      if ::File.file?(extract_dir)
+      if File.file?(extract_dir)
         raise "Output directory is a file"
-      elsif ::File.directory?(extract_dir)
+      elsif File.directory?(extract_dir)
         # Do nothing
       else
         FileUtils.mkdir(extract_dir)
       end
 
-      fname = ::File.basename(filepath)
-      fpath = ::File.join(extract_dir, fname)
+      fname = File.basename(filepath)
+      fpath = File.join(extract_dir, fname)
 
-      raise "File already exists" if ::File.exists?(fpath)
+      raise "File already exists" if File.exists?(fpath)
 
       FileUtils.cp abs_filepath(filepath), fpath
       fpath
@@ -130,14 +130,14 @@ module Epub
 
 
     def exists?(filepath)
-      ::File.exists?(abs_filepath(filepath))
+      File.exists?(abs_filepath(filepath))
     end
 
 
     private
 
       def abs_filepath(filepath)
-        ::File.join(@basepath, filepath)
+        File.join(@basepath, filepath)
       end
   end
 end

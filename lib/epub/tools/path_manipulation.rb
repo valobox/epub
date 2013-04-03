@@ -50,7 +50,7 @@ module Epub
     # @args
     # - list of paths to join and clean
     def clean_path(*args)
-      path = ::File.join(args.to_a.compact)
+      path = File.join(args.to_a.compact)
       Pathname.new(path).cleanpath.to_s
     end
 
@@ -58,13 +58,13 @@ module Epub
     def escape_path(path)
       # Strip anchors incase input is in a url form (as per guide)
       path = strip_anchors(path)
-      filename = ::File.basename(path)
-      folder   = ::File.dirname(path)
+      filename = File.basename(path)
+      folder   = File.dirname(path)
       # avoid turning style.css into ./style.css
       if folder == "."
         URI.escape(unescape_path(filename))
       else
-        ::File.join folder, URI.escape(unescape_path(filename))
+        File.join folder, URI.escape(unescape_path(filename))
       end
     end
 

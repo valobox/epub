@@ -42,6 +42,16 @@ module Epub
     end
 
 
+    # Standardizes the file
+    #
+    # Fix common problems such as:
+    # - url escaping
+    # - namespacing CSS
+    # - use ems for font size not absolute px values
+    # - add missing manifest items
+    # - ensure html has an html and body tag
+    # - remove JavaScript
+    #
     def standardize!
       begin
         # Standardize the urls
@@ -288,9 +298,9 @@ module Epub
       # Gets the type of the file passed to #new
       # @return [Symbol] type of file either [:filesystem, :zip, :nofile]
       def type
-        if ::File.directory?(path)
+        if File.directory?(path)
           return :filesystem
-        elsif ::File.file?(path)
+        elsif File.file?(path)
           return :zip
         else
           return :nofile

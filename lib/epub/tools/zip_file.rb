@@ -9,8 +9,8 @@ module Epub
     def self.unzip(zip_filepath, dirpath)
       Zip::ZipFile.open(zip_filepath) do |zf|
         zf.each do |e| 
-          fpath = ::File.join(dirpath, e.name)
-          FileUtils.mkdir_p ::File.dirname(fpath)
+          fpath = File.join(dirpath, e.name)
+          FileUtils.mkdir_p File.dirname(fpath)
 
           # log "unziping #{e.name} to #{fpath}"
           begin
@@ -217,10 +217,10 @@ module Epub
         # Make sure the dir exists
         FileUtils.mkdir_p extract_dir
 
-        fname = ::File.basename(filepath)
-        fpath = ::File.join(extract_dir, fname)
+        fname = File.basename(filepath)
+        fpath = File.join(extract_dir, fname)
 
-        raise "File already exists" if ::File.exists?(fpath)
+        raise "File already exists" if File.exists?(fpath)
 
         # Extract!
         zip.extract(filepath, fpath)

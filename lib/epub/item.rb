@@ -49,7 +49,7 @@ module Epub
 
     # Boolean of if the file this item represents exists
     def exists?
-      ::File.exists?(abs_filepath)
+      File.exists?(abs_filepath)
     end
 
 
@@ -65,13 +65,13 @@ module Epub
 
     # Returns the filename of the item
     def filename
-      unescape_path ::File.basename(filepath)
+      unescape_path File.basename(filepath)
     end
 
 
     def filename_without_ext
-      ext = ::File.extname(filepath)
-      ::File.basename(filepath, ext)
+      ext = File.extname(filepath)
+      File.basename(filepath, ext)
     end
 
 
@@ -181,12 +181,12 @@ module Epub
 
 
       def file_ext
-        @file_ext_overide || ::File.extname(abs_filepath)
+        @file_ext_overide || File.extname(abs_filepath)
       end
 
 
       def abs_normalized_hashed_path
-        ::File.join(@normalized_dir, hashed_filename)
+        File.join(@normalized_dir, hashed_filename)
       end
 
   end

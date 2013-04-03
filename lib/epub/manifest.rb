@@ -322,8 +322,10 @@ module Epub
           item = item_from_node(node)
 
           # Move the file to flattened location
-          log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
-          epub.file.mv(item.abs_filepath, item.normalized_hashed_path) if File.exists?(item.abs_filepath)
+          if epub.file.exists?(item.abs_filepath)
+            log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
+            epub.file.mv(item.abs_filepath, item.normalized_hashed_path)
+          end
         end
       end
 
