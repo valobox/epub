@@ -119,11 +119,7 @@ module Epub
     def add(path)
       log "Adding item to manifest for path #{abs_path(path)}"
 
-      puts "path: #{path}"
-
       item = item_for_path(path)
-
-      puts "item: #{item.inspect}"
 
       if item
         log "File already in manifest #{abs_path(path)}", :error
