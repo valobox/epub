@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Epub::File do
+describe Epub::Document do
 
   let(:epub_path){ tmp_epub }
-  subject(:epub){ Epub::File.new(tmp_epub) }
+  subject(:epub){ Epub::Document.new(tmp_epub) }
 
   before do
     setup_epub
@@ -23,7 +23,7 @@ describe Epub::File do
     end
 
     it "should normalize the file when extracted", speed: :slow do
-      Epub::File.extract(epub_path) do |epub|
+      Epub::Document.extract(epub_path) do |epub|
         epub.normalize!.should be_true
       end
     end
@@ -31,7 +31,7 @@ describe Epub::File do
     Dir["spec/fixtures/test_files/*.epub"].each do |epub_path|
       it "should normalize the file #{File.basename(epub_path)}", speed: :slow do
         setup_epub(epub_path)
-        Epub::File.extract(tmp_epub) do |epub|
+        Epub::Document.extract(tmp_epub) do |epub|
           epub.normalize!.should be_true
         end
       end
@@ -53,7 +53,7 @@ describe Epub::File do
 
       it "should persist the log" do
         epub.log "fishing!"
-        epub2 = Epub::File.new(tmp_epub)
+        epub2 = Epub::Document.new(tmp_epub)
         epub2.read_log.should =~ /fishing/
       end
 

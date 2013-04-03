@@ -8,6 +8,7 @@ module Epub
       @normalized_dir = "OEBPS/assets"
     end
 
+
     def compress!
       log "compressing image #{filepath}"
     end

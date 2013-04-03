@@ -10,6 +10,7 @@ module Epub
       @normalized_dir = "OEBPS"
     end
 
+
     def standardize
       log "Standardizing css #{@filepath}..."
 
@@ -26,10 +27,12 @@ module Epub
       sass_to_css
     end
 
+
     def standardize!
       standardize
       save
     end
+
 
     def normalize
       log "Normalizing css #{@filepath}..."
@@ -44,14 +47,16 @@ module Epub
       sass_to_css
     end
 
+
     # TODO: Split this up into multiple methods
     # Normalizes the guide by flattening the file paths
     # 
-    # @see Epub::File#normalize!
+    # @see Epub::Document#normalize!
     def normalize!
       normalize
       save
     end
+
 
     # Compress the css
     def compress!
@@ -59,9 +64,11 @@ module Epub
       save
     end
 
+
     def to_s
       css.to_s
     end
+
 
     def escaped_filename
       self.filename_without_ext.gsub(/[^a-zA-Z0-9 -]/, "")
@@ -72,6 +79,7 @@ module Epub
       def css
         @css ||= read
       end
+
 
       def css_to_sass
         begin
@@ -84,6 +92,7 @@ module Epub
         sass
       end
 
+
       # Render CSS
       def sass_to_css
         begin
@@ -95,6 +104,7 @@ module Epub
         css
       end
       
+
       # Adds underscores to all ids and classes
       def prefix_css_selectors(prefix = "_")
         selector_regex = /^\s*?(?!\/\*)+?[^:]*?(?!:\s)([\.#][^,\s]*[:]?[^\s,])$/
@@ -113,6 +123,7 @@ module Epub
 
         sass = new_sass
       end
+
 
       # Convert a css size rule value to ems, the supported formats are:
       # * point (24pt)
@@ -138,6 +149,7 @@ module Epub
           else rule_value
         end
       end
+
 
       # CSS directives must be top levl
       # We namespace the css so these will bork
@@ -203,10 +215,12 @@ module Epub
         self.sass.gsub!(/\n/, "\n  ")
       end
 
+
       # Replace body css rule and add it to the above rule using the sass '&'
       def rename_body
         self.sass.gsub!("  body\n", "  &\n")
       end
+
 
       # Add a wrapper to the sytlesheet so multiple stylesheets with same identifiers don't conflict
       def namespace_by_filename

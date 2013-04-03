@@ -5,6 +5,7 @@ module Epub
 
     attr_accessor :html
 
+
     def initialize(epub, id) 
       super(epub, id)
 
@@ -15,10 +16,12 @@ module Epub
       @file_ext_overide = ".xhtml"
     end
 
+
     def standardize!
       standardize
       save
     end
+
 
     def standardize
       log "Standardizing html #{filepath}..."
@@ -28,15 +31,17 @@ module Epub
       html
     end
 
+
     # Normalizes the html by flattening the file paths, also:
     #  * Removes scripts
     #  * Standardizes the DOM structure
     # 
-    # @see Epub::File#normalize!
+    # @see Epub::Document#normalize!
     def normalize!
       normalize
       save
     end
+
 
     # Process the @DOM
     def normalize
@@ -44,14 +49,17 @@ module Epub
       normalize_links
     end
 
+
     def compress!
       log "compressing html file #{filepath}"
       write( HtmlCompressor::HtmlCompressor.new.compress(read) )
     end
 
+
     def to_s
       html
     end
+
 
     def html
       @html || doc.to_s
@@ -64,10 +72,12 @@ module Epub
         @doc.encoding = 'utf-8'
         @doc
       end
+      
 
       def stylesheet_xpath
         "//link[@rel='stylesheet']"
       end
+      
 
       # Makes sure the DOM is in the following normalized structure
       #

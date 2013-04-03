@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::Guide do
 
-  let(:epub){ Epub::File.new(tmp_epub) }
+  let(:epub){ Epub::Document.new(tmp_epub) }
   subject(:guide){ epub.guide }
 
   before do

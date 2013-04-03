@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::Metadata do
 
-  subject(:epub){ Epub::File.new(tmp_epub) }
+  subject(:epub){ Epub::Document.new(tmp_epub) }
     
   before do
     setup_epub

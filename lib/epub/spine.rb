@@ -51,6 +51,7 @@ module Epub
         '//xmlns:spine'
       end
 
+
       def opf_item_xpath
         '//xmlns:itemref'
       end
@@ -59,6 +60,7 @@ module Epub
       def xmldoc
         @epub.opf_xml.xpath(opf_xpath).first
       end
+
 
       def nodes
         xmldoc.xpath(opf_item_xpath).each do |node|

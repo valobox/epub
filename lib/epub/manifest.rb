@@ -2,12 +2,18 @@ module Epub
   class Manifest < Base
     include PathManipulation
 
-    attr_accessor :xmldoc, :epub
+    attr_accessor :epub
 
     def initialize(epub)
       @epub   = epub
       @xmldoc = get_xmldoc
     end
+
+
+    def xmldoc
+      get_xmldoc
+    end
+
 
     # Pretty display
     def to_s
@@ -24,10 +30,12 @@ module Epub
       standardize_item_contents
     end
 
+
     def normalize!
       log "Normalizing manifest..."
       normalize_item_contents
       normalize_item_location
+      normalize_opf_contents
       normalize_opf_path
     end
 
@@ -38,21 +46,26 @@ module Epub
       items :image, :css, :misc
     end
 
+
     def images
       items :image
     end
+
 
     def html
       items :html
     end
 
+
     def css
       items :css
     end
 
+
     def misc
       items :misc
     end
+
 
     # Retrieve the cover image using the id in the metadata
     def cover_image
@@ -63,6 +76,7 @@ module Epub
         false
       end
     end
+
 
     # Return items in the manifest file
     #
@@ -86,6 +100,7 @@ module Epub
       items
     end
 
+
     # Access item by id, for example `epub.manifest["cover-image"]` will grab the file for
     # the following XML entry
     # 
@@ -102,7 +117,19 @@ module Epub
     # @returns
     #   Epub::Item if the item was added
     def add(path)
-      if @epub.file.exists?(abs_path(path))
+      log "Adding item to manifest for path #{abs_path(path)}"
+
+      puts "path: #{path}"
+
+      item = item_for_path(path)
+
+      puts "item: #{item.inspect}"
+
+      if item
+        log "File already in manifest #{abs_path(path)}", :error
+        nil
+
+      elsif @epub.file.exists?(abs_path(path))
         log "adding #{abs_path(path)} to the manifest..."
         node = Nokogiri::XML::Node.new "item", xmldoc.first
 
@@ -115,6 +142,7 @@ module Epub
         epub.save_opf!(xmldoc, opf_xpath)
 
         item_for_id(id)
+
       else
         log "File not found #{abs_path(path)}", :error
         nil
@@ -161,7 +189,13 @@ module Epub
     # @args
     # - path #=> path to file relative to the OPF root
     def item_for_path(path)
-      item_from_node(node_from_path(path))
+      node = node_from_path(path)
+
+      if node
+        item_from_node(node) 
+      else
+        nil
+      end
     end
 
 
@@ -171,6 +205,7 @@ module Epub
     def item_for_abs_path(path)
       item_for_path rel_path(path)
     end
+
 
     # return the path from the epub root given the path from the OPF
     def abs_path(path_from_opf)
@@ -183,21 +218,26 @@ module Epub
         "OEBPS/content.opf"
       end
 
+
       def opf_xpath
         '//xmlns:manifest'
       end
+
 
       def get_xmldoc
         epub.opf_xml.xpath(opf_xpath, 'xmlns' => 'http://www.idpf.org/2007/opf')
       end
 
+
       def opf_items_xpath
         '//xmlns:item'
       end
 
+
       def xpath_for_id(id)
         "//xmlns:item[@id=\"#{id}\"]"
       end
+
 
       # The directory name of the manifest opf
       def dirname
@@ -207,7 +247,7 @@ module Epub
 
       # Loop through all the manifest nodes yielding a blog each time
       def nodes
-        nodes = xpath_find(opf_items_xpath)
+        nodes = xmldoc.xpath(opf_items_xpath)
         if block_given?
           nodes.each do |node|
             yield(node)
@@ -228,7 +268,7 @@ module Epub
       # @args
       # - id #=> id in the manifest for the node
       def node_from_id(id)
-        xpath_find( xpath_for_id(id) ).first || raise("can't find node for id #{id}")
+        xmldoc.xpath( xpath_for_id(id) ).first
       end
 
 
@@ -239,22 +279,17 @@ module Epub
       # - xml node if present
       # Loop through the nodes rather than use xpath find as need case insensitive matching
       # If we find a way to do case insensitive matching can use nokogiri which might be faster
-      # def node_from_path(path)
-      #   xpath_find("//xmlns:item[@href=\"#{escape_path(path)}\"]").first || raise "can't find node for path #{path}"
-      # end
       def node_from_path(path)
         path = escape_path(path).downcase
 
         nodes do |node|
-          return node if node['href'].downcase == path
+          node_path = escape_path(node['href']).downcase
+          return node if node_path == path
         end
 
-        raise("can't find node for path #{path}")
-      end
+        nil
 
-
-      def xpath_find(xpath)
-        xmldoc.xpath(xpath)
+        # raise("can't find node for path #{path}")
       end
 
 
@@ -262,8 +297,7 @@ module Epub
       def standardize_hrefs
         nodes do |node|
           if node['href']
-            new_href = escape_path( node['href'] )
-            node['href']  = new_href
+            node['href'] = escape_path( node['href'] )
           end
         end
       end
@@ -289,19 +323,26 @@ module Epub
 
           # Move the file to flattened location
           log "moving file from #{item.abs_filepath} to #{item.normalized_hashed_path}"
-          epub.file.mv item.abs_filepath, item.normalized_hashed_path
-
-          # Renames based on asbsolute path from base
-          node['href'] = item.normalized_hashed_path(relative_to: opf_path)
+          epub.file.mv(item.abs_filepath, item.normalized_hashed_path) if File.exists?(item.abs_filepath)
         end
       end
 
 
       def normalize_opf_path
-        epub.save_opf!(xmldoc, opf_xpath)
         epub.file.mv epub.opf_path, opf_path
         epub.opf_path = opf_path
       end
+
+
+      def normalize_opf_contents
+        nodes do |node|
+          item = item_from_node(node)
+          # Renames based on asbsolute path from base
+          node['href'] = item.normalized_hashed_path(relative_to: opf_path)
+        end
+        epub.save_opf!(xmldoc, opf_xpath)
+      end
+
 
       def log(*args)
         @epub.log(args)

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::HTML do
 
-  let(:epub){ Epub::File.new(tmp_epub) }
+  let(:epub){ Epub::Document.new(tmp_epub) }
   let(:cover_html){ epub.manifest.item_for_id("cover") }
   let(:page_html){ epub.manifest.item_for_id("body005") }
   let(:copyright_html){ epub.manifest.item_for_id("body004") }

@@ -16,6 +16,7 @@ module Epub
       TocElement.as_hash elements
     end
 
+
     # replaces all the urls with escaped urls
     def standardize
       log "standardizing NCX XML"
@@ -30,6 +31,7 @@ module Epub
         element.standardize_url!
       end
     end
+
 
     # standardizes and saves the toc to the epub
     def standardize!
@@ -51,7 +53,7 @@ module Epub
 
     # Normalizes the toc by flattening the file paths
     # 
-    # @see Epub::File#normalize!
+    # @see Epub::Document#normalize!
     def normalize!
       normalize
       save
@@ -68,6 +70,7 @@ module Epub
     def xml
       xmldoc.to_s
     end
+
 
     def elements(elements = nil, &block)
       elements ||= TocElement.build(self, navmap_elements)
@@ -87,20 +90,24 @@ module Epub
         @xmldoc ||= read_xml
       end
 
+
       # Read the navmap items
       def navmap_elements
         xmldoc.xpath(items_xpath)
       end
+
 
       def items_xpath
         # '//xmlns:navMap/xmlns:navPoint'
         '//navMap/navPoint'
       end
 
+
       def child_xpath
         # 'xmlns:navPoint'
         'navPoint'
       end 
+
 
       # recurse over the navmap nodes yielding one at a time
       def nodes(master = navmap_elements)

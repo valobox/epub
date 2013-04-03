@@ -5,6 +5,7 @@ module Epub
 
     attr_accessor :src
 
+
     def initialize(epub, item, line, directive_indent = 0)
       @epub = epub
       @item = item
@@ -12,21 +13,26 @@ module Epub
       @directive_indent = directive_indent
     end
 
+
     def indent
       @line.sub(/^(\s*).*$/, "\\1").size.to_i
     end
+
 
     def is_css_directive?
       @line.to_s =~ /^\s*@/
     end
 
+
     def inside_css_directive?
       @line && @directive_indent > 0 && indent > @directive_indent
     end
 
+
     def has_path?
       @line =~ /url\(.*\)/
     end
+
 
     def normalize_paths
       # Split it up into its parts
@@ -56,21 +62,26 @@ module Epub
       end
     end
 
+
     def src
       @src || ""
     end
+
 
     def to_s
       @line
     end
 
+
     def linked_item
       @item.get_item(clean_src)
     end
 
+
     def missing_item?
       !is_external_link? && !blank_link? && !linked_item
     end
+
 
     private
 
@@ -78,9 +89,11 @@ module Epub
         strip_anchors src.gsub(" ", "%20")
       end
 
+
       def is_external_link?
         external_link?(clean_src)
       end
+
 
       def blank_link?
         clean_src.to_s == ""

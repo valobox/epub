@@ -31,7 +31,7 @@ require 'epub/tools/zip_file'
 
 # Epub
 require 'epub/base'
-require 'epub/file'
+require 'epub/document'
 require 'epub/guide'
 require 'epub/manifest'
 require 'epub/metadata'

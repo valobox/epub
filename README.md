@@ -9,7 +9,7 @@ Library to access and modify the contents of an Epub
 
 Initialize with the path to an epub file, note any setters will edit the epub itself, so work on a copy if you don't want to modify the original
 
-    epub = Epub::File.new("9781449315306.epub")
+    epub = Epub::Document.new("9781449315306.epub")
 
 
 ### Structure
@@ -202,12 +202,12 @@ Calling `compress!` will minify all the *css* and *html* items in the epub and c
 
 If you want to extract an epub, for instance to serve the content up via a web interface you can to the following
 
-    Epub::File.extract('example.epub', '/some/directory/path')
+    Epub::Document.extract('example.epub', '/some/directory/path')
 
 
-You can also pass a block which will re-zip the epub when the block exits. The block gets passed a <#Epub::File> instance as an argument
+You can also pass a block which will re-zip the epub when the block exits. The block gets passed a <#Epub::Document> instance as an argument
 
-    Epub::File.extract('example.epub') do |epub| 
+    Epub::Document.extract('example.epub') do |epub| 
         # Do some epub processing here...
     end
 

@@ -1,8 +1,9 @@
 module Epub
-  class File < Base
+  class Document < Base
 
     # @private
     attr_accessor :file, :path, :opf_xml
+
 
     # @param [String] path to an epub file, path can be either:
     #   * Directory of an extracted Epub
@@ -22,11 +23,11 @@ module Epub
     # @overload extract(filepath)
     #   Unzips an Epub and Rezips it after the block exits
     #   @param [String] path to the Epub
-    #   @yield [Epub::File, epub_filepath] 
+    #   @yield [Epub::Document, epub_filepath] 
     # @overload extract(filepath, extract_path)
     #   @param [String] path to the Epub
     #   @param [String] directory path to extract to
-    def self.extract(filepath, extract_path=nil)
+    def self.extract(filepath, extract_path = nil)
       if block_given?
         Dir.mktmpdir do |outdir|
           ZipFile.unzip(filepath, outdir)
@@ -38,6 +39,21 @@ module Epub
       else
         raise "Incorrect arguments given"
       end
+    end
+
+
+    def standardize!
+      begin
+        # Standardize the urls
+        toc.standardize!
+        guide.standardize!
+        manifest.standardize!
+
+      rescue => ex
+        log "failed to standardize\n #{ex.to_s}"
+        raise ex
+      end
+      
     end
 
 
@@ -87,10 +103,8 @@ module Epub
       begin
         create_base_directories!
 
-        # Standardize the urls
-        toc.standardize!
-        guide.standardize!
-        manifest.standardize!
+        # Ensure all files are properly formatted
+        standardize!
 
         # normalize the files
         toc.normalize!
@@ -126,11 +140,13 @@ module Epub
       @manifest ||= Manifest.new self
     end
 
+
     # Epub metadata accessor
     # @return [Epub::Metadata]
     def metadata
       @metadata ||= Metadata.new self
     end
+
 
     # Epub guide accessor
     # @return [Epub::Guide]
@@ -138,11 +154,13 @@ module Epub
       @guide ||= Guide.new self
     end
 
+
     # Epub spine accessor
     # @return [Epub::Spine]
     def spine
       @spine ||= Spine.new self
     end
+
 
     # Epub toc accessor
     # @return [Epub::Toc]
@@ -150,14 +168,13 @@ module Epub
       spine.toc
     end
 
+
     # Save a partial opf
     def save_opf!(doc_partial, xpath)
       log "saving updated opf"
 
-      doc = opf_xml
-
       # Find where we're inseting into
-      node = doc.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
+      node = opf_xml.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
 
       if node
         # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
@@ -165,12 +182,12 @@ module Epub
         # prefix
         doc_partial = Nokogiri::XML(doc_partial.to_s)
         node.replace(doc_partial.root)
-        
-        data = doc.to_s
+
+        data = opf_xml.to_s
 
         file.write(opf_path, data)
 
-        @opf_xml = doc
+        opf_xml
       end
 
     end
@@ -213,6 +230,7 @@ module Epub
       ret
     end
 
+
     # Add a line to the log file
     # @return boolean of write success
     def log(str, level = :log)
@@ -242,15 +260,18 @@ module Epub
         "log.txt"
       end
 
+
       def log_present?
         @file.exists?(log_path)
       end
+
 
       def initialize_log
         unless log_present?
           @file.write(log_path, "")
         end
       end
+
 
       def build_file
         case type
@@ -325,6 +346,7 @@ module Epub
       def report_error(str)
         @errors << str
       end
+
 
       def report
         {

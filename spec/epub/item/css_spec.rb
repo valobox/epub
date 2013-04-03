@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::CSS do
 
-  let(:epub){ Epub::File.new(tmp_epub) }
+  let(:epub){ Epub::Document.new(tmp_epub) }
   let(:css){ epub.manifest.css.first }
 
   before do

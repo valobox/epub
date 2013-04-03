@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::Item do
 
-  let(:epub){ Epub::File.new(tmp_epub) }
+  let(:epub){ Epub::Document.new(tmp_epub) }
   let(:item){ epub.spine.items.first }
 
   before do

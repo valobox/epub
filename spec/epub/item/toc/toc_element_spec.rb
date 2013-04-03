@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Epub::TocElement do
 
-  let(:epub){ Epub::File.new(tmp_epub) }
+  let(:epub){ Epub::Document.new(tmp_epub) }
   let(:toc){epub.toc}
 
   let(:xml){ '<navPoint id="navpoint-1" playOrder="1"><navLabel><text>Cover</text></navLabel><content src="html/01_cover.html"/></navPoint>' }

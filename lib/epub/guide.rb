@@ -2,7 +2,7 @@ module Epub
   class Guide < Base
     include PathManipulation
 
-    # @param [Epub::File]
+    # @param [Epub::Document]
     def initialize(epub)
       @epub = epub
     end
@@ -17,7 +17,7 @@ module Epub
 
     # Normalizes the guide by flattening the file paths
     # 
-    # @see Epub::File#normalize!
+    # @see Epub::Document#normalize!
     def normalize!
       normalize
       save

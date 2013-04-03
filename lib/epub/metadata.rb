@@ -73,12 +73,14 @@ module Epub
         '//xmlns:metadata'
       end
 
+
       def xml_ns
         {
           'xmlns' => 'http://www.idpf.org/2007/opf',
           'dc'    => "http://purl.org/dc/elements/1.1/"
         }
       end
+
 
       def xml_def
         {
@@ -131,6 +133,7 @@ module Epub
         end
       end
 
+
       def date(str)
         date_arr = str.split("-") if str.length
 
@@ -144,6 +147,7 @@ module Epub
       rescue
         nil
       end
+
 
       def sanitize(str)
         if str

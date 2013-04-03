@@ -59,30 +59,37 @@ module Epub
       @node['id']
     end
 
+
     def id=(id)
       @node['id'] = id.to_s.strip
     end
+
 
     def label
       label_node.content
     end
 
+
     def label=(label)
       label_node.content = label.strip
     end
+
 
     def src
       content_node['src']
     end
 
+
     def src=(src)
       content_node['src'] = src
     end
+
 
     # present the url escaped src
     def url
       escape_url src
     end
+
 
     def play_order
       if @node['playOrder']
@@ -92,9 +99,11 @@ module Epub
       end
     end
 
+
     def play_order=(play_order)
       @node['playOrder'] = play_order.to_s
     end
+
 
     def path
       URI(url).path
@@ -108,9 +117,11 @@ module Epub
       self.src = escape_url(src)
     end
 
+
     def normalize_url!(options = {})
       self.src = normalize_url(options).to_s
     end
+
 
     def to_hash
       {
@@ -121,6 +132,7 @@ module Epub
         children: []
       }
     end
+
 
     def child_nodes
       @node.xpath(child_xpath)
@@ -133,28 +145,34 @@ module Epub
         'navPoint'
       end
 
+
       def item_text_xpath
         # 'xmlns:navLabel/xmlns:text'
         'navLabel/text'
       end
+
 
       def item_file_xpath
         # 'xmlns:content'
         'content'
       end
 
+
       # TODO - look at decoupling item
       def item
         @item ||= @toc.get_item(path.to_s)
       end
 
+
       def content_node
         @node.xpath(item_file_xpath).first
       end
 
+
       def label_node
         @node.xpath(item_text_xpath).first
       end
+
 
       # Create a normalized url of an item including the anchor
       def normalize_url(options = {})
