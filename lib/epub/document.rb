@@ -1,5 +1,5 @@
 module Epub
-  class Document < Base
+  class Document
 
     # @private
     attr_accessor :file, :path, :opf_xml

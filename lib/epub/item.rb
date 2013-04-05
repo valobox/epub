@@ -1,6 +1,6 @@
 module Epub
   # An item inside the <Epub::Manifest>
-  class Item < Base
+  class Item < Opf
 
     include PathManipulation
 
@@ -12,7 +12,7 @@ module Epub
     #     Item.new(epub, "cover-image")
     #
     def initialize(epub, id)
-      super
+      @epub = epub
       @id   = id
       @type = :misc
       @normalized_dir = "OEBPS/assets"

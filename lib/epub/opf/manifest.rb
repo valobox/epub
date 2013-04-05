@@ -1,5 +1,5 @@
 module Epub
-  class Manifest < Base
+  class Manifest < Opf
     include PathManipulation
 
     def initialize(epub)

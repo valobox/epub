@@ -1,5 +1,5 @@
 module Epub
-  class Guide < Base
+  class Guide < Opf
     include PathManipulation
 
     # @param [Epub::Document]

@@ -1,5 +1,5 @@
 module Epub
-  class Metadata < Base
+  class Metadata < Opf
     include XML
 
     # Setter

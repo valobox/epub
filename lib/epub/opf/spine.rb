@@ -1,5 +1,5 @@
 module Epub
-  class Spine < Base
+  class Spine < Opf
 
 
     def items

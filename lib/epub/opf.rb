@@ -1,5 +1,5 @@
 module Epub
-  class Base
+  class Opf
 
   	attr_accessor :xmldoc, :epub
 
