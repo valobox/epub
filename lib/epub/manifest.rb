@@ -2,15 +2,10 @@ module Epub
   class Manifest < Base
     include PathManipulation
 
-    attr_accessor :epub
-
     def initialize(epub)
-      @epub   = epub
-      @xmldoc = get_xmldoc
-    end
+      super
 
-
-    def xmldoc
+      # Cache the xmldoc for performance
       get_xmldoc
     end
 
@@ -135,7 +130,7 @@ module Epub
         node['media-type'] = MIME::Types.type_for(path).first
 
         xmldoc.first.add_child(node)
-        epub.save_opf!(xmldoc, opf_xpath)
+        save
 
         item_for_id(id)
 
@@ -210,6 +205,10 @@ module Epub
 
     private
 
+      ##############
+      # OPF 
+      ##############
+
       def opf_path
         "OEBPS/content.opf"
       end
@@ -217,11 +216,6 @@ module Epub
 
       def opf_xpath
         '//xmlns:manifest'
-      end
-
-
-      def get_xmldoc
-        epub.opf_xml.xpath(opf_xpath, 'xmlns' => 'http://www.idpf.org/2007/opf')
       end
 
 
@@ -235,11 +229,9 @@ module Epub
       end
 
 
-      # The directory name of the manifest opf
-      def dirname
-        epub.opf_dirname
+      def get_xmldoc
+        @xmldoc = epub.opf_xml.xpath(opf_xpath, 'xmlns' => 'http://www.idpf.org/2007/opf')
       end
-
 
       # Loop through all the manifest nodes yielding a blog each time
       def nodes
@@ -286,6 +278,16 @@ module Epub
         nil
 
         # raise("can't find node for path #{path}")
+      end
+
+
+      ###############
+      # Manipulation
+      ###############
+
+      # The directory name of the manifest opf
+      def dirname
+        epub.opf_dirname
       end
 
 
@@ -338,7 +340,7 @@ module Epub
           # Renames based on asbsolute path from base
           node['href'] = item.normalized_hashed_path(relative_to: opf_path)
         end
-        epub.save_opf!(xmldoc, opf_xpath)
+        save
       end
 
 

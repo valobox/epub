@@ -1,10 +1,6 @@
 module Epub
   class Spine < Base
 
-    def initialize(epub)
-      @epub = epub
-    end
-
 
     def items
       manifest = @epub.manifest
@@ -39,9 +35,8 @@ module Epub
       node = Nokogiri::XML::Node.new "itemref", xmldoc
       node['idref'] = "test"
 
-      doc = xmldoc
-      doc.add_child(node)
-      @epub.save_opf!(doc, opf_xpath)
+      xmldoc.add_child(node)
+      save
     end
 
 

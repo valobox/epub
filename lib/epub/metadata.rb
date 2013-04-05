@@ -2,14 +2,6 @@ module Epub
   class Metadata < Base
     include XML
 
-    attr_accessor :epub
-
-
-    def initialize(epub)
-      @epub = epub
-    end
-
-
     # Setter
     def []=(key, value)
       doc = xmldoc

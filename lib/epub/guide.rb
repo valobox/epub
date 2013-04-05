@@ -4,7 +4,7 @@ module Epub
 
     # @param [Epub::Document]
     def initialize(epub)
-      @epub = epub
+      super
     end
 
 
@@ -36,12 +36,6 @@ module Epub
 
       normalize_paths
       to_s
-    end
-
-
-    # Saves the contents of the guide to the OPF
-    def save
-      @epub.save_opf!(xmldoc, opf_xpath)
     end
 
 

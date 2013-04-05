@@ -12,7 +12,7 @@ module Epub
     #     Item.new(epub, "cover-image")
     #
     def initialize(epub, id)
-      @epub = epub
+      super
       @id   = id
       @type = :misc
       @normalized_dir = "OEBPS/assets"
