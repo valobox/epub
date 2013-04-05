@@ -2,12 +2,6 @@ module Epub
   class Guide < Opf
     include PathManipulation
 
-    # @param [Epub::Document]
-    def initialize(epub)
-      super
-    end
-
-
     def standardize!
       entries do |node|
         node['href'] = escape_url(node['href'])

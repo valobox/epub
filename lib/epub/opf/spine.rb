@@ -1,7 +1,6 @@
 module Epub
   class Spine < Opf
 
-
     def items
       manifest = @epub.manifest
       items = []
