@@ -129,18 +129,6 @@ module Epub
         log "failed to normalize\n #{ex.to_s}"
         raise ex
       end
-
-
-    end
-
-
-    # Compresses/minifies the epub
-    # @param [Array] filter of what to compress @see Epub::Manifest.items for
-    #                filter options
-    def compress!(*filter)
-      manifest.items(*filter).each do |item|
-        item.compress!
-      end
     end
 
 

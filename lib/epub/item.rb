@@ -147,10 +147,6 @@ module Epub
     def normalize!; end
 
 
-    # Compress item data, _overidden by subclasses_
-    def compress!; end
-
-
     def create_manifest_entry(href)
       @epub.manifest.add( abs_path_to_file(href) )
     end

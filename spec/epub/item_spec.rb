@@ -75,9 +75,6 @@ describe Epub::Item do
 
   end
 
-  describe "compress!" do
-  end
-
   describe "create_manifest_entry(href)" do
     it "should create a manifest entry from an href" do
       epub.manifest.should_receive(:add).with("html/peter.html")

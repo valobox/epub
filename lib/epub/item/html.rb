@@ -50,12 +50,6 @@ module Epub
     end
 
 
-    def compress!
-      log "compressing html file #{filepath}"
-      write( HtmlCompressor::HtmlCompressor.new.compress(read) )
-    end
-
-
     def to_s
       html
     end

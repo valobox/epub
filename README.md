@@ -192,12 +192,6 @@ Will be normalized into the following format, note the file names get renamed to
                 |-- b50b4b.jpg (was image.jpg)
 
 
-### Compressing
-
-TODO: Compress the images
-Calling `compress!` will minify all the *css* and *html* items in the epub and compress the images (**IMAGES NOT YET WORKING**). Note the image compression does not reduce quality
-
-
 ## Extracting
 
 If you want to extract an epub, for instance to serve the content up via a web interface you can to the following

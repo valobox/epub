@@ -27,8 +27,6 @@ Gem::Specification.new do |s|
   s.add_dependency "nokogiri"
   s.add_dependency "sanitize"
   s.add_dependency "fastimage"
-  s.add_dependency "yui-compressor"
-  s.add_dependency "html_compressor"
   s.add_dependency "ruby-filemagic"
   s.add_dependency "activesupport"
 

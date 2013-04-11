@@ -58,13 +58,6 @@ module Epub
     end
 
 
-    # Compress the css
-    def compress!
-      css = YUI::CssCompressor.new.compress(css)
-      save
-    end
-
-
     def to_s
       css.to_s
     end
@@ -227,7 +220,6 @@ module Epub
         rename_body
         indent_sass
         self.sass = ".epub_#{escaped_filename}\n  #{sass}"
-
 
         # remove the @char style css directives (can't be indented)
         move_css_directives

@@ -16,8 +16,6 @@ require 'mime/types'
 require 'digest/md5'
 require 'pathname'
 require 'date'
-require 'html_compressor'
-require "yui/compressor"
 require "sass"
 require 'sass/css'
 require 'tempfile'
