@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.name        = "epub"
   s.version     = Epub::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Orange Mug"]
-  #s.email       = ["example@example.com"]
+  s.authors     = ["Oliver Brooks","Orange Mug"]
+  s.email       = ["oli@valobox.com.com"]
   s.homepage    = "http://github.com/completelynovel/epub"
   s.summary     = "Access and modify the contents of an EPUB"
   s.description = "Access and modify the contents of an EPUB"
@@ -26,7 +26,6 @@ Gem::Specification.new do |s|
   s.add_dependency "sass"
   s.add_dependency "nokogiri"
   s.add_dependency "sanitize"
-  s.add_dependency "fastimage"
   s.add_dependency "ruby-filemagic"
   s.add_dependency "activesupport"
 

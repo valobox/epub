@@ -138,8 +138,10 @@ module Epub
       def stylesheet_filenames
         css_classes = doc.css("link[@type='text/css']").collect do |css_node|
           css = get_item(css_node['href'])
-          "epub_#{css.escaped_filename}"
-        end
+          if css
+            "epub_#{css.escaped_filename}"
+          end
+        end.compact
       end
 
 
