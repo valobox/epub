@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "yard"
 
-  s.add_dependency "rubyzip"
+  s.add_dependency "rubyzip", '< 1.0.0'
   s.add_dependency "mime-types"
   s.add_dependency "sass"
   s.add_dependency "nokogiri"
