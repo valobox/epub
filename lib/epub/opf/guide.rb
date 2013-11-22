@@ -64,19 +64,15 @@ module Epub
         @epub.opf_xml.xpath(opf_xpath)
       end
 
-      def base_dirname
-        @epub.opf_dirname
-      end
-
       def normalize_paths
         entries do |node|
-          url = node['href']
-          path = escape_path(url)
+          href = node['href']
+          path = escape_path(href)
           item = @epub.manifest.item_for_path(path)
 
-          new_href = item.normalized_hashed_path(relative_to: base_dirname)
+          new_href = item.normalized_hashed_path(relative_to: @epub.opf_path)
 
-          node['href'] = add_anchor_to_url(new_href, get_anchor(url))
+          node['href'] = add_anchor_to_url(new_href, get_anchor(href))
         end
         
       end
