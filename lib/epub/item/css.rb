@@ -78,6 +78,7 @@ module Epub
         begin
           self.sass = Sass::CSS.new(css).render(:sass)
         rescue => ex
+          puts "failed to convert css to sass #{ex}"
           log "Broken CSS file: #{filename} #{ex}", :error
 
           self.sass = ""
@@ -91,8 +92,9 @@ module Epub
         begin
           self.css = Sass::Engine.new(sass).render
         rescue => ex
-          log "Broken CSS file: #{filename} #{ex}", :error
-          log ex
+          puts "failed to convert sass to css #{ex}"
+          log "Broken SASS file: #{filename} #{ex}", :error
+          self.css = ""
         end
         css
       end
@@ -144,38 +146,6 @@ module Epub
       end
 
 
-      # CSS directives must be top levl
-      # We namespace the css so these will bork
-      # So loop through identifying directives and remove them an anything indented inside
-      def move_css_directives
-        css_directives = ""
-        new_sass = ""
-        directive_indent = 0
-
-        # Go through the lines rewriting paths as appropriate
-        sass.each_line do |line|
-          sass_line = SassLine.new(@epub, self, line.to_s, directive_indent)
-
-          if sass_line.inside_css_directive?
-            css_directives += (" " * directive_indent + sass_line.to_s.strip + "\n")
-            next
-          elsif sass_line.is_css_directive?
-            css_directives += "#{sass_line.to_s.strip}\n"
-            directive_indent = sass_line.indent
-          else
-            directive_indent = 0
-            new_sass += "#{sass_line.to_s}\n"
-          end
-
-          if sass_line.missing_item?
-            create_manifest_entry(sass_line.old_src)
-          end
-        end
-
-        self.sass = "#{css_directives}\n\n#{new_sass}"
-      end
-
-
       # rewrite internal paths to normalized paths
       def normalize_paths
         new_sass = ""
@@ -205,13 +175,56 @@ module Epub
 
       # Indent all lines with two spaces
       def indent_sass
-        self.sass.gsub!(/\n/, "\n  ")
+        puts "indenting sass"
+        self.sass.gsub!(/^/, "  ")
       end
 
 
       # Replace body css rule and add it to the above rule using the sass '&'
       def rename_body
-        self.sass.gsub!(/(\s*)body\n/, "\n#{$1}&\n")
+        puts "renaming sass body element"
+        self.sass.gsub!(/^(\s*)body\n/, "\n#{$1}&\n")
+      end
+
+      def namespace_sass
+        puts "namespacing sass #{escaped_filename}"
+        self.sass = ".epub_#{escaped_filename}\n  #{sass}"
+      end
+
+
+      # CSS directives must be top levl
+      # We namespace the css so these will bork
+      # So loop through identifying directives and remove them an anything indented inside
+      def move_css_directives
+        puts "moving css directives to top of file"
+        css_directives = ""
+        new_sass = ""
+        directive_indent = 0
+
+        # Go through the lines rewriting paths as appropriate
+        sass.each_line do |line|
+          sass_line = SassLine.new(@epub, self, line.to_s, directive_indent)
+
+          if sass_line.inside_css_directive?
+            # NOTE: Want to indent by the line indent relative to the directive
+            css_directives += (" " * (sass_line.indent - directive_indent) + sass_line.to_s.strip + "\n")
+            next
+          elsif sass_line.is_css_directive?
+            # NOTE: Strip whitespace as want directives at the root of the line
+            css_directives += "#{sass_line.to_s.strip}\n"
+            # NOTE: The indent is the whitespace from the start of the line to the directive
+            directive_indent = sass_line.indent
+          else
+            directive_indent = 0
+            new_sass += "#{sass_line.to_s}\n"
+          end
+
+          if sass_line.missing_item?
+            create_manifest_entry(sass_line.old_src)
+          end
+        end
+
+        self.sass = "#{css_directives}\n\n#{new_sass}"
       end
 
 
@@ -219,10 +232,11 @@ module Epub
       def namespace_by_filename
         rename_body
         indent_sass
-        self.sass = ".epub_#{escaped_filename}\n  #{sass}"
+        namespace_sass
 
         # remove the @char style css directives (can't be indented)
         move_css_directives
+        puts sass
       end
 
   end
