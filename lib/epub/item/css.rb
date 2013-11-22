@@ -211,7 +211,7 @@ module Epub
 
       # Replace body css rule and add it to the above rule using the sass '&'
       def rename_body
-        self.sass.gsub!("  body\n", "  &\n")
+        self.sass.gsub!(/(\s*)body\n/, "\n#{$1}&\n")
       end
 
 

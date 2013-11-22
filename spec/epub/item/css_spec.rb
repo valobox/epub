@@ -16,7 +16,7 @@ describe Epub::CSS do
   describe "standardize" do
     it "should move the css directives to the top of the file" do
       css.standardize
-      css.to_s.should_not =~ /\s+@/
+      css.to_s.should =~ /^@font-face/
     end
 
     it "should convert the font sizes" do
@@ -26,7 +26,7 @@ describe Epub::CSS do
     end
 
     it "should namespace the styles by the stylesheet filename" do
-      css.standardize.should =~ /\.epub_emerald \.textafterhead2/
+      css.standardize.should =~ /^\.epub_emerald h1\.chapnum/
     end
 
   end
