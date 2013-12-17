@@ -18,12 +18,12 @@ module Epub
         node.content = value
       else
         # Node doesn't exist create it
-        node = Nokogiri::XML::Node.new "dc:title", doc
+        node = Nokogiri::XML::Node.new "dc:#{key}", doc
         node.content = value
         doc.add_child(node)
       end
 
-      epub.save_opf!(doc, opf_xpath)
+      save
     end
 
 

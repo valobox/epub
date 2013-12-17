@@ -25,6 +25,7 @@ module Epub
       #         - Should detect the double namespace and use different xpaths
       #
       self.write xmldoc.remove_namespaces!
+      xmldoc.add_namespace nil, "http://www.daisy.org/z3986/2005/ncx/"
 
       log "standardizing NCX urls"
       elements do |element|

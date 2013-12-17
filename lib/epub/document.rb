@@ -168,26 +168,10 @@ module Epub
 
 
     # Save a partial opf
-    def save_opf!(doc_partial, xpath)
-      log "saving updated opf"
+    def save_opf!
+      file.write(opf_path, opf_xml.to_s)
 
-      # Find where we're inseting into
-      node = opf_xml.xpath(xpath, 'xmlns' => 'http://www.idpf.org/2007/opf').first
-
-      if node
-        # Because of <https://github.com/tenderlove/nokogiri/issues/391> we
-        # create the new doc before we insert, else we get a default namespace
-        # prefix
-        doc_partial = Nokogiri::XML(doc_partial.to_s)
-        node.replace(doc_partial.root)
-
-        data = opf_xml.to_s
-
-        file.write(opf_path, data)
-
-        opf_xml
-      end
-
+      opf_xml
     end
 
 

@@ -8,7 +8,7 @@ module Epub
   	end
 
   	def save
-      epub.save_opf!(xmldoc, opf_xpath)
+      epub.save_opf!
       get_xmldoc
   	end
 
